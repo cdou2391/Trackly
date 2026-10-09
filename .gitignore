@@ -28,3 +28,9 @@ ios/Flutter/flutter_export_environment.sh
 
 # Local env / secrets
 .env*
+
+# Local build config and Firebase files (never commit)
+config/local.json
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart

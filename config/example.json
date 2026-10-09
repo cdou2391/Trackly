@@ -1,0 +1,5 @@
+{
+  "SENTRY_DSN": "",
+  "SENTRY_ENVIRONMENT": "development",
+  "FIREBASE_ANALYTICS_ENABLED": "false"
+}
