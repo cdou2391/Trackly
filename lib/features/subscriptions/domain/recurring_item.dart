@@ -25,12 +25,9 @@ class RecurringItem {
     this.logoKey,
     required this.createdAt,
     required this.updatedAt,
-  })  : assert(interval >= 1, 'interval must be at least 1'),
-        assert(amount >= 0, 'amount must not be negative'),
-        assert(
-          !isTrial || trialEndDate != null,
-          'a trial needs a trialEndDate',
-        );
+  }) : assert(interval >= 1, 'interval must be at least 1'),
+       assert(amount >= 0, 'amount must not be negative'),
+       assert(!isTrial || trialEndDate != null, 'a trial needs a trialEndDate');
 
   final String id;
   final String name;

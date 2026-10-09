@@ -70,5 +70,23 @@
   "paidOn": "Paid {date}",
   "@paidOn": { "placeholders": { "date": { "type": "String" } } },
   "pillPaused": "Paused",
-  "pillTrial": "Trial"
+  "pillTrial": "Trial",
+
+  "addPanelClose": "Close",
+  "addNameHint": "Search a service or type a name",
+  "addTypeSubscription": "Subscription",
+  "addTypeBill": "Bill",
+  "addCurrency": "Currency",
+  "addSectionBilling": "Billing",
+  "addSectionReminder": "Reminder",
+  "addRemindMe": "Remind me",
+  "reminderSameDay": "Same day",
+  "reminderDaysBefore": "{count, plural, =1{1 day before} other{{count} days before}}",
+  "@reminderDaysBefore": { "placeholders": { "count": { "type": "int" } } },
+  "addMoreDetails": "More details",
+  "addCategory": "Category",
+  "addCategoryNone": "None",
+  "addTrialSwitch": "This is a free trial",
+  "addTrialEnds": "Trial ends",
+  "addNotes": "Notes"
 }

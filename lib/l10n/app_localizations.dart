@@ -387,6 +387,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trial'**
   String get pillTrial;
+
+  /// No description provided for @addPanelClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get addPanelClose;
+
+  /// No description provided for @addNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a service or type a name'**
+  String get addNameHint;
+
+  /// No description provided for @addTypeSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get addTypeSubscription;
+
+  /// No description provided for @addTypeBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get addTypeBill;
+
+  /// No description provided for @addCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get addCurrency;
+
+  /// No description provided for @addSectionBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get addSectionBilling;
+
+  /// No description provided for @addSectionReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get addSectionReminder;
+
+  /// No description provided for @addRemindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get addRemindMe;
+
+  /// No description provided for @reminderSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Same day'**
+  String get reminderSameDay;
+
+  /// No description provided for @reminderDaysBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day before} other{{count} days before}}'**
+  String reminderDaysBefore(int count);
+
+  /// No description provided for @addMoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get addMoreDetails;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get addCategory;
+
+  /// No description provided for @addCategoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get addCategoryNone;
+
+  /// No description provided for @addTrialSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a free trial'**
+  String get addTrialSwitch;
+
+  /// No description provided for @addTrialEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ends'**
+  String get addTrialEnds;
+
+  /// No description provided for @addNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get addNotes;
 }
 
 class _AppLocalizationsDelegate

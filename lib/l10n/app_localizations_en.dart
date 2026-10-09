@@ -178,4 +178,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pillTrial => 'Trial';
+
+  @override
+  String get addPanelClose => 'Close';
+
+  @override
+  String get addNameHint => 'Search a service or type a name';
+
+  @override
+  String get addTypeSubscription => 'Subscription';
+
+  @override
+  String get addTypeBill => 'Bill';
+
+  @override
+  String get addCurrency => 'Currency';
+
+  @override
+  String get addSectionBilling => 'Billing';
+
+  @override
+  String get addSectionReminder => 'Reminder';
+
+  @override
+  String get addRemindMe => 'Remind me';
+
+  @override
+  String get reminderSameDay => 'Same day';
+
+  @override
+  String reminderDaysBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days before',
+      one: '1 day before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addMoreDetails => 'More details';
+
+  @override
+  String get addCategory => 'Category';
+
+  @override
+  String get addCategoryNone => 'None';
+
+  @override
+  String get addTrialSwitch => 'This is a free trial';
+
+  @override
+  String get addTrialEnds => 'Trial ends';
+
+  @override
+  String get addNotes => 'Notes';
 }

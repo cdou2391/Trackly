@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/analytics_events.dart';
 import '../../../../core/analytics/analytics_service.dart';
-import '../../../../core/database/app_database.dart';
-import '../../../../core/error/error_reporter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../core/utils/recurrence_utils.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../shared/widgets/form_metrics.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../home/widgets/curves.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../domain/recurring_enums.dart';
-import '../../domain/recurring_item.dart';
 import '../../domain/service_catalog.dart';
+import '../../application/subscription_creator.dart';
 import '../labels.dart';
 
 /// Frequencies offered inline; the rest live in the full add form.
@@ -59,7 +57,9 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
   DateTime get _effectiveStart => _startDate ?? _today;
 
   double? get _amount {
-    final value = double.tryParse(_amountController.text.trim().replaceAll(',', '.'));
+    final value = double.tryParse(
+      _amountController.text.trim().replaceAll(',', '.'),
+    );
     return value != null && value > 0 ? value : null;
   }
 
@@ -119,51 +119,24 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
 
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final now = ref.read(nowProvider)();
-    final start = _effectiveStart;
-    final currency = ref.read(defaultCurrencyProvider);
     final service = _selectedService;
 
-    final item = RecurringItem(
-      id: const Uuid().v4(),
-      name: _nameController.text.trim(),
-      type: RecurringItemType.subscription,
-      amount: amount,
-      currencyCode: currency,
-      frequency: _frequency,
-      startDate: start,
-      nextDueDate: firstDueDate(
-        startDate: start,
-        frequency: _frequency,
-        today: now,
-      ),
-      categoryId: service?.categoryId,
-      logoKey: service?.key,
-      createdAt: now,
-      updatedAt: now,
-    );
-
     setState(() => _saving = true);
-    final errorReporter = ref.read(errorReporterProvider);
-    final analytics = ref.read(analyticsProvider);
     try {
-      errorReporter.addBreadcrumb('quick_add_save_started', category: 'ui');
-      await ref.read(appDatabaseProvider).recurringItemsDao.insertItem(item);
-
-      // Names and notes are never sent; only metadata.
-      final parameters = <String, Object>{
-        'item_type': item.type.name,
-        'frequency': item.frequency.name,
-        'currency': item.currencyCode,
-        'has_reminder': item.remindersEnabled,
-        'is_trial': item.isTrial,
-        'entry_method': 'quick_add',
-      };
-      analytics.logEvent(AnalyticsEvents.quickAddCompleted);
-      analytics.logEvent(
-        AnalyticsEvents.subscriptionCreated,
-        parameters: parameters,
-      );
+      final item = await ref
+          .read(subscriptionCreatorProvider)
+          .create(
+            NewSubscription(
+              name: _nameController.text,
+              amount: amount,
+              currencyCode: ref.read(defaultCurrencyProvider),
+              frequency: _frequency,
+              startDate: _effectiveStart,
+              categoryId: service?.categoryId,
+              logoKey: service?.key,
+              entryMethod: EntryMethod.quickAdd,
+            ),
+          );
 
       if (!mounted) return;
       FocusScope.of(context).unfocus();
@@ -179,8 +152,8 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
         _frequency = BillingFrequency.monthly;
         _started = false;
       });
-    } catch (error, stackTrace) {
-      await errorReporter.captureException(error, stackTrace);
+    } catch (_) {
+      // The creator already reported the error.
       if (!mounted) return;
       setState(() {
         _saving = false;
@@ -204,18 +177,29 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
       onChanged: (_) => _onChanged(),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-      decoration: InputDecoration(labelText: l10n.quickAddAmount),
+      decoration: InputDecoration(
+        labelText: l10n.quickAddAmount,
+        constraints: kFormFieldConstraints,
+      ),
     );
 
     final frequencyField = DropdownButtonFormField<BillingFrequency>(
       initialValue: _frequency,
       isExpanded: true,
-      decoration: InputDecoration(labelText: l10n.quickAddFrequency),
+      // Compact so the dropdown matches the text fields' height.
+      isDense: true,
+      decoration: InputDecoration(
+        labelText: l10n.quickAddFrequency,
+        constraints: kFormFieldConstraints,
+      ),
       items: [
         for (final frequency in _quickFrequencies)
           DropdownMenuItem(
             value: frequency,
-            child: Text(frequency.label(context), overflow: TextOverflow.ellipsis),
+            child: Text(
+              frequency.label(context),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
       ],
       onChanged: (value) {
@@ -232,7 +216,10 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
       borderRadius: BorderRadius.circular(TracklyRadius.medium),
       onTap: _pickDate,
       child: InputDecorator(
-        decoration: InputDecoration(labelText: l10n.quickAddStartDate),
+        decoration: InputDecoration(
+          labelText: l10n.quickAddStartDate,
+          constraints: kFormFieldConstraints,
+        ),
         child: Text(
           formatShortDate(_effectiveStart, locale: locale),
           maxLines: 1,
@@ -243,13 +230,17 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
 
     final saveButton = FilledButton(
       onPressed: _canSave ? _save : null,
+      // Tight padding so "Save" stays on one line in the compact row.
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+      ),
       child: _saving
           ? const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Text(l10n.quickAddSave),
+          : Text(l10n.quickAddSave, maxLines: 1, softWrap: false),
     );
 
     return Padding(
@@ -281,15 +272,27 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
                 const SizedBox(height: TracklySpacing.xs),
                 Text(l10n.quickAddHelper, style: theme.textTheme.bodySmall),
                 const SizedBox(height: TracklySpacing.base),
-                TextField(
-                  controller: _nameController,
-                  onChanged: (_) => _onChanged(),
-                  textCapitalization: TextCapitalization.words,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    hintText: l10n.quickAddServiceHint,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                  ),
+                // Row 1: service name and amount side by side.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: _nameController,
+                        onChanged: (_) => _onChanged(),
+                        textCapitalization: TextCapitalization.words,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          constraints: kFormFieldConstraints,
+                          hintText: l10n.quickAddServiceHint,
+                          prefixIcon: const Icon(Icons.search_rounded),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: TracklySpacing.sm),
+                    Expanded(flex: 2, child: amountField),
+                  ],
                 ),
                 for (final service in suggestions)
                   ListTile(
@@ -299,44 +302,21 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
                     title: Text(service.name),
                     onTap: () => _selectService(service),
                   ),
-                const SizedBox(height: TracklySpacing.md),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth >= 340) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 10, child: amountField),
-                          const SizedBox(width: TracklySpacing.sm),
-                          Expanded(flex: 12, child: frequencyField),
-                          const SizedBox(width: TracklySpacing.sm),
-                          Expanded(flex: 11, child: dateField),
-                          const SizedBox(width: TracklySpacing.sm),
-                          SizedBox(width: 72, child: saveButton),
-                        ],
-                      );
-                    }
-                    // Narrow phones: wrap into two rows.
-                    return Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(child: amountField),
-                            const SizedBox(width: TracklySpacing.sm),
-                            Expanded(child: frequencyField),
-                          ],
-                        ),
-                        const SizedBox(height: TracklySpacing.sm),
-                        Row(
-                          children: [
-                            Expanded(child: dateField),
-                            const SizedBox(width: TracklySpacing.sm),
-                            Expanded(child: saveButton),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
+                const SizedBox(height: TracklySpacing.sm),
+                // Row 2: frequency, start date and the Save button.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 11, child: frequencyField),
+                    const SizedBox(width: TracklySpacing.sm),
+                    Expanded(flex: 10, child: dateField),
+                    const SizedBox(width: TracklySpacing.sm),
+                    SizedBox(
+                      width: 80,
+                      height: kFormFieldHeight,
+                      child: saveButton,
+                    ),
+                  ],
                 ),
                 if (_savedMessage != null)
                   _Feedback(
@@ -381,7 +361,10 @@ class _Feedback extends StatelessWidget {
             Icon(icon, color: color, size: 20),
             const SizedBox(width: TracklySpacing.sm),
             Expanded(
-              child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
+              child: Text(
+                message,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ],
         ),

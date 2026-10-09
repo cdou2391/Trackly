@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/cost_utils.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/status_pill.dart';
+import '../../subscriptions/application/add_panel_controller.dart';
 import '../../subscriptions/domain/recurring_item.dart';
 import '../../subscriptions/presentation/labels.dart';
 import '../application/home_summary.dart';
@@ -142,37 +142,41 @@ class _Section extends StatelessWidget {
   }
 }
 
-class _EmptyUpcoming extends StatelessWidget {
+class _EmptyUpcoming extends ConsumerWidget {
   const _EmptyUpcoming();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
+    // Full width so the content centers on screen, not on its widest child.
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: TracklySpacing.base),
-      child: Column(
-        children: [
-          Icon(
-            Icons.event_available_rounded,
-            size: 48,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: TracklySpacing.md),
-          Text(l10n.emptyUpcomingTitle, style: theme.textTheme.titleMedium),
-          const SizedBox(height: TracklySpacing.xs),
-          Text(
-            l10n.emptyUpcomingBody,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: TracklySpacing.base),
-          OutlinedButton(
-            onPressed: () => context.push(AppRoutes.add),
-            child: Text(l10n.navAdd),
-          ),
-        ],
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            Icon(
+              Icons.event_available_rounded,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(height: TracklySpacing.md),
+            Text(l10n.emptyUpcomingTitle, style: theme.textTheme.titleMedium),
+            const SizedBox(height: TracklySpacing.xs),
+            Text(
+              l10n.emptyUpcomingBody,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: TracklySpacing.base),
+            OutlinedButton(
+              onPressed: ref.read(addPanelProvider.notifier).open,
+              child: Text(l10n.navAdd),
+            ),
+          ],
+        ),
       ),
     );
   }

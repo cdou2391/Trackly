@@ -24,6 +24,9 @@ void tracklyTest(
 
     final db = _openDatabase;
     _openDatabase = null;
+    // Let any snack bar finish its auto-dismiss timer.
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 1));
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(Duration.zero);
     await tester.pump(const Duration(seconds: 1));
