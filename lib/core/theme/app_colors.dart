@@ -16,7 +16,7 @@ class TracklyColors {
   // Borders
   static const border = Color(0xFF173142);
   static const inputBorder = Color(0xFF244052);
-  static const navBorder = Color(0xFF193041);
+  static const navBorder = Color(0xFF000000);
 
   // Brand teal
   static const teal = Color(0xFF16C7BE);
