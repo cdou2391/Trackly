@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "appName": "Trackly",
+  "homeSubtitle": "Subscriptions & Bills",
+  "navHome": "Home",
+  "navInsights": "Insights",
+  "navCalendar": "Calendar",
+  "navMore": "More",
+  "navAdd": "Add subscription",
+  "insightsTitle": "Insights",
+  "calendarTitle": "Calendar",
+  "moreTitle": "More",
+  "addSubscriptionTitle": "Add subscription"
+}
