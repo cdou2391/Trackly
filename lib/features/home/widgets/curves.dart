@@ -1,27 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Shallow wave along the bottom edge (hero section).
-class BottomWaveClipper extends CustomClipper<Path> {
-  const BottomWaveClipper({this.waveHeight = 40});
-
-  final double waveHeight;
-
-  @override
-  Path getClip(Size size) {
-    final w = size.width;
-    final h = size.height;
-    return Path()
-      ..lineTo(0, h - waveHeight)
-      ..quadraticBezierTo(w * 0.25, h, w * 0.55, h - waveHeight * 0.45)
-      ..quadraticBezierTo(w * 0.8, h - waveHeight * 0.95, w, h - waveHeight * 0.3)
-      ..lineTo(w, 0)
-      ..close();
-  }
-
-  @override
-  bool shouldReclip(BottomWaveClipper old) => old.waveHeight != waveHeight;
-}
-
 /// Shallow wave along the top edge (Quick Add section).
 class TopWaveClipper extends CustomClipper<Path> {
   const TopWaveClipper({this.waveHeight = 20});

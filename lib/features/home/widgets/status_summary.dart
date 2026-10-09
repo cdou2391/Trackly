@@ -13,7 +13,13 @@ class StatusSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: TracklySpacing.lg),
+      // Top gap separates the cards from the hero's rounded bottom edge.
+      padding: const EdgeInsets.fromLTRB(
+        TracklySpacing.lg,
+        TracklySpacing.lg,
+        TracklySpacing.lg,
+        0,
+      ),
       child: Row(
         children: [
           Expanded(

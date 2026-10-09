@@ -8,6 +8,9 @@ class InsightsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlaceholderScreen(title: context.l10n.insightsTitle);
+    return PlaceholderScreen(
+      title: context.l10n.insightsTitle,
+      icon: Icons.insights_rounded,
+    );
   }
 }

@@ -8,6 +8,9 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlaceholderScreen(title: context.l10n.moreTitle);
+    return PlaceholderScreen(
+      title: context.l10n.moreTitle,
+      icon: Icons.more_horiz_rounded,
+    );
   }
 }

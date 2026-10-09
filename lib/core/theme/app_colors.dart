@@ -5,12 +5,13 @@ class TracklyColors {
   const TracklyColors._();
 
   // Background and surfaces
-  static const background = Color(0xFF07111C);
+  static const background = Color(0xFF000000);
   static const surface1 = Color(0xFF0D1B28);
   static const surface2 = Color(0xFF122433);
   static const surface3 = Color(0xFF183040);
   static const quickAddSurface = Color(0xFF0D2730);
-  static const navSurface = Color(0xFF0B1722);
+  static const heroSurface = Color(0xFF0B3138);
+  static const navSurface = Color(0xFF000000);
 
   // Borders
   static const border = Color(0xFF173142);

@@ -8,6 +8,9 @@ class CalendarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlaceholderScreen(title: context.l10n.calendarTitle);
+    return PlaceholderScreen(
+      title: context.l10n.calendarTitle,
+      icon: Icons.calendar_month_rounded,
+    );
   }
 }

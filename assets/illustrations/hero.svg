@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Trackly Hero Illustration</title>
+  <desc>Flat teal hero illustration for the Trackly subscription and bills tracker app. Transparent background, designed for dark surfaces.</desc>
+
+  <defs>
+    <linearGradient id="cardGrad" x1="186" y1="130" x2="575" y2="394" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#34E1D7"/>
+      <stop offset="1" stop-color="#129E98"/>
+    </linearGradient>
+
+    <linearGradient id="paperGrad" x1="262" y1="183" x2="522" y2="343" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#B6FFFA"/>
+      <stop offset="1" stop-color="#69E6DE"/>
+    </linearGradient>
+
+    <linearGradient id="badgeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#52EEE6"/>
+      <stop offset="1" stop-color="#17C7BE"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="120" y="70" width="560" height="380" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="22"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.14 0 0 0 0 0.17 0 0 0 0.25 0"/>
+      <feBlend mode="normal" in2="SourceGraphic" result="shape"/>
+    </filter>
+
+    <filter id="badgeShadow" x="480" y="90" width="170" height="170" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="10"/>
+      <feGaussianBlur stdDeviation="16"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.02 0 0 0 0 0.11 0 0 0 0 0.14 0 0 0 0.22 0"/>
+      <feBlend mode="normal" in2="SourceGraphic" result="shape"/>
+    </filter>
+  </defs>
+
+  <g opacity="0.18">
+    <ellipse cx="540" cy="194" rx="148" ry="112" fill="#18C8BE"/>
+    <ellipse cx="636" cy="250" rx="118" ry="86" fill="#1FD4C9"/>
+    <ellipse cx="430" cy="268" rx="94" ry="72" fill="#0EA79F"/>
+    <ellipse cx="574" cy="342" rx="168" ry="102" fill="#0A7A75"/>
+  </g>
+
+  <g opacity="0.20">
+    <circle cx="232" cy="248" r="92" stroke="#49E4DB" stroke-width="10"/>
+    <path d="M165 211C181 181 214 162 252 163C287 165 318 185 334 215" stroke="#49E4DB" stroke-width="10" stroke-linecap="round"/>
+    <path d="M155 210L191 206L176 239" fill="#49E4DB"/>
+    <path d="M309 286C293 316 260 335 222 334C187 332 156 312 140 282" stroke="#49E4DB" stroke-width="10" stroke-linecap="round"/>
+    <path d="M319 287L283 291L298 258" fill="#49E4DB"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="214" y="128" width="338" height="220" rx="34" fill="url(#cardGrad)"/>
+
+    <rect x="275" y="117" width="18" height="44" rx="9" fill="#07363C"/>
+    <rect x="466" y="117" width="18" height="44" rx="9" fill="#07363C"/>
+
+    <rect x="257" y="176" width="252" height="144" rx="20" fill="url(#paperGrad)"/>
+
+    <rect x="291" y="209" width="116" height="14" rx="7" fill="#0A7A75" opacity="0.85"/>
+    <rect x="291" y="238" width="170" height="14" rx="7" fill="#0A7A75" opacity="0.62"/>
+    <rect x="291" y="267" width="146" height="14" rx="7" fill="#0A7A75" opacity="0.52"/>
+    <rect x="291" y="296" width="92" height="14" rx="7" fill="#0A7A75" opacity="0.42"/>
+
+    <circle cx="274" cy="216" r="7" fill="#11B4AC"/>
+    <circle cx="274" cy="245" r="7" fill="#11B4AC" opacity="0.85"/>
+    <circle cx="274" cy="274" r="7" fill="#11B4AC" opacity="0.65"/>
+  </g>
+
+  <g filter="url(#badgeShadow)">
+    <circle cx="583" cy="164" r="56" fill="url(#badgeGrad)"/>
+    <path d="M584 135C568 135 556 147 556 163V179L547 191C545 194 548 199 552 199H615C619 199 622 194 620 191L611 179V163C611 147 599 135 584 135Z" fill="#06363D"/>
+    <path d="M573 207C575 217 582 223 592 223C602 223 609 217 611 207H573Z" fill="#06363D"/>
+  </g>
+
+  <circle cx="625" cy="114" r="8" fill="#7AFFF8" opacity="0.8"/>
+  <circle cx="356" cy="110" r="6" fill="#53EEE6" opacity="0.55"/>
+  <circle cx="189" cy="302" r="7" fill="#3FE2D8" opacity="0.45"/>
+
+  <g transform="translate(118 334)">
+    <rect width="180" height="62" rx="31" fill="#0E2230" opacity="0.92"/>
+    <circle cx="40" cy="31" r="18" fill="#123D2E"/>
+    <path d="M29 31L36 38L50 24" stroke="#24C97A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M77 35L93 19L106 31L124 13" stroke="#4EDDD5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="77" cy="35" r="4" fill="#4EDDD5"/>
+    <circle cx="93" cy="19" r="4" fill="#4EDDD5"/>
+    <circle cx="106" cy="31" r="4" fill="#4EDDD5"/>
+    <circle cx="124" cy="13" r="4" fill="#4EDDD5"/>
+  </g>
+</svg>
