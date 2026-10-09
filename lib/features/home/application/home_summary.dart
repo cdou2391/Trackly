@@ -72,17 +72,18 @@ HomeSummary buildHomeSummary({
     }
   }
 
-  final upcoming = items
-      .where(
-        (item) =>
-            item.status == ItemStatus.active &&
-            !dateOnly(item.nextDueDate).isAfter(cutoff),
-      )
-      .toList()
-    ..sort((a, b) {
-      final byDate = a.nextDueDate.compareTo(b.nextDueDate);
-      return byDate != 0 ? byDate : a.name.compareTo(b.name);
-    });
+  final upcoming =
+      items
+          .where(
+            (item) =>
+                item.status == ItemStatus.active &&
+                !dateOnly(item.nextDueDate).isAfter(cutoff),
+          )
+          .toList()
+        ..sort((a, b) {
+          final byDate = a.nextDueDate.compareTo(b.nextDueDate);
+          return byDate != 0 ? byDate : a.name.compareTo(b.name);
+        });
 
   final itemsById = {for (final item in items) item.id: item};
   final recent = <RecentPayment>[

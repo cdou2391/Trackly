@@ -9,10 +9,12 @@ void main() {
     expect(formatMoney(1012.44, 'USD', locale: 'en'), r'$1,012.44');
   });
 
-  test('uses the currency code for others, without decimals when none apply',
-      () {
-    expect(formatMoney(30000, 'RWF', locale: 'en'), 'RWF 30,000');
-  });
+  test(
+    'uses the currency code for others, without decimals when none apply',
+    () {
+      expect(formatMoney(30000, 'RWF', locale: 'en'), 'RWF 30,000');
+    },
+  );
 
   test('short date follows the locale', () async {
     await initializeDateFormatting('en_GB');

@@ -11,12 +11,14 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
   CategoriesDao(super.db);
 
   Stream<List<Category>> watchAll() {
-    return (select(categories)..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
-        .watch();
+    return (select(
+      categories,
+    )..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).watch();
   }
 
   Future<Category?> getById(String id) {
-    return (select(categories)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    return (select(
+      categories,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 }

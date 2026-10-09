@@ -14,8 +14,9 @@ class AppConfig {
     defaultValue: 'development',
   );
 
-  static const firebaseAnalyticsEnabled =
-      bool.fromEnvironment('FIREBASE_ANALYTICS_ENABLED');
+  static const firebaseAnalyticsEnabled = bool.fromEnvironment(
+    'FIREBASE_ANALYTICS_ENABLED',
+  );
 
   static bool get sentryEnabled => sentryDsn.isNotEmpty;
 }

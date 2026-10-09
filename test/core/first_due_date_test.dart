@@ -2,9 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/utils/recurrence_utils.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 
-DateTime first(DateTime start, DateTime today,
-        [BillingFrequency frequency = BillingFrequency.monthly]) =>
-    firstDueDate(startDate: start, frequency: frequency, today: today);
+DateTime first(
+  DateTime start,
+  DateTime today, [
+  BillingFrequency frequency = BillingFrequency.monthly,
+]) => firstDueDate(startDate: start, frequency: frequency, today: today);
 
 void main() {
   final today = DateTime(2026, 10, 9);
@@ -27,20 +29,28 @@ void main() {
     });
 
     test('keeps the start day through short months', () {
-      expect(first(DateTime(2026, 1, 31), DateTime(2026, 3, 1)),
-          DateTime(2026, 3, 31));
+      expect(
+        first(DateTime(2026, 1, 31), DateTime(2026, 3, 1)),
+        DateTime(2026, 3, 31),
+      );
     });
 
     test('works for weekly and yearly', () {
-      expect(first(DateTime(2026, 10, 1), today, BillingFrequency.weekly),
-          DateTime(2026, 10, 15));
-      expect(first(DateTime(2026, 3, 5), today, BillingFrequency.yearly),
-          DateTime(2027, 3, 5));
+      expect(
+        first(DateTime(2026, 10, 1), today, BillingFrequency.weekly),
+        DateTime(2026, 10, 15),
+      );
+      expect(
+        first(DateTime(2026, 3, 5), today, BillingFrequency.yearly),
+        DateTime(2027, 3, 5),
+      );
     });
 
     test('ignores time of day on today', () {
-      expect(first(DateTime(2026, 9, 9), DateTime(2026, 10, 9, 23, 59)),
-          DateTime(2026, 10, 9));
+      expect(
+        first(DateTime(2026, 9, 9), DateTime(2026, 10, 9, 23, 59)),
+        DateTime(2026, 10, 9),
+      );
     });
   });
 
@@ -61,11 +71,26 @@ void main() {
 
   group('upcomingCutoff', () {
     test('is one calendar month ahead, whatever the month length', () {
-      expect(upcomingCutoff(DateTime(2026, 10, 9)), DateTime(2026, 11, 9)); // 31 days
-      expect(upcomingCutoff(DateTime(2026, 11, 9)), DateTime(2026, 12, 9)); // 30 days
-      expect(upcomingCutoff(DateTime(2026, 1, 15)), DateTime(2026, 2, 15)); // 31 days
-      expect(upcomingCutoff(DateTime(2026, 2, 15)), DateTime(2026, 3, 15)); // 28 days
-      expect(upcomingCutoff(DateTime(2028, 2, 15)), DateTime(2028, 3, 15)); // 29 days
+      expect(
+        upcomingCutoff(DateTime(2026, 10, 9)),
+        DateTime(2026, 11, 9),
+      ); // 31 days
+      expect(
+        upcomingCutoff(DateTime(2026, 11, 9)),
+        DateTime(2026, 12, 9),
+      ); // 30 days
+      expect(
+        upcomingCutoff(DateTime(2026, 1, 15)),
+        DateTime(2026, 2, 15),
+      ); // 31 days
+      expect(
+        upcomingCutoff(DateTime(2026, 2, 15)),
+        DateTime(2026, 3, 15),
+      ); // 28 days
+      expect(
+        upcomingCutoff(DateTime(2028, 2, 15)),
+        DateTime(2028, 3, 15),
+      ); // 29 days
     });
 
     test('clamps at month end', () {
@@ -79,8 +104,10 @@ void main() {
     });
 
     test('ignores time of day', () {
-      expect(upcomingCutoff(DateTime(2026, 10, 9, 23, 59)),
-          DateTime(2026, 11, 9));
+      expect(
+        upcomingCutoff(DateTime(2026, 10, 9, 23, 59)),
+        DateTime(2026, 11, 9),
+      );
     });
 
     test('a monthly item added today is always inside the window', () {

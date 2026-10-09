@@ -90,9 +90,11 @@ DateTime firstDueDate({
 /// Whole calendar days from [from] to [to] (negative if [to] is earlier).
 /// Uses UTC dates so daylight-saving changes cannot skew the count.
 int daysBetween(DateTime from, DateTime to) {
-  return DateTime.utc(to.year, to.month, to.day)
-      .difference(DateTime.utc(from.year, from.month, from.day))
-      .inDays;
+  return DateTime.utc(
+    to.year,
+    to.month,
+    to.day,
+  ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
 }
 
 /// Last day shown in Upcoming: one calendar month after [today].

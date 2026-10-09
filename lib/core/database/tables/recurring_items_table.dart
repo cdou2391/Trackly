@@ -44,9 +44,11 @@ class RecurringItems extends Table {
       .withDefault(const Constant(3))
       .check(reminderDaysBefore.isBiggerOrEqualValue(0))();
 
-  TextColumn get categoryId => text()
-      .nullable()
-      .references(Categories, #id, onDelete: KeyAction.setNull)();
+  TextColumn get categoryId => text().nullable().references(
+    Categories,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get notes => text().nullable()();
 
   /// Key into the bundled service catalog. Null for custom services.

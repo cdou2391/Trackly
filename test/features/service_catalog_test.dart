@@ -20,8 +20,9 @@ void main() {
     final results = searchServiceCatalog('NET');
     expect(results.first.key, 'netflix');
     expect(searchServiceCatalog('prime').map((s) => s.key), ['amazon_prime']);
-    expect(searchServiceCatalog('youtube').map((s) => s.key),
-        ['youtube_premium']);
+    expect(searchServiceCatalog('youtube').map((s) => s.key), [
+      'youtube_premium',
+    ]);
   });
 
   test('prefix matches rank above substring matches', () {

@@ -32,15 +32,19 @@ RecurringItem item(
   );
 }
 
-HomeSummary summarize(List<RecurringItem> items,
-        [List<Payment> paid = const []]) =>
-    buildHomeSummary(items: items, recentPaid: paid, now: _now);
+HomeSummary summarize(
+  List<RecurringItem> items, [
+  List<Payment> paid = const [],
+]) => buildHomeSummary(items: items, recentPaid: paid, now: _now);
 
 void main() {
   test('empty input has no items', () {
     final summary = summarize(const []);
     expect(summary.hasItems, isFalse);
-    expect(summary.activeCount + summary.trialCount + summary.cancelledCount, 0);
+    expect(
+      summary.activeCount + summary.trialCount + summary.cancelledCount,
+      0,
+    );
     expect(summary.upcoming, isEmpty);
     expect(summary.monthlyTotalsByCurrency, isEmpty);
   });
@@ -59,8 +63,7 @@ void main() {
     });
 
     test('an ended trial counts as Active', () {
-      final summary =
-          summarize([item('t', trialEnd: DateTime(2026, 10, 1))]);
+      final summary = summarize([item('t', trialEnd: DateTime(2026, 10, 1))]);
       expect(summary.trialCount, 0);
       expect(summary.activeCount, 1);
     });
@@ -103,8 +106,10 @@ void main() {
           item('i$i', due: DateTime(2026, 10, 10 + i * 2)),
       ];
       final summary = summarize(items);
-      expect([for (final i in summary.upcoming) i.id],
-          ['i0', 'i1', 'i2', 'i3', 'i4']);
+      expect(
+        [for (final i in summary.upcoming) i.id],
+        ['i0', 'i1', 'i2', 'i3', 'i4'],
+      );
     });
 
     test('includes the same day next month but not the day after', () {
@@ -133,8 +138,7 @@ void main() {
     });
 
     test('includes a running trial', () {
-      final summary =
-          summarize([item('t', trialEnd: DateTime(2026, 11, 15))]);
+      final summary = summarize([item('t', trialEnd: DateTime(2026, 11, 15))]);
       expect(summary.upcoming, hasLength(1));
     });
 
@@ -149,15 +153,15 @@ void main() {
 
   group('recent payments', () {
     Payment paid(String id, String itemId) => Payment(
-          id: id,
-          recurringItemId: itemId,
-          amount: 9,
-          currencyCode: 'USD',
-          dueDate: DateTime(2026, 10, 2),
-          paidDate: DateTime(2026, 10, 2),
-          status: PaymentStatus.paid,
-          createdAt: _now,
-        );
+      id: id,
+      recurringItemId: itemId,
+      amount: 9,
+      currencyCode: 'USD',
+      dueDate: DateTime(2026, 10, 2),
+      paidDate: DateTime(2026, 10, 2),
+      status: PaymentStatus.paid,
+      createdAt: _now,
+    );
 
     test('are joined with their item', () {
       final summary = summarize([item('a', name: 'Netflix')], [paid('p', 'a')]);

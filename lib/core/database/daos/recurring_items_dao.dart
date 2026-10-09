@@ -24,20 +24,22 @@ class RecurringItemsDao extends DatabaseAccessor<AppDatabase>
   }
 
   Stream<RecurringItem?> watchById(String id) {
-    return (select(recurringItems)..where((t) => t.id.equals(id)))
-        .watchSingleOrNull();
+    return (select(
+      recurringItems,
+    )..where((t) => t.id.equals(id))).watchSingleOrNull();
   }
 
   Future<RecurringItem?> getById(String id) {
-    return (select(recurringItems)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    return (select(
+      recurringItems,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   /// Active items, used for reminder reconciliation and totals.
   Future<List<RecurringItem>> getActive() {
-    return (select(recurringItems)
-          ..where((t) => t.status.equalsValue(ItemStatus.active)))
-        .get();
+    return (select(
+      recurringItems,
+    )..where((t) => t.status.equalsValue(ItemStatus.active))).get();
   }
 
   /// Active items due on or before [until], soonest first.

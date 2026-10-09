@@ -18,15 +18,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (AppConfig.sentryEnabled) {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = AppConfig.sentryDsn;
-        options.environment = AppConfig.sentryEnvironment;
-        // Privacy: Trackly keeps user data on-device.
-        options.sendDefaultPii = false;
-      },
-      appRunner: _runApp,
-    );
+    await SentryFlutter.init((options) {
+      options.dsn = AppConfig.sentryDsn;
+      options.environment = AppConfig.sentryEnvironment;
+      // Privacy: Trackly keeps user data on-device.
+      options.sendDefaultPii = false;
+    }, appRunner: _runApp);
   } else {
     await _runApp();
   }

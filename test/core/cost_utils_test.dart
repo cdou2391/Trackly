@@ -41,7 +41,8 @@ void main() {
     test(r'$120 yearly -> $10/month', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 120, frequency: BillingFrequency.yearly)),
+          item(amount: 120, frequency: BillingFrequency.yearly),
+        ),
         closeTo(10, 1e-9),
       );
     });
@@ -49,7 +50,8 @@ void main() {
     test(r'$30 quarterly -> $10/month', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 30, frequency: BillingFrequency.quarterly)),
+          item(amount: 30, frequency: BillingFrequency.quarterly),
+        ),
         closeTo(10, 1e-9),
       );
     });
@@ -57,7 +59,8 @@ void main() {
     test(r'$60 semi-annual -> $10/month', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 60, frequency: BillingFrequency.semiAnnual)),
+          item(amount: 60, frequency: BillingFrequency.semiAnnual),
+        ),
         closeTo(10, 1e-9),
       );
     });
@@ -65,20 +68,24 @@ void main() {
     test(r'$10 weekly -> about $43.33/month', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 10, frequency: BillingFrequency.weekly)),
+          item(amount: 10, frequency: BillingFrequency.weekly),
+        ),
         closeTo(43.33, 0.01),
       );
     });
 
     test('every 2 months halves the monthly cost', () {
-      expect(calculateMonthlyEquivalent(item(amount: 20, interval: 2)),
-          closeTo(10, 1e-9));
+      expect(
+        calculateMonthlyEquivalent(item(amount: 20, interval: 2)),
+        closeTo(10, 1e-9),
+      );
     });
 
     test('every 2 weeks halves the weekly equivalent', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 10, frequency: BillingFrequency.weekly, interval: 2)),
+          item(amount: 10, frequency: BillingFrequency.weekly, interval: 2),
+        ),
         closeTo(21.67, 0.01),
       );
     });
@@ -86,7 +93,8 @@ void main() {
     test('custom every 30 days', () {
       expect(
         calculateMonthlyEquivalent(
-            item(amount: 10, frequency: BillingFrequency.custom, interval: 30)),
+          item(amount: 10, frequency: BillingFrequency.custom, interval: 30),
+        ),
         closeTo(10.14, 0.01),
       );
     });
@@ -95,7 +103,8 @@ void main() {
   test('annual equivalent is monthly x 12', () {
     expect(
       calculateAnnualEquivalent(
-          item(amount: 7, frequency: BillingFrequency.quarterly)),
+        item(amount: 7, frequency: BillingFrequency.quarterly),
+      ),
       closeTo(28, 1e-9),
     );
   });
@@ -132,10 +141,7 @@ void main() {
         item(amount: 10),
         item(amount: 100, status: ItemStatus.paused),
         item(amount: 100, status: ItemStatus.cancelled),
-        item(
-            amount: 100,
-            isTrial: true,
-            trialEndDate: DateTime(2026, 11, 15)),
+        item(amount: 100, isTrial: true, trialEndDate: DateTime(2026, 11, 15)),
       ];
       expect(monthlyTotalsByCurrency(items, now: _now), {'USD': 10});
     });

@@ -79,13 +79,17 @@ void main() {
     });
 
     test('ignores time of day when writing', () {
-      expect(const DateOnlyConverter().toSql(DateTime(2026, 12, 31, 23, 59)),
-          '2026-12-31');
+      expect(
+        const DateOnlyConverter().toSql(DateTime(2026, 12, 31, 23, 59)),
+        '2026-12-31',
+      );
     });
 
     test('rejects malformed text', () {
-      expect(() => const DateOnlyConverter().fromSql('15/10/2026'),
-          throwsFormatException);
+      expect(
+        () => const DateOnlyConverter().fromSql('15/10/2026'),
+        throwsFormatException,
+      );
     });
   });
 
@@ -96,8 +100,9 @@ void main() {
       expect(categories.first.id, 'entertainment');
       expect(categories.last.id, 'other');
       expect(categories.every((c) => c.isSystem), isTrue);
-      expect([for (final c in categories) c.sortOrder],
-          List.generate(11, (i) => i));
+      expect([
+        for (final c in categories) c.sortOrder,
+      ], List.generate(11, (i) => i));
     });
   });
 
@@ -167,8 +172,9 @@ void main() {
 
     test('update replaces the row', () async {
       await db.recurringItemsDao.insertItem(item('a'));
-      final changed = await db.recurringItemsDao
-          .updateItem(item('a', nextDueDate: DateTime(2026, 11, 15)));
+      final changed = await db.recurringItemsDao.updateItem(
+        item('a', nextDueDate: DateTime(2026, 11, 15)),
+      );
       expect(changed, isTrue);
       final loaded = (await db.recurringItemsDao.getById('a'))!;
       expect(loaded.nextDueDate, DateTime(2026, 11, 15));
@@ -216,38 +222,48 @@ void main() {
       );
     });
 
-    test('deleting a category clears it on items instead of deleting them',
-        () async {
-      await db.recurringItemsDao
-          .insertItem(item('a', categoryId: 'entertainment'));
-      await (db.delete(db.categories)..where((t) => t.id.equals('entertainment')))
-          .go();
-      final loaded = await db.recurringItemsDao.getById('a');
-      expect(loaded, isNotNull);
-      expect(loaded!.categoryId, isNull);
-    });
+    test(
+      'deleting a category clears it on items instead of deleting them',
+      () async {
+        await db.recurringItemsDao.insertItem(
+          item('a', categoryId: 'entertainment'),
+        );
+        await (db.delete(
+          db.categories,
+        )..where((t) => t.id.equals('entertainment'))).go();
+        final loaded = await db.recurringItemsDao.getById('a');
+        expect(loaded, isNotNull);
+        expect(loaded!.categoryId, isNull);
+      },
+    );
   });
 
   group('upcoming query', () {
     test('returns active items due by the cutoff, soonest first', () async {
       final dao = db.recurringItemsDao;
       await dao.insertItem(
-          item('late', name: 'Late', nextDueDate: DateTime(2026, 11, 5)));
+        item('late', name: 'Late', nextDueDate: DateTime(2026, 11, 5)),
+      );
       await dao.insertItem(
-          item('soon', name: 'Soon', nextDueDate: DateTime(2026, 10, 10)));
+        item('soon', name: 'Soon', nextDueDate: DateTime(2026, 10, 10)),
+      );
       await dao.insertItem(
-          item('mid', name: 'Mid', nextDueDate: DateTime(2026, 10, 20)));
-      await dao.insertItem(item('beyond',
-          name: 'Beyond', nextDueDate: DateTime(2026, 12, 1)));
+        item('mid', name: 'Mid', nextDueDate: DateTime(2026, 10, 20)),
+      );
+      await dao.insertItem(
+        item('beyond', name: 'Beyond', nextDueDate: DateTime(2026, 12, 1)),
+      );
 
-      final upcoming =
-          await dao.watchUpcoming(until: DateTime(2026, 11, 8)).first;
+      final upcoming = await dao
+          .watchUpcoming(until: DateTime(2026, 11, 8))
+          .first;
       expect([for (final i in upcoming) i.id], ['soon', 'mid', 'late']);
     });
 
     test('includes an item due exactly on the cutoff day', () async {
-      await db.recurringItemsDao
-          .insertItem(item('a', nextDueDate: DateTime(2026, 11, 8)));
+      await db.recurringItemsDao.insertItem(
+        item('a', nextDueDate: DateTime(2026, 11, 8)),
+      );
       final upcoming = await db.recurringItemsDao
           .watchUpcoming(until: DateTime(2026, 11, 8, 18))
           .first;
@@ -259,15 +275,17 @@ void main() {
       await dao.insertItem(item('active'));
       await dao.insertItem(item('paused', status: ItemStatus.paused));
       await dao.insertItem(item('cancelled', status: ItemStatus.cancelled));
-      final upcoming =
-          await dao.watchUpcoming(until: DateTime(2026, 12, 31)).first;
+      final upcoming = await dao
+          .watchUpcoming(until: DateTime(2026, 12, 31))
+          .first;
       expect([for (final i in upcoming) i.id], ['active']);
     });
 
     test('respects the limit', () async {
       for (var i = 0; i < 8; i++) {
         await db.recurringItemsDao.insertItem(
-            item('i$i', nextDueDate: DateTime(2026, 10, 10 + i)));
+          item('i$i', nextDueDate: DateTime(2026, 10, 10 + i)),
+        );
       }
       final upcoming = await db.recurringItemsDao
           .watchUpcoming(until: DateTime(2026, 12, 31), limit: 5)
@@ -280,8 +298,9 @@ void main() {
       final dao = db.recurringItemsDao;
       await dao.insertItem(item('jan', nextDueDate: DateTime(2027, 1, 2)));
       await dao.insertItem(item('dec', nextDueDate: DateTime(2026, 12, 30)));
-      final upcoming =
-          await dao.watchUpcoming(until: DateTime(2027, 1, 31)).first;
+      final upcoming = await dao
+          .watchUpcoming(until: DateTime(2027, 1, 31))
+          .first;
       expect([for (final i in upcoming) i.id], ['dec', 'jan']);
     });
 
@@ -311,12 +330,14 @@ void main() {
     });
 
     test('round-trips a paid payment', () async {
-      await db.paymentsDao.insertPayment(payment(
-        'p1',
-        'a',
-        dueDate: DateTime(2026, 10, 15),
-        paidDate: DateTime(2026, 10, 18),
-      ));
+      await db.paymentsDao.insertPayment(
+        payment(
+          'p1',
+          'a',
+          dueDate: DateTime(2026, 10, 15),
+          paidDate: DateTime(2026, 10, 18),
+        ),
+      );
       final loaded = (await db.paymentsDao.watchForItem('a').first).single;
       expect(loaded.dueDate, DateTime(2026, 10, 15));
       expect(loaded.paidDate, DateTime(2026, 10, 18));
@@ -324,48 +345,106 @@ void main() {
       expect(loaded.amount, 15.49);
     });
 
-    test('recent payments are newest paid first and skip skipped ones',
-        () async {
-      final dao = db.paymentsDao;
-      await dao.insertPayment(payment('old', 'a',
-          dueDate: DateTime(2026, 8, 15), paidDate: DateTime(2026, 8, 15)));
-      await dao.insertPayment(payment('new', 'b',
-          dueDate: DateTime(2026, 10, 2), paidDate: DateTime(2026, 10, 2)));
-      await dao.insertPayment(payment('skipped', 'a',
-          dueDate: DateTime(2026, 10, 15), status: PaymentStatus.skipped));
+    test(
+      'recent payments are newest paid first and skip skipped ones',
+      () async {
+        final dao = db.paymentsDao;
+        await dao.insertPayment(
+          payment(
+            'old',
+            'a',
+            dueDate: DateTime(2026, 8, 15),
+            paidDate: DateTime(2026, 8, 15),
+          ),
+        );
+        await dao.insertPayment(
+          payment(
+            'new',
+            'b',
+            dueDate: DateTime(2026, 10, 2),
+            paidDate: DateTime(2026, 10, 2),
+          ),
+        );
+        await dao.insertPayment(
+          payment(
+            'skipped',
+            'a',
+            dueDate: DateTime(2026, 10, 15),
+            status: PaymentStatus.skipped,
+          ),
+        );
 
-      final recent = await dao.watchRecentPaid().first;
-      expect([for (final p in recent) p.id], ['new', 'old']);
-    });
+        final recent = await dao.watchRecentPaid().first;
+        expect([for (final p in recent) p.id], ['new', 'old']);
+      },
+    );
 
     test('recent payments respect the limit', () async {
       for (var i = 1; i <= 7; i++) {
-        await db.paymentsDao.insertPayment(payment('p$i', 'a',
-            dueDate: DateTime(2026, 1, i), paidDate: DateTime(2026, 1, i)));
+        await db.paymentsDao.insertPayment(
+          payment(
+            'p$i',
+            'a',
+            dueDate: DateTime(2026, 1, i),
+            paidDate: DateTime(2026, 1, i),
+          ),
+        );
       }
       final recent = await db.paymentsDao.watchRecentPaid(limit: 3).first;
       expect([for (final p in recent) p.id], ['p7', 'p6', 'p5']);
     });
 
-    test('item history is newest due date first and scoped to the item',
-        () async {
-      final dao = db.paymentsDao;
-      await dao.insertPayment(payment('p1', 'a',
-          dueDate: DateTime(2026, 8, 15), paidDate: DateTime(2026, 8, 15)));
-      await dao.insertPayment(payment('p2', 'a',
-          dueDate: DateTime(2026, 9, 15), paidDate: DateTime(2026, 9, 15)));
-      await dao.insertPayment(payment('other', 'b',
-          dueDate: DateTime(2026, 9, 1), paidDate: DateTime(2026, 9, 1)));
+    test(
+      'item history is newest due date first and scoped to the item',
+      () async {
+        final dao = db.paymentsDao;
+        await dao.insertPayment(
+          payment(
+            'p1',
+            'a',
+            dueDate: DateTime(2026, 8, 15),
+            paidDate: DateTime(2026, 8, 15),
+          ),
+        );
+        await dao.insertPayment(
+          payment(
+            'p2',
+            'a',
+            dueDate: DateTime(2026, 9, 15),
+            paidDate: DateTime(2026, 9, 15),
+          ),
+        );
+        await dao.insertPayment(
+          payment(
+            'other',
+            'b',
+            dueDate: DateTime(2026, 9, 1),
+            paidDate: DateTime(2026, 9, 1),
+          ),
+        );
 
-      final history = await dao.watchForItem('a').first;
-      expect([for (final p in history) p.id], ['p2', 'p1']);
-    });
+        final history = await dao.watchForItem('a').first;
+        expect([for (final p in history) p.id], ['p2', 'p1']);
+      },
+    );
 
     test('deleting an item deletes its payment history', () async {
-      await db.paymentsDao.insertPayment(payment('p1', 'a',
-          dueDate: DateTime(2026, 8, 15), paidDate: DateTime(2026, 8, 15)));
-      await db.paymentsDao.insertPayment(payment('p2', 'b',
-          dueDate: DateTime(2026, 8, 15), paidDate: DateTime(2026, 8, 15)));
+      await db.paymentsDao.insertPayment(
+        payment(
+          'p1',
+          'a',
+          dueDate: DateTime(2026, 8, 15),
+          paidDate: DateTime(2026, 8, 15),
+        ),
+      );
+      await db.paymentsDao.insertPayment(
+        payment(
+          'p2',
+          'b',
+          dueDate: DateTime(2026, 8, 15),
+          paidDate: DateTime(2026, 8, 15),
+        ),
+      );
 
       await db.recurringItemsDao.deleteItem('a');
 
@@ -376,14 +455,21 @@ void main() {
     test('rejects a payment for an unknown item', () async {
       expect(
         db.paymentsDao.insertPayment(
-            payment('p', 'ghost', dueDate: DateTime(2026, 8, 15))),
+          payment('p', 'ghost', dueDate: DateTime(2026, 8, 15)),
+        ),
         throwsA(anything),
       );
     });
 
     test('clearHistory removes payments but keeps items', () async {
-      await db.paymentsDao.insertPayment(payment('p1', 'a',
-          dueDate: DateTime(2026, 8, 15), paidDate: DateTime(2026, 8, 15)));
+      await db.paymentsDao.insertPayment(
+        payment(
+          'p1',
+          'a',
+          dueDate: DateTime(2026, 8, 15),
+          paidDate: DateTime(2026, 8, 15),
+        ),
+      );
       await db.paymentsDao.clearHistory();
       expect(await db.paymentsDao.watchRecentPaid().first, isEmpty);
       expect(await db.recurringItemsDao.getById('a'), isNotNull);
@@ -393,7 +479,8 @@ void main() {
   test('timezone does not shift stored calendar dates', () async {
     // Insert at a late local time; the stored date must be the local day.
     await db.recurringItemsDao.insertItem(
-        item('a', nextDueDate: DateTime(2026, 3, 31, 23, 30)));
+      item('a', nextDueDate: DateTime(2026, 3, 31, 23, 30)),
+    );
     final row = await db
         .customSelect('SELECT next_due_date FROM recurring_items')
         .getSingle();

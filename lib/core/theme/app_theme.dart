@@ -113,8 +113,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: inputFill,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: border(inputBorder),
         enabledBorder: border(inputBorder),
         focusedBorder: border(accent, 1.5),
@@ -122,24 +124,28 @@ class AppTheme {
         focusedErrorBorder: border(TracklyColors.danger, 1.5),
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          foregroundColor: onAccent,
-          disabledBackgroundColor: TracklyColors.disabledBg,
-          disabledForegroundColor: TracklyColors.disabledFg,
-          minimumSize: const Size(48, 52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TracklyRadius.medium),
-          ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ).copyWith(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) {
-              return TracklyColors.disabledBg;
-            }
-            if (states.contains(WidgetState.pressed)) return accentPressed;
-            return accent;
-          }),
-        ),
+        style:
+            FilledButton.styleFrom(
+              foregroundColor: onAccent,
+              disabledBackgroundColor: TracklyColors.disabledBg,
+              disabledForegroundColor: TracklyColors.disabledFg,
+              minimumSize: const Size(48, 52),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(TracklyRadius.medium),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ).copyWith(
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.disabled)) {
+                  return TracklyColors.disabledBg;
+                }
+                if (states.contains(WidgetState.pressed)) return accentPressed;
+                return accent;
+              }),
+            ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
