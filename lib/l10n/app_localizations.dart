@@ -159,6 +159,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add subscription'**
   String get addSubscriptionTitle;
+
+  /// No description provided for @searchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTooltip;
+
+  /// No description provided for @settingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTooltip;
+
+  /// No description provided for @heroLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR RECURRING COST'**
+  String get heroLabel;
+
+  /// No description provided for @heroPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / month'**
+  String heroPerMonth(String amount);
+
+  /// No description provided for @heroPerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per year'**
+  String heroPerYear(String amount);
+
+  /// No description provided for @heroOtherCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+ 1 other currency} other{+ {count} other currencies}}'**
+  String heroOtherCurrencies(int count);
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get statusTrial;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @statusCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {count}'**
+  String statusCount(String label, int count);
+
+  /// No description provided for @upcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming charges'**
+  String get upcomingTitle;
+
+  /// No description provided for @recentPaymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent payments'**
+  String get recentPaymentsTitle;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @emptyUpcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming charges'**
+  String get emptyUpcomingTitle;
+
+  /// No description provided for @emptyUpcomingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first subscription to start tracking renewals.'**
+  String get emptyUpcomingBody;
+
+  /// No description provided for @quickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a new subscription'**
+  String get quickAddTitle;
+
+  /// No description provided for @quickAddHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add — you can edit details later'**
+  String get quickAddHelper;
+
+  /// No description provided for @quickAddServiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a service'**
+  String get quickAddServiceHint;
+
+  /// No description provided for @quickAddAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get quickAddAmount;
+
+  /// No description provided for @quickAddFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get quickAddFrequency;
+
+  /// No description provided for @quickAddStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get quickAddStartDate;
+
+  /// No description provided for @quickAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get quickAddSave;
+
+  /// No description provided for @quickAddSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved — next charge {date}'**
+  String quickAddSaved(String date);
+
+  /// No description provided for @quickAddSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save subscription. Try again.'**
+  String get quickAddSaveError;
+
+  /// No description provided for @frequencyWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get frequencyWeekly;
+
+  /// No description provided for @frequencyMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get frequencyMonthly;
+
+  /// No description provided for @frequencyQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly'**
+  String get frequencyQuarterly;
+
+  /// No description provided for @frequencySemiAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 6 months'**
+  String get frequencySemiAnnual;
+
+  /// No description provided for @frequencyYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get frequencyYearly;
+
+  /// No description provided for @frequencyCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get frequencyCustom;
+
+  /// No description provided for @frequencyAndCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'{frequency} • {currency}'**
+  String frequencyAndCurrency(String frequency, String currency);
+
+  /// No description provided for @dueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get dueToday;
+
+  /// No description provided for @dueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get dueTomorrow;
+
+  /// No description provided for @dueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'In {count} days'**
+  String dueInDays(int count);
+
+  /// No description provided for @overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get overdue;
+
+  /// No description provided for @paidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {date}'**
+  String paidOn(String date);
+
+  /// No description provided for @pillPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get pillPaused;
+
+  /// No description provided for @pillTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get pillTrial;
 }
 
 class _AppLocalizationsDelegate

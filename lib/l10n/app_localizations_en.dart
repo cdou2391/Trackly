@@ -41,4 +41,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addSubscriptionTitle => 'Add subscription';
+
+  @override
+  String get searchTooltip => 'Search';
+
+  @override
+  String get settingsTooltip => 'Settings';
+
+  @override
+  String get heroLabel => 'YOUR RECURRING COST';
+
+  @override
+  String heroPerMonth(String amount) {
+    return '$amount / month';
+  }
+
+  @override
+  String heroPerYear(String amount) {
+    return '$amount per year';
+  }
+
+  @override
+  String heroOtherCurrencies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+ $count other currencies',
+      one: '+ 1 other currency',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusTrial => 'Trial';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String statusCount(String label, int count) {
+    return '$label: $count';
+  }
+
+  @override
+  String get upcomingTitle => 'Upcoming charges';
+
+  @override
+  String get recentPaymentsTitle => 'Recent payments';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get emptyUpcomingTitle => 'No upcoming charges';
+
+  @override
+  String get emptyUpcomingBody =>
+      'Add your first subscription to start tracking renewals.';
+
+  @override
+  String get quickAddTitle => 'Add a new subscription';
+
+  @override
+  String get quickAddHelper => 'Quick add — you can edit details later';
+
+  @override
+  String get quickAddServiceHint => 'Search a service';
+
+  @override
+  String get quickAddAmount => 'Amount';
+
+  @override
+  String get quickAddFrequency => 'Frequency';
+
+  @override
+  String get quickAddStartDate => 'Start date';
+
+  @override
+  String get quickAddSave => 'Save';
+
+  @override
+  String quickAddSaved(String date) {
+    return 'Saved — next charge $date';
+  }
+
+  @override
+  String get quickAddSaveError => 'Couldn\'t save subscription. Try again.';
+
+  @override
+  String get frequencyWeekly => 'Weekly';
+
+  @override
+  String get frequencyMonthly => 'Monthly';
+
+  @override
+  String get frequencyQuarterly => 'Quarterly';
+
+  @override
+  String get frequencySemiAnnual => 'Every 6 months';
+
+  @override
+  String get frequencyYearly => 'Yearly';
+
+  @override
+  String get frequencyCustom => 'Custom';
+
+  @override
+  String frequencyAndCurrency(String frequency, String currency) {
+    return '$frequency • $currency';
+  }
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get dueTomorrow => 'Due tomorrow';
+
+  @override
+  String dueInDays(int count) {
+    return 'In $count days';
+  }
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String paidOn(String date) {
+    return 'Paid $date';
+  }
+
+  @override
+  String get pillPaused => 'Paused';
+
+  @override
+  String get pillTrial => 'Trial';
 }

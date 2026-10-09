@@ -10,5 +10,65 @@
   "insightsTitle": "Insights",
   "calendarTitle": "Calendar",
   "moreTitle": "More",
-  "addSubscriptionTitle": "Add subscription"
+  "addSubscriptionTitle": "Add subscription",
+
+  "searchTooltip": "Search",
+  "settingsTooltip": "Settings",
+
+  "heroLabel": "YOUR RECURRING COST",
+  "heroPerMonth": "{amount} / month",
+  "@heroPerMonth": { "placeholders": { "amount": { "type": "String" } } },
+  "heroPerYear": "{amount} per year",
+  "@heroPerYear": { "placeholders": { "amount": { "type": "String" } } },
+  "heroOtherCurrencies": "{count, plural, =1{+ 1 other currency} other{+ {count} other currencies}}",
+  "@heroOtherCurrencies": { "placeholders": { "count": { "type": "int" } } },
+
+  "statusActive": "Active",
+  "statusTrial": "Trial",
+  "statusCancelled": "Cancelled",
+  "statusCount": "{label}: {count}",
+  "@statusCount": {
+    "placeholders": { "label": { "type": "String" }, "count": { "type": "int" } }
+  },
+
+  "upcomingTitle": "Upcoming charges",
+  "recentPaymentsTitle": "Recent payments",
+  "seeAll": "See all",
+  "emptyUpcomingTitle": "No upcoming charges",
+  "emptyUpcomingBody": "Add your first subscription to start tracking renewals.",
+
+  "quickAddTitle": "Add a new subscription",
+  "quickAddHelper": "Quick add — you can edit details later",
+  "quickAddServiceHint": "Search a service",
+  "quickAddAmount": "Amount",
+  "quickAddFrequency": "Frequency",
+  "quickAddStartDate": "Start date",
+  "quickAddSave": "Save",
+  "quickAddSaved": "Saved — next charge {date}",
+  "@quickAddSaved": { "placeholders": { "date": { "type": "String" } } },
+  "quickAddSaveError": "Couldn't save subscription. Try again.",
+
+  "frequencyWeekly": "Weekly",
+  "frequencyMonthly": "Monthly",
+  "frequencyQuarterly": "Quarterly",
+  "frequencySemiAnnual": "Every 6 months",
+  "frequencyYearly": "Yearly",
+  "frequencyCustom": "Custom",
+  "frequencyAndCurrency": "{frequency} • {currency}",
+  "@frequencyAndCurrency": {
+    "placeholders": {
+      "frequency": { "type": "String" },
+      "currency": { "type": "String" }
+    }
+  },
+
+  "dueToday": "Due today",
+  "dueTomorrow": "Due tomorrow",
+  "dueInDays": "In {count} days",
+  "@dueInDays": { "placeholders": { "count": { "type": "int" } } },
+  "overdue": "Overdue",
+  "paidOn": "Paid {date}",
+  "@paidOn": { "placeholders": { "date": { "type": "String" } } },
+  "pillPaused": "Paused",
+  "pillTrial": "Trial"
 }

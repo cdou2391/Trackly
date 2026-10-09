@@ -57,3 +57,49 @@ DateTime calculateNextDueDate({
       return addMonthsClamped(from, 12 * interval, anchorDay: anchorDay);
   }
 }
+
+/// First upcoming due date for a newly entered item.
+///
+/// [startDate] is treated as the most recent (or first) charge date:
+/// - a start date in the future is itself the next due date;
+/// - otherwise it is the first schedule date after the start that is not in
+///   the past (so a start of today gives one period from now, and a start
+///   whose next charge is today gives today).
+DateTime firstDueDate({
+  required DateTime startDate,
+  required BillingFrequency frequency,
+  int interval = 1,
+  required DateTime today,
+}) {
+  final start = dateOnly(startDate);
+  final now = dateOnly(today);
+  if (start.isAfter(now)) return start;
+
+  var due = start;
+  do {
+    due = calculateNextDueDate(
+      fromDate: due,
+      frequency: frequency,
+      interval: interval,
+      anchorDay: start.day,
+    );
+  } while (due.isBefore(now));
+  return due;
+}
+
+/// Whole calendar days from [from] to [to] (negative if [to] is earlier).
+/// Uses UTC dates so daylight-saving changes cannot skew the count.
+int daysBetween(DateTime from, DateTime to) {
+  return DateTime.utc(to.year, to.month, to.day)
+      .difference(DateTime.utc(from.year, from.month, from.day))
+      .inDays;
+}
+
+/// Last day shown in Upcoming: one calendar month after [today].
+///
+/// Using a calendar month (not a fixed 30 days) means a monthly item added
+/// today, which is due exactly one month away, always falls inside the window
+/// whether that month has 28, 29, 30 or 31 days.
+DateTime upcomingCutoff(DateTime today) {
+  return addMonthsClamped(dateOnly(today), 1);
+}
