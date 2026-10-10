@@ -196,6 +196,22 @@ class AppTheme {
           selectedBackgroundColor: scheme.secondaryContainer,
         ),
       ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: primaryText,
+        unselectedLabelColor: secondaryText,
+        labelStyle: sans(15, weight: 600),
+        unselectedLabelStyle: sans(15, weight: 500),
+        indicatorColor: tokens.accent,
+        indicatorSize: TabBarIndicatorSize.label,
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: tokens.accent, width: 3),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+        ),
+        dividerColor: tokens.cardBorder,
+        overlayColor: WidgetStatePropertyAll(
+          tokens.accent.withValues(alpha: 0.08),
+        ),
+      ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: tokens.primaryAction,

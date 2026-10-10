@@ -4,7 +4,7 @@ import 'package:trackly/core/database/app_database.dart';
 import 'package:trackly/features/payments/domain/payment.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 
-import 'package:trackly/shared/widgets/filter_pill.dart';
+import 'package:trackly/features/subscriptions/application/items_filter.dart';
 
 import '../../helpers/test_app.dart';
 
@@ -419,12 +419,12 @@ void main() {
       expect(find.text('Netflix'), findsOneWidget);
       expect(find.text('Canva'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilterPill, 'Trial'));
+      await tester.tap(find.widgetWithText(Tab, 'Trial'));
       await settle(tester);
       expect(find.text('Netflix'), findsNothing);
       expect(find.text('Canva'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilterPill, 'Cancelled'));
+      await tester.tap(find.widgetWithText(Tab, 'Cancelled'));
       await settle(tester);
       expect(find.text('Nothing here yet.'), findsOneWidget);
     });
@@ -448,10 +448,8 @@ void main() {
       await settle(tester);
 
       expect(
-        tester
-            .widget<FilterPill>(find.widgetWithText(FilterPill, 'Trial'))
-            .selected,
-        isTrue,
+        tester.widget<TabBar>(find.byType(TabBar)).controller!.index,
+        ItemFilter.trial.index,
       );
       expect(find.text('Canva'), findsOneWidget);
       expect(find.text('Netflix'), findsNothing);
