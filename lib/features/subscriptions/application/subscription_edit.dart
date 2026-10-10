@@ -1,6 +1,7 @@
 import '../../../core/utils/recurrence_utils.dart';
 import '../domain/recurring_enums.dart';
 import '../domain/recurring_item.dart';
+import '../domain/service_catalog.dart';
 
 /// What the user changed in the edit form.
 class EditedSubscription {
@@ -77,7 +78,7 @@ RecurringItem buildEditedItem(
     reminderDaysBefore: edit.reminderDaysBefore,
     categoryId: edit.categoryId,
     notes: (notes == null || notes.isEmpty) ? null : notes,
-    logoKey: edit.logoKey,
+    logoKey: edit.logoKey ?? findServiceByName(edit.name)?.key,
     createdAt: original.createdAt,
     updatedAt: now,
   );

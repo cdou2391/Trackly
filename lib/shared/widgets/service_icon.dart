@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/database/tables/categories_table.dart';
 import '../../core/theme/trackly_tokens.dart';
@@ -27,8 +28,8 @@ IconData categoryIconData(String? categoryId) {
   return _categoryIcons[key] ?? Icons.receipt_long_rounded;
 }
 
-/// Service tile. Resolution order: catalog service (monogram until a logo
-/// asset exists), then the category icon, then a generic icon.
+/// Service tile. Resolution order: the catalog logo, then a letter tile for a
+/// catalog service without one, then the category icon, then a generic icon.
 class ServiceIcon extends StatelessWidget {
   const ServiceIcon({this.logoKey, this.categoryId, this.size = 48, super.key});
 
@@ -40,6 +41,26 @@ class ServiceIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final service = logoKey == null ? null : serviceCatalogByKey[logoKey];
+
+    final logo = service?.logoAsset;
+
+    // Brand logos are drawn for light backgrounds (some are black), so they sit
+    // on a white tile in every theme.
+    if (logo != null) {
+      return ExcludeSemantics(
+        child: Container(
+          width: size,
+          height: size,
+          padding: EdgeInsets.all(size * 0.2),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(size * 0.3),
+            border: Border.all(color: tokens.cardBorder),
+          ),
+          child: SvgPicture.asset(logo, fit: BoxFit.contain),
+        ),
+      );
+    }
 
     final Widget child = service != null
         ? Text(

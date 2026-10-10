@@ -9,6 +9,7 @@ import '../../../core/utils/recurrence_utils.dart';
 import '../../home/application/home_providers.dart';
 import '../domain/recurring_enums.dart';
 import '../domain/recurring_item.dart';
+import '../domain/service_catalog.dart';
 
 /// Which form created the item; sent to analytics as `entry_method`.
 enum EntryMethod {
@@ -76,6 +77,10 @@ RecurringItem buildRecurringItem(
       : dateOnly(input.startDate);
   final notes = input.notes?.trim();
 
+  // A typed name that is exactly a catalog service ("netflix") gets its logo
+  // and category even when the suggestion was not tapped.
+  final service = input.logoKey == null ? findServiceByName(input.name) : null;
+
   return RecurringItem(
     id: id,
     name: input.name.trim(),
@@ -95,9 +100,9 @@ RecurringItem buildRecurringItem(
     trialEndDate: trialEnd == null ? null : dateOnly(trialEnd),
     remindersEnabled: input.remindersEnabled,
     reminderDaysBefore: input.reminderDaysBefore,
-    categoryId: input.categoryId,
+    categoryId: input.categoryId ?? service?.categoryId,
     notes: (notes == null || notes.isEmpty) ? null : notes,
-    logoKey: input.logoKey,
+    logoKey: input.logoKey ?? service?.key,
     createdAt: now,
     updatedAt: now,
   );

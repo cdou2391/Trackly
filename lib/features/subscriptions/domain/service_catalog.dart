@@ -1,13 +1,15 @@
 /// A common service offered by Quick Add search.
 ///
 /// Keys are permanent identifiers stored in `recurring_items.logo_key`; never
-/// rename one once released. Until a logo asset is added for a service, the UI
-/// shows a monogram tile.
+/// rename one once released. The database stores only the key; the logo file
+/// is bundled with the app and found through this catalog. Services without a
+/// [logoAsset] show a letter tile.
 class CatalogService {
   const CatalogService({
     required this.key,
     required this.name,
     required this.categoryId,
+    this.logoAsset,
   });
 
   final String key;
@@ -15,20 +17,20 @@ class CatalogService {
 
   /// Id of a seeded category (see `systemCategories`).
   final String categoryId;
+
+  /// Bundled SVG, for example `assets/logos/netflix.svg`. Null until a logo is
+  /// added. See `assets/logos/LICENSES.md` for sources and trademark notes.
+  final String? logoAsset;
 }
 
+const _logos = 'assets/logos';
+
 const serviceCatalog = <CatalogService>[
-  CatalogService(key: 'netflix', name: 'Netflix', categoryId: 'entertainment'),
-  CatalogService(key: 'spotify', name: 'Spotify', categoryId: 'entertainment'),
   CatalogService(
-    key: 'youtube_premium',
-    name: 'YouTube Premium',
+    key: 'netflix',
+    name: 'Netflix',
     categoryId: 'entertainment',
-  ),
-  CatalogService(
-    key: 'apple_music',
-    name: 'Apple Music',
-    categoryId: 'entertainment',
+    logoAsset: '$_logos/netflix.svg',
   ),
   CatalogService(
     key: 'amazon_prime',
@@ -36,22 +38,76 @@ const serviceCatalog = <CatalogService>[
     categoryId: 'entertainment',
   ),
   CatalogService(
+    key: 'youtube_premium',
+    name: 'YouTube Premium',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/youtube_premium.svg',
+  ),
+  CatalogService(
+    key: 'spotify',
+    name: 'Spotify',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/spotify.svg',
+  ),
+  CatalogService(
     key: 'disney_plus',
     name: 'Disney+',
     categoryId: 'entertainment',
   ),
-  CatalogService(key: 'google_one', name: 'Google One', categoryId: 'software'),
-  CatalogService(key: 'icloud_plus', name: 'iCloud+', categoryId: 'software'),
+  CatalogService(
+    key: 'apple_music',
+    name: 'Apple Music',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/apple_music.svg',
+  ),
+  CatalogService(
+    key: 'apple_tv_plus',
+    name: 'Apple TV+',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/apple_tv_plus.svg',
+  ),
+  CatalogService(
+    key: 'max',
+    name: 'Max',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/max.svg',
+  ),
+  CatalogService(key: 'hulu', name: 'Hulu', categoryId: 'entertainment'),
+  CatalogService(
+    key: 'paramount_plus',
+    name: 'Paramount+',
+    categoryId: 'entertainment',
+    logoAsset: '$_logos/paramount_plus.svg',
+  ),
   CatalogService(
     key: 'microsoft_365',
     name: 'Microsoft 365',
     categoryId: 'software',
+    logoAsset: '$_logos/microsoft_365.svg',
   ),
-  CatalogService(key: 'adobe', name: 'Adobe', categoryId: 'software'),
+  CatalogService(
+    key: 'google_one',
+    name: 'Google One',
+    categoryId: 'software',
+    logoAsset: '$_logos/google_one.svg',
+  ),
+  CatalogService(
+    key: 'icloud_plus',
+    name: 'iCloud+',
+    categoryId: 'software',
+    logoAsset: '$_logos/icloud_plus.svg',
+  ),
   CatalogService(
     key: 'chatgpt_plus',
     name: 'ChatGPT Plus',
     categoryId: 'software',
+    logoAsset: '$_logos/chatgpt_plus.svg',
+  ),
+  CatalogService(
+    key: 'adobe',
+    name: 'Adobe',
+    categoryId: 'software',
+    logoAsset: '$_logos/adobe.svg',
   ),
   CatalogService(key: 'dropbox', name: 'Dropbox', categoryId: 'software'),
   CatalogService(key: 'canva', name: 'Canva', categoryId: 'software'),
@@ -61,6 +117,20 @@ const serviceCatalog = <CatalogService>[
 final serviceCatalogByKey = {
   for (final service in serviceCatalog) service.key: service,
 };
+
+String _normalize(String text) =>
+    text.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+
+final _catalogByName = {
+  for (final service in serviceCatalog) _normalize(service.name): service,
+};
+
+/// The catalog service whose name is exactly [name] (ignoring case, spacing at
+/// the ends and repeated spaces), or null for a custom name.
+///
+/// Lets a typed "netflix" get the Netflix logo without picking the suggestion.
+CatalogService? findServiceByName(String name) =>
+    _catalogByName[_normalize(name)];
 
 /// Services whose name contains [query] (case-insensitive), prefix matches
 /// first. Returns nothing for a blank query.

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/database/tables/categories_table.dart';
 import 'package:trackly/features/subscriptions/domain/service_catalog.dart';
@@ -43,5 +45,112 @@ void main() {
   test('catalog lookup by key', () {
     expect(serviceCatalogByKey['spotify']!.name, 'Spotify');
     expect(serviceCatalogByKey['nope'], isNull);
+  });
+
+  group('logos', () {
+    final withLogo = serviceCatalog.where((s) => s.logoAsset != null).toList();
+    final withoutLogo = serviceCatalog
+        .where((s) => s.logoAsset == null)
+        .toList();
+
+    test(
+      'every logo file exists in the bundled folder and is named by its key',
+      () {
+        for (final service in withLogo) {
+          expect(service.logoAsset, 'assets/logos/${service.key}.svg');
+          expect(
+            File(service.logoAsset!).existsSync(),
+            isTrue,
+            reason: service.key,
+          );
+        }
+      },
+    );
+
+    test('no file in the folder is left unused', () {
+      final files = Directory('assets/logos')
+          .listSync()
+          .whereType<File>()
+          .map((f) => f.uri.pathSegments.last)
+          .where((n) => n.endsWith('.svg'))
+          .toSet();
+      expect(files, {for (final s in withLogo) '${s.key}.svg'});
+    });
+
+    test('files are real SVGs with nothing that could run or phone home', () {
+      for (final service in withLogo) {
+        final svg = File(service.logoAsset!).readAsStringSync();
+        expect(svg.contains('<svg'), isTrue, reason: service.key);
+        for (final bad in [
+          '<script',
+          'foreignObject',
+          '<image',
+          'onload',
+          'onclick',
+          'javascript:',
+        ]) {
+          expect(svg.contains(bad), isFalse, reason: '${service.key}: $bad');
+        }
+        // No links to anything outside the file.
+        expect(
+          RegExp(r"""(?:href|src)=["'](?!#)""").hasMatch(svg),
+          isFalse,
+          reason: service.key,
+        );
+        expect(svg.length, lessThan(20000), reason: '${service.key} is big');
+      }
+    });
+
+    test('the requested platforms have logos; three still do not', () {
+      expect(
+        withLogo.map((s) => s.key),
+        containsAll([
+          'netflix',
+          'youtube_premium',
+          'spotify',
+          'apple_music',
+          'apple_tv_plus',
+          'max',
+          'paramount_plus',
+          'microsoft_365',
+          'google_one',
+          'icloud_plus',
+          'chatgpt_plus',
+          'adobe',
+        ]),
+      );
+      expect(withLogo, hasLength(12));
+      // Not in the open collections; they keep a letter tile for now.
+      expect(
+        withoutLogo.map((s) => s.key),
+        containsAll(['amazon_prime', 'disney_plus', 'hulu']),
+      );
+    });
+
+    test('the licenses file credits every logo', () {
+      final notice = File('assets/logos/LICENSES.md').readAsStringSync();
+      expect(notice, contains('CC0'));
+      expect(notice, contains('trademark'));
+      for (final service in withLogo) {
+        expect(notice, contains('${service.key}.svg'), reason: service.key);
+      }
+    });
+  });
+
+  group('findServiceByName', () {
+    test('matches exactly, ignoring case and extra spaces', () {
+      expect(findServiceByName('Netflix')!.key, 'netflix');
+      expect(findServiceByName('netflix')!.key, 'netflix');
+      expect(findServiceByName('  NETFLIX  ')!.key, 'netflix');
+      expect(findServiceByName('apple   tv+')!.key, 'apple_tv_plus');
+      expect(findServiceByName('Paramount+')!.key, 'paramount_plus');
+    });
+
+    test('does not guess at partial or different names', () {
+      expect(findServiceByName('Netflix family'), isNull);
+      expect(findServiceByName('Net'), isNull);
+      expect(findServiceByName('Gym'), isNull);
+      expect(findServiceByName(''), isNull);
+    });
   });
 }

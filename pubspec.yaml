@@ -76,6 +76,7 @@ flutter:
 
   assets:
     - assets/illustrations/
+    - assets/logos/
 
   # Variable fonts (weight axis); licenses are alongside in assets/fonts/.
   fonts:

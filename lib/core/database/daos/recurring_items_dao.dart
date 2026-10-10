@@ -73,6 +73,30 @@ class RecurringItemsDao extends DatabaseAccessor<AppDatabase>
     return (delete(recurringItems)..where((t) => t.id.equals(id))).go();
   }
 
+  /// Items that have no logo yet.
+  Future<List<RecurringItem>> getWithoutLogo() {
+    return (select(recurringItems)..where((t) => t.logoKey.isNull())).get();
+  }
+
+  /// Sets only the logo (and the category, when it is empty) of one item.
+  Future<void> setCatalogService(
+    String id, {
+    required String logoKey,
+    required String categoryId,
+  }) async {
+    await customUpdate(
+      'UPDATE recurring_items '
+      'SET logo_key = ?, category_id = COALESCE(category_id, ?) '
+      'WHERE id = ? AND logo_key IS NULL',
+      variables: [
+        Variable.withString(logoKey),
+        Variable.withString(categoryId),
+        Variable.withString(id),
+      ],
+      updates: {recurringItems},
+    );
+  }
+
   Future<int> deleteAll() => delete(recurringItems).go();
 }
 

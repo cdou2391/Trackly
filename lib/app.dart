@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/navigation/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/application/settings_providers.dart';
+import 'features/subscriptions/application/catalog_backfill.dart';
 import 'l10n/app_localizations.dart';
 
 class TracklyApp extends ConsumerWidget {
@@ -13,6 +14,9 @@ class TracklyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Give existing items their catalog logo (runs once per launch).
+    ref.watch(catalogBackfillProvider);
+
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       localizationsDelegates: const [

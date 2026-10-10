@@ -1,0 +1,336 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:trackly/core/database/app_database.dart';
+import 'package:trackly/features/subscriptions/application/catalog_backfill.dart';
+import 'package:trackly/features/subscriptions/application/subscription_creator.dart';
+import 'package:trackly/features/subscriptions/application/subscription_edit.dart';
+import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
+import 'package:trackly/features/subscriptions/domain/recurring_item.dart';
+import 'package:trackly/features/subscriptions/domain/service_catalog.dart';
+import 'package:trackly/shared/widgets/service_icon.dart';
+
+import '../../helpers/test_app.dart';
+
+final _now = DateTime(2026, 10, 9, 12);
+
+NewSubscription _new(String name, {String? logoKey, String? categoryId}) {
+  return NewSubscription(
+    name: name,
+    amount: 10,
+    currencyCode: 'USD',
+    frequency: BillingFrequency.monthly,
+    startDate: DateTime(2026, 10, 9),
+    entryMethod: EntryMethod.quickAdd,
+    logoKey: logoKey,
+    categoryId: categoryId,
+  );
+}
+
+RecurringItem _item(
+  String id,
+  String name, {
+  String? logoKey,
+  String? categoryId,
+}) {
+  return RecurringItem(
+    id: id,
+    name: name,
+    type: RecurringItemType.subscription,
+    amount: 10,
+    currencyCode: 'USD',
+    frequency: BillingFrequency.monthly,
+    startDate: DateTime(2026, 1, 15),
+    nextDueDate: DateTime(2026, 10, 15),
+    logoKey: logoKey,
+    categoryId: categoryId,
+    createdAt: _now,
+    updatedAt: _now,
+  );
+}
+
+void main() {
+  final withLogo = serviceCatalog.where((s) => s.logoAsset != null).toList();
+
+  group('every logo really renders', () {
+    for (final service in withLogo) {
+      testWidgets(service.key, (tester) async {
+        final boundary = GlobalKey();
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Center(
+              child: RepaintBoundary(
+                key: boundary,
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(12),
+                  child: SvgPicture.asset(service.logoAsset!),
+                ),
+              ),
+            ),
+          ),
+        );
+        // The SVG is parsed asynchronously.
+        for (var i = 0; i < 8; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 20)),
+          );
+          await tester.pump();
+        }
+        expect(tester.takeException(), isNull);
+
+        // Something was drawn: not a blank white square.
+        final bytes = await tester.runAsync(() async {
+          final render =
+              boundary.currentContext!.findRenderObject()!
+                  as RenderRepaintBoundary;
+          final image = await render.toImage();
+          final data = await image.toByteData(
+            format: ui.ImageByteFormat.rawRgba,
+          );
+          return data!.buffer.asUint8List();
+        });
+        expect(
+          _drawnPixels(bytes!),
+          greaterThan(150),
+          reason: '${service.key} drew almost nothing',
+        );
+      });
+    }
+  });
+
+  group('ServiceIcon', () {
+    tracklyTest('shows the logo for a catalog service that has one', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        items: [testItem('Netflix', logoKey: 'netflix')],
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    tracklyTest('a logo sits on a white tile, also in the dark theme', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        themeMode: ThemeMode.dark,
+        items: [testItem('Apple TV+', logoKey: 'apple_tv_plus')],
+      );
+      final tile = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(ServiceIcon),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect((tile.decoration as BoxDecoration).color, Colors.white);
+    });
+
+    tracklyTest('a catalog service without a logo shows its letter', (
+      tester,
+    ) async {
+      await pumpTrackly(tester, items: [testItem('Hulu', logoKey: 'hulu')]);
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: find.byType(ServiceIcon), matching: find.text('H')),
+        findsOneWidget,
+      );
+    });
+
+    tracklyTest('a custom item keeps its category icon', (tester) async {
+      await pumpTrackly(tester, items: [testItem('Gym membership')]);
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(Icon),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('typed names pick up the catalog service', () {
+    test('a typed catalog name gets its logo key and category', () {
+      final item = buildRecurringItem(_new('netflix'), id: 'a', now: _now);
+      expect(item.logoKey, 'netflix');
+      expect(item.categoryId, 'entertainment');
+      expect(item.name, 'netflix'); // the user's spelling is kept
+    });
+
+    test('an explicit choice wins over the name', () {
+      final item = buildRecurringItem(
+        _new('Netflix', logoKey: 'spotify', categoryId: 'fitness'),
+        id: 'a',
+        now: _now,
+      );
+      expect(item.logoKey, 'spotify');
+      expect(item.categoryId, 'fitness');
+    });
+
+    test('a custom name gets nothing', () {
+      final item = buildRecurringItem(
+        _new('Netflix family'),
+        id: 'a',
+        now: _now,
+      );
+      expect(item.logoKey, isNull);
+      expect(item.categoryId, isNull);
+    });
+
+    test('a typed name keeps a category the user picked', () {
+      final item = buildRecurringItem(
+        _new('Spotify', categoryId: 'health'),
+        id: 'a',
+        now: _now,
+      );
+      expect(item.logoKey, 'spotify');
+      expect(item.categoryId, 'health');
+    });
+
+    test('renaming an item to a catalog name gives it the logo', () {
+      final original = _item('a', 'My streaming');
+      final edited = buildEditedItem(
+        original,
+        EditedSubscription(
+          name: 'Max',
+          type: RecurringItemType.subscription,
+          amount: 10,
+          currencyCode: 'USD',
+          frequency: BillingFrequency.monthly,
+          nextDueDate: DateTime(2026, 10, 15),
+          remindersEnabled: true,
+          reminderDaysBefore: 3,
+        ),
+        now: _now,
+      );
+      expect(edited.logoKey, 'max');
+    });
+  });
+
+  group('backfillCatalogLogos', () {
+    late AppDatabase db;
+
+    setUp(() => db = AppDatabase(NativeDatabase.memory()));
+    tearDown(() => db.close());
+
+    Future<RecurringItem> stored(String id) async =>
+        (await db.recurringItemsDao.getById(id))!;
+
+    test('gives matching items their key and category', () async {
+      await db.recurringItemsDao.insertItem(_item('a', 'Netflix'));
+      await db.recurringItemsDao.insertItem(_item('b', '  SPOTIFY '));
+
+      expect(await backfillCatalogLogos(db), 2);
+
+      expect((await stored('a')).logoKey, 'netflix');
+      expect((await stored('a')).categoryId, 'entertainment');
+      expect((await stored('b')).logoKey, 'spotify');
+    });
+
+    test('leaves custom items alone', () async {
+      await db.recurringItemsDao.insertItem(_item('a', 'Gym near home'));
+      expect(await backfillCatalogLogos(db), 0);
+      expect((await stored('a')).logoKey, isNull);
+      expect((await stored('a')).categoryId, isNull);
+    });
+
+    test('never overrides a logo that is already set', () async {
+      await db.recurringItemsDao.insertItem(
+        _item('a', 'Netflix', logoKey: 'spotify'),
+      );
+      expect(await backfillCatalogLogos(db), 0);
+      expect((await stored('a')).logoKey, 'spotify');
+    });
+
+    test('keeps a category the user already chose', () async {
+      await db.recurringItemsDao.insertItem(
+        _item('a', 'Netflix', categoryId: 'health'),
+      );
+      await backfillCatalogLogos(db);
+      expect((await stored('a')).logoKey, 'netflix');
+      expect((await stored('a')).categoryId, 'health');
+    });
+
+    test('changes only the logo and category', () async {
+      await db.recurringItemsDao.insertItem(_item('a', 'Netflix'));
+      final before = await stored('a');
+      await backfillCatalogLogos(db);
+      final after = await stored('a');
+      expect(after.name, before.name);
+      expect(after.amount, before.amount);
+      expect(after.nextDueDate, before.nextDueDate);
+      expect(after.updatedAt, before.updatedAt);
+      expect(after.status, before.status);
+    });
+
+    test('is safe to run again', () async {
+      await db.recurringItemsDao.insertItem(_item('a', 'Netflix'));
+      expect(await backfillCatalogLogos(db), 1);
+      expect(await backfillCatalogLogos(db), 0);
+    });
+
+    test('an empty database is fine', () async {
+      expect(await backfillCatalogLogos(db), 0);
+    });
+  });
+
+  group('at app start', () {
+    tracklyTest('an existing item named like a catalog service gets its logo', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(tester, items: [testItem('Netflix')]);
+
+      final stored = await tester.runAsync(
+        () => db.recurringItemsDao.getById('Netflix'),
+      );
+      expect(stored!.logoKey, 'netflix');
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
+}
+
+/// How many pixels are not (almost) white: the logo's ink.
+int _drawnPixels(Uint8List rgba) {
+  var count = 0;
+  for (var i = 0; i < rgba.length; i += 4) {
+    final r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+    if (r < 235 || g < 235 || b < 235) count++;
+  }
+  return count;
+}
