@@ -77,6 +77,15 @@ flutter:
   assets:
     - assets/illustrations/
 
+  # Variable fonts (weight axis); licenses are alongside in assets/fonts/.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

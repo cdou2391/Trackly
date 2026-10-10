@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/format_utils.dart';
-import '../../../l10n/l10n.dart';
+import '../../../core/theme/trackly_tokens.dart';
 import '../application/home_summary.dart';
+import 'hero_amount.dart';
 
-/// Decorative hero illustration (flat teal calendar card with a reminder bell).
-const heroIllustrationAsset = 'assets/illustrations/hero.svg';
-
+/// The Home top section: header and recurring-cost hero.
+///
+/// Light draws a rounded cream card under a plain header. Dark draws a
+/// full-bleed teal field that runs up behind the status bar, with the header
+/// inside it and one wide arc as its bottom edge.
 class HeroSection extends StatelessWidget {
   const HeroSection({
     required this.header,
@@ -17,41 +19,162 @@ class HeroSection extends StatelessWidget {
     super.key,
   });
 
-  /// The page header, drawn on the same teal field as the amount.
   final Widget header;
   final HomeSummary summary;
   final String defaultCurrency;
 
-  /// Keeps content readable on tablets; the teal itself stays full width.
-  static const _maxContentWidth = 520.0;
+  @override
+  Widget build(BuildContext context) {
+    final amount = HeroAmount(
+      summary: summary,
+      defaultCurrency: defaultCurrency,
+    );
+    final asset = context.tokens.heroIllustration;
+
+    return switch (context.tokens.heroStyle) {
+      HeroStyle.card => _HeroCard(header: header, amount: amount, asset: asset),
+      HeroStyle.fullBleedArc => _ArcHero(
+        header: header,
+        amount: amount,
+        asset: asset,
+      ),
+    };
+  }
+}
+
+/// Keeps content readable on tablets.
+const _maxContentWidth = 520.0;
+
+// ---------------------------------------------------------------- light card
+
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({
+    required this.header,
+    required this.amount,
+    required this.asset,
+  });
+
+  final Widget header;
+  final Widget amount;
+  final String asset;
+
+  static const _radius = 28.0;
+  static const _minHeight = 236.0;
+
+  /// Share of the card the illustration may take; the amount stays left of it.
+  static const _artShare = 0.56;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+
+    return SafeArea(
+      bottom: false,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            // Stretch: inside Center a Column would otherwise shrink to its
+            // narrowest content and the card would not span the screen.
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: TracklySpacing.base,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [tokens.heroFill, tokens.heroFillEnd],
+                    ),
+                    borderRadius: BorderRadius.circular(_radius),
+                    border: Border.all(color: tokens.heroBorder),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(_radius - 1),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final width = constraints.maxWidth;
+                        return ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: _minHeight,
+                          ),
+                          child: Stack(
+                            children: [
+                              // Purely decorative, so hidden from screen
+                              // readers.
+                              Positioned.fill(
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: ExcludeSemantics(
+                                    child: SvgPicture.asset(
+                                      asset,
+                                      width: width * _artShare,
+                                      alignment: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  TracklySpacing.xl - 2,
+                                  TracklySpacing.xl,
+                                  0,
+                                  TracklySpacing.xl,
+                                ),
+                                child: SizedBox(
+                                  // Leaves the right side to the illustration.
+                                  width: width * 0.58,
+                                  child: amount,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------- dark arc
+
+class _ArcHero extends StatelessWidget {
+  const _ArcHero({
+    required this.header,
+    required this.amount,
+    required this.asset,
+  });
+
+  final Widget header;
+  final Widget amount;
+  final String asset;
 
   /// How far the bottom edge dips: the sides sit this much higher than the
   /// middle.
   static const _bottomSag = 36.0;
-  static const _maxCurrencyLines = 2;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final textTheme = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
-    final locale = Localizations.localeOf(context).toString();
-
-    final monthly = summary.monthlyTotalsByCurrency;
-    final currencies = monthly.keys.toList()..sort();
-    final single = currencies.length <= 1;
-    final currency = single && currencies.isNotEmpty
-        ? currencies.first
-        : defaultCurrency;
+    final tokens = context.tokens;
 
     // A deep teal field (the brand accent, darkened) set against the black
     // page; its bottom edge is one wide sweeping arc.
     return ClipPath(
       clipper: const _SweepingBottomClipper(sag: _bottomSag),
       child: ColoredBox(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? TracklyColors.heroSurface
-            : scheme.surfaceContainerHighest,
+        color: tokens.heroFill,
         child: Padding(
           // The teal runs up behind the status bar, so the content starts
           // below it.
@@ -64,6 +187,7 @@ class HeroSection extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: _maxContentWidth),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   header,
                   Padding(
@@ -73,76 +197,9 @@ class HeroSection extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.heroLabel,
-                                style: textTheme.labelMedium?.copyWith(
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                              const SizedBox(height: TracklySpacing.md),
-                              if (single) ...[
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    l10n.heroPerMonth(
-                                      formatMoney(
-                                        monthly[currency] ?? 0,
-                                        currency,
-                                        locale: locale,
-                                      ),
-                                    ),
-                                    style: textTheme.displayLarge?.copyWith(
-                                      fontSize: 40,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: TracklySpacing.sm),
-                                Text(
-                                  l10n.heroPerYear(
-                                    formatMoney(
-                                      summary.yearlyTotalsByCurrency[currency] ??
-                                          0,
-                                      currency,
-                                      locale: locale,
-                                    ),
-                                  ),
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ] else ...[
-                                for (final code in currencies.take(
-                                  _maxCurrencyLines,
-                                ))
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: Text(
-                                      formatMoney(
-                                        monthly[code]!,
-                                        code,
-                                        locale: locale,
-                                      ),
-                                      style: textTheme.headlineMedium,
-                                    ),
-                                  ),
-                                if (currencies.length > _maxCurrencyLines)
-                                  Text(
-                                    l10n.heroOtherCurrencies(
-                                      currencies.length - _maxCurrencyLines,
-                                    ),
-                                    style: textTheme.bodySmall,
-                                  ),
-                              ],
-                            ],
-                          ),
-                        ),
+                        Expanded(child: amount),
                         const SizedBox(width: TracklySpacing.sm),
-                        const _HeroIllustration(),
+                        _ArcIllustration(asset: asset),
                       ],
                     ),
                   ),
@@ -156,13 +213,13 @@ class HeroSection extends StatelessWidget {
   }
 }
 
-/// Purely decorative, so it is hidden from screen readers.
-///
 /// The artwork is drawn larger than the room it reserves in the row, spilling
 /// leftwards over its own transparent margin, so it can be big without
 /// squeezing the amount.
-class _HeroIllustration extends StatelessWidget {
-  const _HeroIllustration();
+class _ArcIllustration extends StatelessWidget {
+  const _ArcIllustration({required this.asset});
+
+  final String asset;
 
   static const _slotWidth = 120.0;
   static const _slotHeight = 108.0;
@@ -180,7 +237,7 @@ class _HeroIllustration extends StatelessWidget {
           maxWidth: _artWidth,
           minHeight: 0,
           maxHeight: _artWidth,
-          child: SvgPicture.asset(heroIllustrationAsset, width: _artWidth),
+          child: SvgPicture.asset(asset, width: _artWidth),
         ),
       ),
     );

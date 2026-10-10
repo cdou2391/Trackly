@@ -105,3 +105,28 @@ int daysBetween(DateTime from, DateTime to) {
 DateTime upcomingCutoff(DateTime today) {
   return addMonthsClamped(dateOnly(today), 1);
 }
+
+/// The first date on [from]'s schedule that is not before [today].
+///
+/// Used when resuming a paused item: the old next-due date may be long past,
+/// so move forward along the same schedule (keeping its day of month) to the
+/// next real occurrence.
+DateTime nextOccurrenceOnOrAfter({
+  required DateTime from,
+  required BillingFrequency frequency,
+  int interval = 1,
+  int? anchorDay,
+  required DateTime today,
+}) {
+  final now = dateOnly(today);
+  var due = dateOnly(from);
+  while (due.isBefore(now)) {
+    due = calculateNextDueDate(
+      fromDate: due,
+      frequency: frequency,
+      interval: interval,
+      anchorDay: anchorDay,
+    );
+  }
+  return due;
+}

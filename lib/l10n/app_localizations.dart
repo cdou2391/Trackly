@@ -175,8 +175,14 @@ abstract class AppLocalizations {
   /// No description provided for @heroLabel.
   ///
   /// In en, this message translates to:
-  /// **'YOUR RECURRING COST'**
+  /// **'Your recurring cost'**
   String get heroLabel;
+
+  /// No description provided for @heroMonthSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'/month'**
+  String get heroMonthSuffix;
 
   /// No description provided for @heroPerMonth.
   ///
@@ -265,8 +271,20 @@ abstract class AppLocalizations {
   /// No description provided for @quickAddServiceHint.
   ///
   /// In en, this message translates to:
-  /// **'Search a service'**
+  /// **'Search a service (e.g. Netflix, Spotify, Adobe)'**
   String get quickAddServiceHint;
+
+  /// No description provided for @quickAddAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0.00'**
+  String get quickAddAmountHint;
+
+  /// No description provided for @quickAddServiceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Service name'**
+  String get quickAddServiceLabel;
 
   /// No description provided for @quickAddAmount.
   ///
@@ -483,6 +501,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get addNotes;
+
+  /// No description provided for @editSubscriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit subscription'**
+  String get editSubscriptionTitle;
+
+  /// No description provided for @editNextCharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Next charge'**
+  String get editNextCharge;
+
+  /// No description provided for @editSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get editSaveChanges;
+
+  /// No description provided for @editSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get editSaved;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @editTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editTooltip;
+
+  /// No description provided for @markAsPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get markAsPaid;
+
+  /// No description provided for @skipCharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this charge'**
+  String get skipCharge;
+
+  /// No description provided for @pauseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pauseAction;
+
+  /// No description provided for @resumeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resumeAction;
+
+  /// No description provided for @cancelSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel subscription'**
+  String get cancelSubscription;
+
+  /// No description provided for @deleteItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteItem;
+
+  /// No description provided for @paymentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment history'**
+  String get paymentHistory;
+
+  /// No description provided for @noPaymentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments recorded yet.'**
+  String get noPaymentsYet;
+
+  /// No description provided for @nextChargeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next charge'**
+  String get nextChargeLabel;
+
+  /// No description provided for @reminderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminderLabel;
+
+  /// No description provided for @reminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get reminderOff;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryLabel;
+
+  /// No description provided for @typeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get typeLabel;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesLabel;
+
+  /// No description provided for @trialEndsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ends {date}'**
+  String trialEndsOn(String date);
+
+  /// No description provided for @afterTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} {frequency} after the trial'**
+  String afterTrial(String amount, String frequency);
+
+  /// No description provided for @dueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String dueOn(String date);
+
+  /// No description provided for @skippedChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get skippedChip;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @snackMarkedPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as paid — next charge {date}'**
+  String snackMarkedPaid(String date);
+
+  /// No description provided for @snackSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped — next charge {date}'**
+  String snackSkipped(String date);
+
+  /// No description provided for @snackPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get snackPaused;
+
+  /// No description provided for @snackResumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Resumed — next charge {date}'**
+  String snackResumed(String date);
+
+  /// No description provided for @snackCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get snackCancelled;
+
+  /// No description provided for @snackDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get snackDeleted;
+
+  /// No description provided for @actionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that change. Try again.'**
+  String get actionFailed;
+
+  /// No description provided for @resumePickerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Next charge date'**
+  String get resumePickerHelp;
+
+  /// No description provided for @cancelDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {name}?'**
+  String cancelDialogTitle(String name);
+
+  /// No description provided for @cancelDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders and due dates stop. Your payment history is kept.'**
+  String get cancelDialogBody;
+
+  /// No description provided for @cancelDialogConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel subscription'**
+  String get cancelDialogConfirm;
+
+  /// No description provided for @deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteDialogTitle(String name);
+
+  /// No description provided for @deleteDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes it and its payment history. This can\'t be undone.'**
+  String get deleteDialogBody;
+
+  /// No description provided for @deleteDialogConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteDialogConfirm;
+
+  /// No description provided for @dialogKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get dialogKeep;
+
+  /// No description provided for @dialogNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get dialogNotNow;
+
+  /// No description provided for @allSubscriptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All subscriptions'**
+  String get allSubscriptionsTitle;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get filterActive;
+
+  /// No description provided for @filterTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get filterTrial;
+
+  /// No description provided for @filterPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get filterPaused;
+
+  /// No description provided for @filterCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get filterCancelled;
+
+  /// No description provided for @noItemsInFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get noItemsInFilter;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment history'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments you mark as paid will show up here.'**
+  String get historyEmpty;
+
+  /// No description provided for @moreSectionTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking'**
+  String get moreSectionTracking;
 }
 
 class _AppLocalizationsDelegate

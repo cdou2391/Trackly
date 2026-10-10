@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/analytics/analytics_events.dart';
 import '../../../../core/analytics/analytics_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/trackly_tokens.dart';
+import '../../../../core/theme/trackly_type.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../core/utils/recurrence_utils.dart';
 import '../../../../l10n/l10n.dart';
-import '../../../../shared/widgets/form_metrics.dart';
+import '../../../../shared/widgets/quick_add_fields.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../home/widgets/curves.dart';
 import '../../../settings/application/settings_providers.dart';
@@ -54,6 +56,9 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
   }
 
   DateTime get _today => dateOnly(ref.read(nowProvider)());
+
+  /// The start date defaults to today; the field shows a "Start date"
+  /// placeholder until the user picks one.
   DateTime get _effectiveStart => _startDate ?? _today;
 
   double? get _amount {
@@ -165,40 +170,49 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tokens = context.tokens;
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final dark = theme.brightness == Brightness.dark;
+    final currency = ref.watch(defaultCurrencyProvider);
     final suggestions = _selectedService == null
         ? searchServiceCatalog(_nameController.text)
         : const <CatalogService>[];
 
-    final amountField = TextField(
-      controller: _amountController,
+    final nameField = QuickAddTextField(
+      key: const Key('quick-add-name'),
+      controller: _nameController,
+      semanticLabel: l10n.quickAddServiceLabel,
+      hint: l10n.quickAddServiceHint,
+      prefixIcon: Icons.search_rounded,
+      textCapitalization: TextCapitalization.words,
+      textInputAction: TextInputAction.next,
       onChanged: (_) => _onChanged(),
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-      decoration: InputDecoration(
-        labelText: l10n.quickAddAmount,
-        constraints: kFormFieldConstraints,
-      ),
     );
 
-    final frequencyField = DropdownButtonFormField<BillingFrequency>(
-      initialValue: _frequency,
-      isExpanded: true,
-      // Compact so the dropdown matches the text fields' height.
-      isDense: true,
-      decoration: InputDecoration(
-        labelText: l10n.quickAddFrequency,
-        constraints: kFormFieldConstraints,
-      ),
+    final amountField = QuickAddTextField(
+      key: const Key('quick-add-amount'),
+      controller: _amountController,
+      semanticLabel: l10n.quickAddAmount,
+      hint: l10n.quickAddAmountHint,
+      prefixText: currencySymbol(currency),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+      onChanged: (_) => _onChanged(),
+    );
+
+    final frequencyField = QuickAddDropdown<BillingFrequency>(
+      key: const Key('quick-add-frequency'),
+      value: _frequency,
+      semanticLabel: l10n.quickAddFrequency,
       items: [
         for (final frequency in _quickFrequencies)
           DropdownMenuItem(
             value: frequency,
-            child: Text(
-              frequency.label(context),
-              overflow: TextOverflow.ellipsis,
+            // Scales down a touch instead of cutting "Monthly" short.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(frequency.label(context)),
             ),
           ),
       ],
@@ -212,131 +226,161 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
       },
     );
 
-    final dateField = InkWell(
-      borderRadius: BorderRadius.circular(TracklyRadius.medium),
+    final dateField = QuickAddDateField(
+      key: const Key('quick-add-date'),
+      value: _startDate == null
+          ? null
+          : formatShortDate(_startDate!, locale: locale),
+      hint: l10n.quickAddStartDate,
+      semanticLabel: l10n.quickAddStartDate,
       onTap: _pickDate,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: l10n.quickAddStartDate,
-          constraints: kFormFieldConstraints,
+    );
+
+    final saveButton = SizedBox(
+      height: kQuickAddFieldHeight,
+      child: FilledButton(
+        key: const Key('quick-add-save'),
+        onPressed: _canSave ? _save : null,
+        // Tight padding so "Save" stays on one line in the compact row.
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          minimumSize: const Size(48, kQuickAddFieldHeight),
         ),
-        child: Text(
-          formatShortDate(_effectiveStart, locale: locale),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        child: _saving
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(l10n.quickAddSave, maxLines: 1, softWrap: false),
       ),
     );
 
-    final saveButton = FilledButton(
-      onPressed: _canSave ? _save : null,
-      // Tight padding so "Save" stays on one line in the compact row.
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-      ),
-      child: _saving
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Text(l10n.quickAddSave, maxLines: 1, softWrap: false),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(top: TracklySpacing.xl),
-      child: ClipPath(
-        clipper: const TopWaveClipper(),
-        // Material (not ColoredBox) so the suggestion tiles can paint ink.
-        child: Material(
-          color: dark
-              ? TracklyColors.quickAddSurface
-              : theme.colorScheme.surfaceContainerHighest,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              TracklySpacing.lg,
-              TracklySpacing.xl + TracklySpacing.sm,
-              TracklySpacing.lg,
-              TracklySpacing.xl,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(l10n.quickAddTitle, style: theme.textTheme.titleLarge),
+        ),
+        const SizedBox(height: TracklySpacing.xs),
+        Text(
+          l10n.quickAddHelper,
+          style: sans(14, color: theme.colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: TracklySpacing.base),
+        // Row 1: the service search, full width.
+        nameField,
+        for (final service in suggestions)
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            minTileHeight: 48,
+            title: Text(service.name),
+            onTap: () => _selectService(service),
+          ),
+        const SizedBox(height: TracklySpacing.sm),
+        // Row 2: amount, frequency, start date and Save.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= _singleRowWidth) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 9, child: amountField),
+                  const SizedBox(width: TracklySpacing.sm),
+                  Expanded(flex: 11, child: frequencyField),
+                  const SizedBox(width: TracklySpacing.sm),
+                  Expanded(flex: 11, child: dateField),
+                  const SizedBox(width: TracklySpacing.sm),
+                  SizedBox(width: 62, child: saveButton),
+                ],
+              );
+            }
+            // Narrow phones: wrap into two rows.
+            return Column(
               children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.quickAddTitle,
-                    style: theme.textTheme.headlineMedium,
-                  ),
-                ),
-                const SizedBox(height: TracklySpacing.xs),
-                Text(l10n.quickAddHelper, style: theme.textTheme.bodySmall),
-                const SizedBox(height: TracklySpacing.base),
-                // Row 1: service name and amount side by side.
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: TextField(
-                        controller: _nameController,
-                        onChanged: (_) => _onChanged(),
-                        textCapitalization: TextCapitalization.words,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          constraints: kFormFieldConstraints,
-                          hintText: l10n.quickAddServiceHint,
-                          prefixIcon: const Icon(Icons.search_rounded),
-                        ),
-                      ),
-                    ),
+                    Expanded(child: amountField),
                     const SizedBox(width: TracklySpacing.sm),
-                    Expanded(flex: 2, child: amountField),
+                    Expanded(child: frequencyField),
                   ],
                 ),
-                for (final service in suggestions)
-                  ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    minTileHeight: 48,
-                    title: Text(service.name),
-                    onTap: () => _selectService(service),
-                  ),
                 const SizedBox(height: TracklySpacing.sm),
-                // Row 2: frequency, start date and the Save button.
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 11, child: frequencyField),
+                    Expanded(child: dateField),
                     const SizedBox(width: TracklySpacing.sm),
-                    Expanded(flex: 10, child: dateField),
-                    const SizedBox(width: TracklySpacing.sm),
-                    SizedBox(
-                      width: 80,
-                      height: kFormFieldHeight,
-                      child: saveButton,
-                    ),
+                    SizedBox(width: 96, child: saveButton),
                   ],
                 ),
-                if (_savedMessage != null)
-                  _Feedback(
-                    icon: Icons.check_circle_rounded,
-                    color: TracklyColors.success,
-                    message: _savedMessage!,
-                  ),
-                if (_saveFailed)
-                  _Feedback(
-                    icon: Icons.error_rounded,
-                    color: TracklyColors.danger,
-                    message: l10n.quickAddSaveError,
-                  ),
               ],
+            );
+          },
+        ),
+        if (_savedMessage != null)
+          _Feedback(
+            icon: Icons.check_circle_rounded,
+            color: tokens.success.fg,
+            message: _savedMessage!,
+          ),
+        if (_saveFailed)
+          _Feedback(
+            icon: Icons.error_rounded,
+            color: theme.colorScheme.error,
+            message: l10n.quickAddSaveError,
+          ),
+      ],
+    );
+
+    if (tokens.quickAddWave) {
+      // Dark: a full-width tinted panel with a shallow wave along its top.
+      return Padding(
+        padding: const EdgeInsets.only(top: TracklySpacing.xl),
+        child: ClipPath(
+          clipper: const TopWaveClipper(),
+          // Material (not ColoredBox) so the suggestion tiles can paint ink.
+          child: Material(
+            color: tokens.quickAddFill,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                TracklySpacing.lg,
+                TracklySpacing.xl + TracklySpacing.sm,
+                TracklySpacing.lg,
+                TracklySpacing.xl,
+              ),
+              child: content,
             ),
           ),
+        ),
+      );
+    }
+
+    // Light: a flat white card with a hairline border.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        TracklySpacing.base,
+        TracklySpacing.xl,
+        TracklySpacing.base,
+        0,
+      ),
+      child: Material(
+        color: tokens.quickAddFill,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(TracklyRadius.section),
+          side: BorderSide(color: tokens.cardBorder),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+          child: content,
         ),
       ),
     );
   }
+
+  /// Row width at which amount, frequency, date and Save share one row.
+  static const _singleRowWidth = 350.0;
 }
 
 class _Feedback extends StatelessWidget {

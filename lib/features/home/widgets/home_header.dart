@@ -17,12 +17,12 @@ class HomeHeader extends StatelessWidget {
       actions: [
         IconButton(
           tooltip: context.l10n.searchTooltip,
-          icon: Icon(Icons.search_rounded, color: onSurface),
+          icon: Icon(Icons.search_rounded, size: 26, color: onSurface),
           onPressed: () {},
         ),
         IconButton(
           tooltip: context.l10n.settingsTooltip,
-          icon: Icon(Icons.settings_rounded, color: onSurface),
+          icon: Icon(Icons.settings_outlined, size: 26, color: onSurface),
           onPressed: () {},
         ),
       ],

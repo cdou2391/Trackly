@@ -46,13 +46,25 @@ class TracklyColors {
   static const disabledBg = Color(0xFF274149);
   static const disabledFg = Color(0xFF70848B);
 
-  // Light theme
-  static const lightBackground = Color(0xFFF5F8FA);
+  // Light theme: warm, premium. Gold is a restrained accent, never dominant.
+  static const lightBackground = Color(0xFFFAF8F4);
   static const lightSurface = Color(0xFFFFFFFF);
-  static const lightSurface2 = Color(0xFFEDF5F5);
-  static const lightTextPrimary = Color(0xFF0D1B28);
-  static const lightTextSecondary = Color(0xFF607184);
-  static const lightTeal = Color(0xFF0FA9A3);
+  static const lightSurface2 = Color(0xFFF4F1EB);
+  static const lightBorder = Color(0xFFE7E4DE);
+  static const lightBorderSoft = Color(0xFFEFECE6);
+  static const lightFieldFill = Color(0xFFFBFAF7);
+  static const lightTextPrimary = Color(0xFF0B1322);
+  static const lightTextSecondary = Color(0xFF657286);
+  static const lightTextMuted = Color(0xFF8A94A3);
+  static const lightInk = Color(0xFF1A2130);
+  static const lightInkPressed = Color(0xFF0B1322);
+  static const gold = Color(0xFFC99A3D);
+  static const goldLight = Color(0xFFD8AD5A);
+  static const goldDark = Color(0xFF9A7326);
+  static const goldTint = Color(0xFFF6EBD3);
+  static const lightSuccess = Color(0xFF16A36F);
+  static const lightWarning = Color(0xFFF2A51A);
+  static const lightDanger = Color(0xFFE95359);
 }
 
 class TracklyRadius {

@@ -7,13 +7,17 @@ import '../../../../core/utils/currency_utils.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../core/utils/recurrence_utils.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../shared/widgets/snack.dart';
 import '../../../../shared/widgets/form_metrics.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../application/add_panel_controller.dart';
 import '../../application/categories_provider.dart';
+import '../../application/subscription_actions.dart';
 import '../../application/subscription_creator.dart';
+import '../../application/subscription_edit.dart';
 import '../../domain/recurring_enums.dart';
+import '../../domain/recurring_item.dart';
 import '../../domain/service_catalog.dart';
 import '../labels.dart';
 
@@ -30,10 +34,18 @@ const _reminderOptions = [0, 1, 3, 7];
 
 /// The full add form, shown as a panel that slides up from the bottom
 /// navigation. Quick Add on Home is the fast path; this has every field.
+///
+/// With [editing] set it edits that item instead: the same fields, filled in,
+/// with the next charge date editable.
 class AddSubscriptionPanel extends ConsumerStatefulWidget {
-  const AddSubscriptionPanel({required this.maxHeight, super.key});
+  const AddSubscriptionPanel({
+    required this.maxHeight,
+    this.editing,
+    super.key,
+  });
 
   final double maxHeight;
+  final RecurringItem? editing;
 
   @override
   ConsumerState<AddSubscriptionPanel> createState() =>
@@ -50,6 +62,9 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
   late String _currency = ref.read(defaultCurrencyProvider);
   BillingFrequency _frequency = BillingFrequency.monthly;
   DateTime? _startDate;
+
+  /// Editing only: the next charge date.
+  DateTime? _nextDue;
   bool _isTrial = false;
   DateTime? _trialEnd;
   bool _remindersEnabled = true;
@@ -58,6 +73,37 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
 
   bool _saving = false;
   bool _saveFailed = false;
+
+  RecurringItem? get _editing => widget.editing;
+
+  @override
+  void initState() {
+    super.initState();
+    final item = _editing;
+    if (item == null) return;
+    _nameController.text = item.name;
+    _amountController.text = _formatAmount(item.amount);
+    _notesController.text = item.notes ?? '';
+    final service = item.logoKey == null
+        ? null
+        : serviceCatalogByKey[item.logoKey];
+    _selectedService = service?.name == item.name ? service : null;
+    _type = item.type;
+    _currency = item.currencyCode;
+    _frequency = item.frequency;
+    _nextDue = item.nextDueDate;
+    _isTrial = item.isTrial;
+    _trialEnd = item.trialEndDate;
+    _remindersEnabled = item.remindersEnabled;
+    _reminderDays = item.reminderDaysBefore;
+    _categoryId = item.categoryId;
+  }
+
+  /// "15.49" and "35" (no trailing ".0") for the amount field.
+  static String _formatAmount(double amount) {
+    final text = amount.toStringAsFixed(2);
+    return text.endsWith('.00') ? text.substring(0, text.length - 3) : text;
+  }
 
   @override
   void dispose() {
@@ -118,14 +164,25 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     );
   }
 
+  /// The start date when adding; the next charge when editing.
+  DateTime get _mainDate =>
+      _editing != null ? (_nextDue ?? _editing!.nextDueDate) : _effectiveStart;
+
   Future<void> _pickStartDate() async {
     final today = _today;
     final picked = await _pickDate(
-      initial: _effectiveStart,
+      initial: _mainDate,
       first: DateTime(today.year - 10),
       last: DateTime(today.year + 10),
     );
-    if (picked != null && mounted) setState(() => _startDate = picked);
+    if (picked == null || !mounted) return;
+    setState(() {
+      if (_editing != null) {
+        _nextDue = picked;
+      } else {
+        _startDate = picked;
+      }
+    });
   }
 
   Future<void> _pickTrialEnd() async {
@@ -138,9 +195,58 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     if (picked != null && mounted) setState(() => _trialEnd = picked);
   }
 
+  Future<void> _saveEdit(double amount) async {
+    final original = _editing!;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final closePanel = ref.read(addPanelProvider.notifier).close;
+    final service = _selectedService;
+
+    setState(() => _saving = true);
+    try {
+      final edited = buildEditedItem(
+        original,
+        EditedSubscription(
+          name: _nameController.text,
+          type: _type,
+          amount: amount,
+          currencyCode: _currency,
+          frequency: _frequency,
+          nextDueDate: _mainDate,
+          remindersEnabled: _remindersEnabled,
+          reminderDaysBefore: _reminderDays,
+          isTrial: _isTrial,
+          trialEndDate: _trialEnd,
+          categoryId: _categoryId,
+          // Keep the logo while the name is unchanged; a renamed custom item
+          // no longer matches it.
+          logoKey:
+              service?.key ??
+              (_nameController.text.trim() == original.name
+                  ? original.logoKey
+                  : null),
+          notes: _notesController.text,
+        ),
+        now: ref.read(nowProvider)(),
+      );
+      await ref.read(subscriptionActionsProvider).update(edited);
+
+      messenger.showReplacing(SnackBar(content: Text(l10n.editSaved)));
+      closePanel();
+    } catch (_) {
+      // The actions layer already reported the error.
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _saveFailed = true;
+      });
+    }
+  }
+
   Future<void> _save() async {
     final amount = _amount;
     if (!_canSave || amount == null) return;
+    if (_editing != null) return _saveEdit(amount);
 
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
@@ -172,7 +278,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
             ),
           );
 
-      messenger.showSnackBar(
+      messenger.showReplacing(
         SnackBar(
           content: Text(
             l10n.quickAddSaved(
@@ -196,7 +302,6 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final dark = theme.brightness == Brightness.dark;
     final locale = Localizations.localeOf(context).toString();
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final suggestions = _selectedService == null
@@ -206,7 +311,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
 
     return Material(
       key: const Key('add-panel'),
-      color: dark ? TracklyColors.surface1 : theme.colorScheme.surface,
+      color: theme.colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(
@@ -241,7 +346,9 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                     child: Semantics(
                       header: true,
                       child: Text(
-                        l10n.addSubscriptionTitle,
+                        _editing != null
+                            ? l10n.editSubscriptionTitle
+                            : l10n.addSubscriptionTitle,
                         style: theme.textTheme.headlineMedium,
                       ),
                     ),
@@ -400,9 +507,13 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                                   onTap: _pickTrialEnd,
                                 )
                               : _DateField(
-                                  label: l10n.quickAddStartDate,
+                                  // Adding: when billing started. Editing:
+                                  // when the next charge is due.
+                                  label: _editing != null
+                                      ? l10n.editNextCharge
+                                      : l10n.quickAddStartDate,
                                   value: formatShortDate(
-                                    _effectiveStart,
+                                    _mainDate,
                                     locale: locale,
                                   ),
                                   onTap: _pickStartDate,
@@ -504,7 +615,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                         child: Text(
                           l10n.quickAddSaveError,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: TracklyColors.danger,
+                            color: theme.colorScheme.error,
                           ),
                         ),
                       ),
@@ -520,7 +631,11 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(l10n.quickAddSave),
+                          : Text(
+                              _editing != null
+                                  ? l10n.editSaveChanges
+                                  : l10n.quickAddSave,
+                            ),
                     ),
                   ),
                 ],

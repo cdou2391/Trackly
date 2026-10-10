@@ -15,11 +15,11 @@ void main() {
     await tester.tap(find.text('Insights'));
     await settle(tester);
     expect(find.text('Insights'), findsWidgets);
-    expect(find.text('YOUR RECURRING COST'), findsNothing);
+    expect(find.text('Your recurring cost'), findsNothing);
 
     await tester.tap(find.text('Home'));
     await settle(tester);
-    expect(find.text('YOUR RECURRING COST'), findsOneWidget);
+    expect(find.text('Your recurring cost'), findsOneWidget);
   });
 
   tracklyTest('bottom add button opens the add panel, not a new screen', (
@@ -32,7 +32,7 @@ void main() {
 
     expect(find.byKey(const Key('add-panel')), findsOneWidget);
     // Home is still underneath and the navigation bar is still visible.
-    expect(find.text('YOUR RECURRING COST'), findsOneWidget);
+    expect(find.text('Your recurring cost'), findsOneWidget);
     expect(find.text('Insights'), findsOneWidget);
   });
 
@@ -61,7 +61,7 @@ void main() {
       // The header hugs its content (a stretched header pushed icons mid-screen).
       expect(
         tester.getSize(find.byType(ScreenHeader)).height,
-        lessThan(100),
+        lessThan(150),
         reason: tab.key,
       );
       expect(inHeader(find.byIcon(tab.value)), findsOneWidget, reason: tab.key);

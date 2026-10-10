@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/trackly_tokens.dart';
 
 /// Page header shared by every screen, so titles keep one size and position.
 ///
@@ -21,7 +22,7 @@ class ScreenHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final tokens = context.tokens;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -33,9 +34,7 @@ class ScreenHeader extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null) ...[
-            ExcludeSemantics(
-              child: Icon(icon, size: 28, color: theme.colorScheme.primary),
-            ),
+            ExcludeSemantics(child: Icon(icon, size: 30, color: tokens.accent)),
             const SizedBox(width: TracklySpacing.md),
           ],
           Expanded(
@@ -47,10 +46,10 @@ class ScreenHeader extends StatelessWidget {
               children: [
                 Semantics(
                   header: true,
-                  child: Text(title, style: theme.textTheme.headlineMedium),
+                  child: Text(title, style: tokens.pageTitle),
                 ),
                 if (subtitle != null)
-                  Text(subtitle!, style: theme.textTheme.bodySmall),
+                  Text(subtitle!, style: tokens.pageSubtitle),
               ],
             ),
           ),

@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'trackly_tokens.dart';
+import 'trackly_type.dart';
 
 class AppTheme {
   const AppTheme._();
 
+  /// Warm premium light theme (the redesign reference).
+  static ThemeData get light {
+    const scheme = ColorScheme.light(
+      primary: TracklyColors.lightInk,
+      onPrimary: Colors.white,
+      secondary: TracklyColors.gold,
+      onSecondary: Colors.white,
+      secondaryContainer: TracklyColors.goldTint,
+      onSecondaryContainer: TracklyColors.lightInk,
+      surface: TracklyColors.lightSurface,
+      onSurface: TracklyColors.lightTextPrimary,
+      onSurfaceVariant: TracklyColors.lightTextSecondary,
+      surfaceContainerHighest: TracklyColors.lightSurface2,
+      outline: TracklyColors.lightBorder,
+      outlineVariant: TracklyColors.lightBorderSoft,
+      error: TracklyColors.lightDanger,
+    );
+
+    return _build(
+      scheme: scheme,
+      tokens: TracklyTokens.light,
+      background: TracklyColors.lightBackground,
+      hintColor: TracklyColors.lightTextSecondary,
+      disabledBackground: const Color(0xFFEAE7E1),
+      disabledForeground: const Color(0xFF9AA2AE),
+    );
+  }
+
+  /// Black page, deep-teal hero, teal accent.
   static ThemeData get dark {
     const scheme = ColorScheme.dark(
       primary: TracklyColors.teal,
       onPrimary: TracklyColors.onTeal,
       secondary: TracklyColors.tealDark,
+      secondaryContainer: Color(0xFF0F3B40),
+      onSecondaryContainer: TracklyColors.textPrimary,
       surface: TracklyColors.surface1,
       onSurface: TracklyColors.textPrimary,
       onSurfaceVariant: TracklyColors.textSecondary,
@@ -21,70 +54,28 @@ class AppTheme {
 
     return _build(
       scheme: scheme,
+      tokens: TracklyTokens.dark,
       background: TracklyColors.background,
-      cardColor: TracklyColors.surface1,
-      cardBorder: TracklyColors.border,
-      inputFill: TracklyColors.surface2,
-      inputBorder: TracklyColors.inputBorder,
-      navColor: TracklyColors.navSurface,
-      navBorder: TracklyColors.navBorder,
-      navInactive: TracklyColors.navInactive,
-      primaryText: TracklyColors.textPrimary,
-      secondaryText: TracklyColors.textSecondary,
-      accent: TracklyColors.teal,
-      accentPressed: TracklyColors.tealDark,
-      onAccent: TracklyColors.onTeal,
-    );
-  }
-
-  static ThemeData get light {
-    const scheme = ColorScheme.light(
-      primary: TracklyColors.lightTeal,
-      onPrimary: Colors.white,
-      surface: TracklyColors.lightSurface,
-      onSurface: TracklyColors.lightTextPrimary,
-      onSurfaceVariant: TracklyColors.lightTextSecondary,
-      surfaceContainerHighest: TracklyColors.lightSurface2,
-      error: TracklyColors.danger,
-    );
-
-    return _build(
-      scheme: scheme,
-      background: TracklyColors.lightBackground,
-      cardColor: TracklyColors.lightSurface,
-      cardBorder: const Color(0xFFDDE6EC),
-      inputFill: const Color(0xFFF3F6F8),
-      inputBorder: const Color(0xFFCFDAE2),
-      navColor: TracklyColors.lightSurface,
-      navBorder: const Color(0xFFDDE6EC),
-      navInactive: TracklyColors.lightTextSecondary,
-      primaryText: TracklyColors.lightTextPrimary,
-      secondaryText: TracklyColors.lightTextSecondary,
-      accent: TracklyColors.lightTeal,
-      accentPressed: const Color(0xFF0B8B86),
-      onAccent: Colors.white,
+      hintColor: TracklyColors.textMuted,
+      disabledBackground: TracklyColors.disabledBg,
+      disabledForeground: TracklyColors.disabledFg,
     );
   }
 
   static ThemeData _build({
     required ColorScheme scheme,
+    required TracklyTokens tokens,
     required Color background,
-    required Color cardColor,
-    required Color cardBorder,
-    required Color inputFill,
-    required Color inputBorder,
-    required Color navColor,
-    required Color navBorder,
-    required Color navInactive,
-    required Color primaryText,
-    required Color secondaryText,
-    required Color accent,
-    required Color accentPressed,
-    required Color onAccent,
+    required Color hintColor,
+    required Color disabledBackground,
+    required Color disabledForeground,
   }) {
+    final primaryText = scheme.onSurface;
+    final secondaryText = scheme.onSurfaceVariant;
+
     OutlineInputBorder border(Color color, [double width = 1]) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(TracklyRadius.medium),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -94,7 +85,8 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: background,
       fontFamily: 'Inter',
-      textTheme: _textTheme(primaryText, secondaryText),
+      extensions: [tokens],
+      textTheme: _textTheme(tokens, primaryText, secondaryText),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         foregroundColor: primaryText,
@@ -102,126 +94,156 @@ class AppTheme {
         scrolledUnderElevation: 0,
       ),
       cardTheme: CardThemeData(
-        color: cardColor,
+        color: scheme.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(TracklyRadius.medium),
-          side: BorderSide(color: cardBorder),
+          borderRadius: BorderRadius.circular(TracklyRadius.large),
+          side: BorderSide(color: tokens.cardBorder),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: inputFill,
+        fillColor: tokens.fieldFill,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 14,
         ),
-        border: border(inputBorder),
-        enabledBorder: border(inputBorder),
-        focusedBorder: border(accent, 1.5),
-        errorBorder: border(TracklyColors.danger),
-        focusedErrorBorder: border(TracklyColors.danger, 1.5),
+        hintStyle: sans(15, color: hintColor),
+        labelStyle: sans(14, color: secondaryText),
+        floatingLabelStyle: sans(12, weight: 500, color: secondaryText),
+        prefixIconColor: secondaryText,
+        suffixIconColor: secondaryText,
+        border: border(tokens.fieldBorder),
+        enabledBorder: border(tokens.fieldBorder),
+        focusedBorder: border(tokens.accent, 1.5),
+        errorBorder: border(scheme.error),
+        focusedErrorBorder: border(scheme.error, 1.5),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style:
             FilledButton.styleFrom(
-              foregroundColor: onAccent,
-              disabledBackgroundColor: TracklyColors.disabledBg,
-              disabledForegroundColor: TracklyColors.disabledFg,
-              minimumSize: const Size(48, 52),
+              foregroundColor: tokens.onPrimaryAction,
+              disabledForegroundColor: disabledForeground,
+              minimumSize: const Size(48, 48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(TracklyRadius.medium),
+                borderRadius: BorderRadius.circular(14),
               ),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              textStyle: sans(16, weight: 600),
             ).copyWith(
               backgroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.disabled)) {
-                  return TracklyColors.disabledBg;
+                  return disabledBackground;
                 }
-                if (states.contains(WidgetState.pressed)) return accentPressed;
-                return accent;
+                if (states.contains(WidgetState.pressed)) {
+                  return tokens.primaryActionPressed;
+                }
+                return tokens.primaryAction;
               }),
             ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: accent,
-          side: BorderSide(color: accent.withValues(alpha: 0.6)),
-          minimumSize: const Size(48, 52),
+          foregroundColor: tokens.primaryAction,
+          side: BorderSide(color: tokens.primaryAction.withValues(alpha: 0.35)),
+          minimumSize: const Size(48, 48),
+          textStyle: sans(15, weight: 600),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TracklyRadius.medium),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: tokens.accentText,
+          minimumSize: const Size(48, 48),
+          textStyle: sans(15, weight: 600),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? tokens.onAccent
+              : secondaryText,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? tokens.accent
+              : tokens.fieldFill,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.transparent
+              : tokens.fieldBorder,
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: tokens.fieldFill,
+        selectedColor: scheme.secondaryContainer,
+        side: BorderSide(color: tokens.fieldBorder),
+        labelStyle: sans(14, weight: 500, color: primaryText),
+        checkmarkColor: primaryText,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(TracklyRadius.pill),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          textStyle: sans(14, weight: 600),
+          side: BorderSide(color: tokens.fieldBorder),
+          foregroundColor: secondaryText,
+          selectedForegroundColor: scheme.onSecondaryContainer,
+          selectedBackgroundColor: scheme.secondaryContainer,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: tokens.primaryAction,
+        contentTextStyle: sans(14, weight: 500, color: tokens.onPrimaryAction),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: navColor,
+        backgroundColor: tokens.navBackground,
         surfaceTintColor: Colors.transparent,
         indicatorColor: Colors.transparent,
         height: 72,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? accent : navInactive,
+            color: states.contains(WidgetState.selected)
+                ? tokens.navActive
+                : tokens.navInactive,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: states.contains(WidgetState.selected) ? accent : navInactive,
+          (states) => sans(
+            12,
+            weight: 500,
+            color: states.contains(WidgetState.selected)
+                ? tokens.accentText
+                : tokens.navInactive,
           ),
         ),
       ),
-      dividerTheme: DividerThemeData(color: navBorder, thickness: 1),
+      dividerTheme: DividerThemeData(color: tokens.navBorder, thickness: 1),
     );
   }
 
-  static TextTheme _textTheme(Color primary, Color secondary) {
+  static TextTheme _textTheme(
+    TracklyTokens tokens,
+    Color primary,
+    Color secondary,
+  ) {
     return TextTheme(
-      displayLarge: TextStyle(
-        fontSize: 52,
-        fontWeight: FontWeight.w700,
-        height: 1.05,
-        color: primary,
-      ),
-      headlineLarge: TextStyle(
-        fontSize: 36,
-        fontWeight: FontWeight.w700,
-        color: primary,
-      ),
-      headlineMedium: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        color: primary,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w600,
-        color: primary,
-      ),
-      bodyLarge: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: primary,
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        color: primary,
-      ),
-      bodySmall: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w400,
-        color: secondary,
-      ),
-      labelMedium: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: secondary,
-      ),
+      displayLarge: tokens.heroAmount,
+      headlineLarge: tokens.pageTitle,
+      headlineMedium: tokens.sectionHeading,
+      titleLarge: sans(22, weight: 600, color: primary, height: 1.25),
+      titleMedium: sans(17, weight: 600, color: primary, height: 1.25),
+      bodyLarge: sans(16, color: primary),
+      bodyMedium: sans(14, color: primary),
+      bodySmall: sans(13, color: secondary),
+      labelLarge: sans(14, weight: 600, color: primary),
+      labelMedium: sans(12, weight: 500, color: secondary),
     );
   }
 }

@@ -49,7 +49,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTooltip => 'Settings';
 
   @override
-  String get heroLabel => 'YOUR RECURRING COST';
+  String get heroLabel => 'Your recurring cost';
+
+  @override
+  String get heroMonthSuffix => '/month';
 
   @override
   String heroPerMonth(String amount) {
@@ -109,7 +112,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAddHelper => 'Quick add — you can edit details later';
 
   @override
-  String get quickAddServiceHint => 'Search a service';
+  String get quickAddServiceHint =>
+      'Search a service (e.g. Netflix, Spotify, Adobe)';
+
+  @override
+  String get quickAddAmountHint => '0.00';
+
+  @override
+  String get quickAddServiceLabel => 'Service name';
 
   @override
   String get quickAddAmount => 'Amount';
@@ -234,4 +244,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addNotes => 'Notes';
+
+  @override
+  String get editSubscriptionTitle => 'Edit subscription';
+
+  @override
+  String get editNextCharge => 'Next charge';
+
+  @override
+  String get editSaveChanges => 'Save changes';
+
+  @override
+  String get editSaved => 'Changes saved';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get editTooltip => 'Edit';
+
+  @override
+  String get markAsPaid => 'Mark as paid';
+
+  @override
+  String get skipCharge => 'Skip this charge';
+
+  @override
+  String get pauseAction => 'Pause';
+
+  @override
+  String get resumeAction => 'Resume';
+
+  @override
+  String get cancelSubscription => 'Cancel subscription';
+
+  @override
+  String get deleteItem => 'Delete';
+
+  @override
+  String get paymentHistory => 'Payment history';
+
+  @override
+  String get noPaymentsYet => 'No payments recorded yet.';
+
+  @override
+  String get nextChargeLabel => 'Next charge';
+
+  @override
+  String get reminderLabel => 'Reminder';
+
+  @override
+  String get reminderOff => 'Off';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get typeLabel => 'Type';
+
+  @override
+  String get notesLabel => 'Notes';
+
+  @override
+  String trialEndsOn(String date) {
+    return 'Trial ends $date';
+  }
+
+  @override
+  String afterTrial(String amount, String frequency) {
+    return '$amount $frequency after the trial';
+  }
+
+  @override
+  String dueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get skippedChip => 'Skipped';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String snackMarkedPaid(String date) {
+    return 'Marked as paid — next charge $date';
+  }
+
+  @override
+  String snackSkipped(String date) {
+    return 'Skipped — next charge $date';
+  }
+
+  @override
+  String get snackPaused => 'Paused';
+
+  @override
+  String snackResumed(String date) {
+    return 'Resumed — next charge $date';
+  }
+
+  @override
+  String get snackCancelled => 'Cancelled';
+
+  @override
+  String get snackDeleted => 'Deleted';
+
+  @override
+  String get actionFailed => 'Couldn\'t save that change. Try again.';
+
+  @override
+  String get resumePickerHelp => 'Next charge date';
+
+  @override
+  String cancelDialogTitle(String name) {
+    return 'Cancel $name?';
+  }
+
+  @override
+  String get cancelDialogBody =>
+      'Reminders and due dates stop. Your payment history is kept.';
+
+  @override
+  String get cancelDialogConfirm => 'Cancel subscription';
+
+  @override
+  String deleteDialogTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteDialogBody =>
+      'This removes it and its payment history. This can\'t be undone.';
+
+  @override
+  String get deleteDialogConfirm => 'Delete';
+
+  @override
+  String get dialogKeep => 'Keep it';
+
+  @override
+  String get dialogNotNow => 'Not now';
+
+  @override
+  String get allSubscriptionsTitle => 'All subscriptions';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterActive => 'Active';
+
+  @override
+  String get filterTrial => 'Trial';
+
+  @override
+  String get filterPaused => 'Paused';
+
+  @override
+  String get filterCancelled => 'Cancelled';
+
+  @override
+  String get noItemsInFilter => 'Nothing here yet.';
+
+  @override
+  String get historyTitle => 'Payment history';
+
+  @override
+  String get historyEmpty => 'Payments you mark as paid will show up here.';
+
+  @override
+  String get moreSectionTracking => 'Tracking';
 }

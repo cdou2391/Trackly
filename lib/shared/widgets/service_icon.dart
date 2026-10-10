@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/database/tables/categories_table.dart';
-import '../../core/theme/app_colors.dart';
+import '../../core/theme/trackly_tokens.dart';
+import '../../core/theme/trackly_type.dart';
 import '../../features/subscriptions/domain/service_catalog.dart';
 
 const _categoryIcons = <String, IconData>{
@@ -29,7 +30,7 @@ IconData categoryIconData(String? categoryId) {
 /// Service tile. Resolution order: catalog service (monogram until a logo
 /// asset exists), then the category icon, then a generic icon.
 class ServiceIcon extends StatelessWidget {
-  const ServiceIcon({this.logoKey, this.categoryId, this.size = 44, super.key});
+  const ServiceIcon({this.logoKey, this.categoryId, this.size = 48, super.key});
 
   final String? logoKey;
   final String? categoryId;
@@ -37,22 +38,18 @@ class ServiceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final tokens = context.tokens;
     final service = logoKey == null ? null : serviceCatalogByKey[logoKey];
 
     final Widget child = service != null
         ? Text(
             service.name.characters.first.toUpperCase(),
-            style: TextStyle(
-              fontSize: size * 0.42,
-              fontWeight: FontWeight.w700,
-              color: scheme.primary,
-            ),
+            style: sans(size * 0.42, weight: 700, color: tokens.tileInk),
           )
         : Icon(
             categoryIconData(categoryId),
             size: size * 0.5,
-            color: scheme.onSurfaceVariant,
+            color: tokens.tileInk,
           );
 
     return ExcludeSemantics(
@@ -61,8 +58,8 @@ class ServiceIcon extends StatelessWidget {
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(TracklyRadius.small),
+          color: tokens.tileFill,
+          borderRadius: BorderRadius.circular(size * 0.3),
         ),
         child: child,
       ),

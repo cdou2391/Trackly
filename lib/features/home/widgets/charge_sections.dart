@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/cost_utils.dart';
+import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../l10n/l10n.dart';
-import '../../../shared/widgets/status_pill.dart';
+import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/status_chip.dart';
 import '../../subscriptions/application/add_panel_controller.dart';
 import '../../subscriptions/domain/recurring_item.dart';
 import '../../subscriptions/presentation/labels.dart';
 import '../application/home_summary.dart';
-import 'charge_row.dart';
+import 'subscription_row.dart';
 
 class UpcomingSection extends StatelessWidget {
   const UpcomingSection({required this.summary, required this.now, super.key});
@@ -24,10 +27,8 @@ class UpcomingSection extends StatelessWidget {
 
     return _Section(
       title: l10n.upcomingTitle,
-      // The full upcoming list is not built yet.
-      trailing: summary.upcoming.isEmpty
-          ? null
-          : TextButton(onPressed: () {}, child: Text(l10n.seeAll)),
+      actionLabel: summary.upcoming.isEmpty ? null : l10n.seeAll,
+      onAction: () => context.push(AppRoutes.subscriptionsPath()),
       child: summary.upcoming.isEmpty
           ? const _EmptyUpcoming()
           : Column(
@@ -50,14 +51,10 @@ class _UpcomingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final due = dueStatus(context, item.nextDueDate, now);
-    return ChargeRow(
+    return SubscriptionRow(
       item: item,
-      pills: [
-        StatusPill(label: due.label, tone: due.tone),
-        if (isInActiveTrial(item, now))
-          StatusPill(label: context.l10n.pillTrial, tone: PillTone.warning),
-      ],
+      chips: itemChips(context, item, now),
+      onTap: () => context.push(AppRoutes.itemPath(item.id)),
     );
   }
 }
@@ -75,21 +72,25 @@ class RecentPaymentsSection extends StatelessWidget {
 
     return _Section(
       title: l10n.recentPaymentsTitle,
+      actionLabel: l10n.seeAll,
+      onAction: () => context.push(AppRoutes.history),
       child: Column(
         children: [
           for (final recent in summary.recentPayments) ...[
-            ChargeRow(
+            SubscriptionRow(
               item: recent.item,
               amount: recent.payment.amount,
-              pills: [
-                StatusPill(
+              onTap: () => context.push(AppRoutes.itemPath(recent.item.id)),
+              chips: [
+                StatusChip(
                   label: l10n.paidOn(
                     formatShortDate(
                       recent.payment.paidDate ?? recent.payment.dueDate,
                       locale: locale,
                     ),
                   ),
-                  tone: PillTone.success,
+                  tone: ChipTone.success,
+                  icon: Icons.check_circle_rounded,
                 ),
               ],
             ),
@@ -102,39 +103,36 @@ class RecentPaymentsSection extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child, this.trailing});
+  const _Section({
+    required this.title,
+    required this.child,
+    this.actionLabel,
+    this.onAction,
+  });
 
   final String title;
   final Widget child;
-  final Widget? trailing;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        TracklySpacing.lg,
+        TracklySpacing.base,
         TracklySpacing.xl,
-        TracklySpacing.lg,
+        TracklySpacing.base,
         0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-              ),
-              ?trailing,
-            ],
+          SectionHeader(
+            title: title,
+            actionLabel: actionLabel,
+            onAction: onAction,
           ),
-          const SizedBox(height: TracklySpacing.md),
+          const SizedBox(height: TracklySpacing.sm),
           child,
         ],
       ),
@@ -160,7 +158,7 @@ class _EmptyUpcoming extends ConsumerWidget {
             Icon(
               Icons.event_available_rounded,
               size: 48,
-              color: theme.colorScheme.primary,
+              color: context.tokens.accent,
             ),
             const SizedBox(height: TracklySpacing.md),
             Text(l10n.emptyUpcomingTitle, style: theme.textTheme.titleMedium),

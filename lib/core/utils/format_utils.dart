@@ -16,3 +16,12 @@ String formatMoney(double amount, String currencyCode, {String? locale}) {
 String formatShortDate(DateTime date, {String? locale}) {
   return DateFormat.MMMd(locale).format(date);
 }
+
+/// Locale-aware date with the year, for example "18 Oct 2025" or "Oct 18, 2025".
+String formatMediumDate(DateTime date, {String? locale}) {
+  return DateFormat.yMMMd(locale).format(date);
+}
+
+/// "$", "€", "£" for the common currencies, otherwise the code itself.
+String currencySymbol(String currencyCode) =>
+    _currencySymbols[currencyCode] ?? currencyCode;

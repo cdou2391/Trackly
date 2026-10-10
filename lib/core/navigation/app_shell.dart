@@ -5,109 +5,63 @@ import 'package:go_router/go_router.dart';
 import '../../features/subscriptions/application/add_panel_controller.dart';
 import '../../features/subscriptions/presentation/widgets/add_subscription_panel.dart';
 import '../../l10n/l10n.dart';
+import 'app_bottom_navigation.dart';
+import 'app_router.dart';
 
-/// Bottom navigation shell: Home, Insights, Add, Calendar, More.
+/// The frame around every screen: the current screen above the bottom
+/// navigation, with the add/edit panel on top.
 ///
-/// The centered Add button is not a tab. It opens the add panel, which slides
-/// up from the navigation bar over the current screen.
-class AppShell extends ConsumerWidget {
-  const AppShell({required this.shell, super.key});
+/// The bar stays visible on the tabs and on the screens opened from them
+/// (item detail, All subscriptions, Payment history). The centered Add button
+/// is not a tab: it opens the add panel, which slides up from the bar.
+class AppFrame extends ConsumerStatefulWidget {
+  const AppFrame({required this.location, required this.child, super.key});
 
-  final StatefulNavigationShell shell;
+  /// The current route's path, used to highlight the right tab.
+  final String location;
+  final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final current = shell.currentIndex;
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final navTheme = theme.navigationBarTheme;
-    final panelOpen = ref.watch(addPanelProvider);
+  ConsumerState<AppFrame> createState() => _AppFrameState();
+}
+
+class _AppFrameState extends ConsumerState<AppFrame> {
+  /// The highlighted tab. A screen opened from a tab (like an item) keeps its
+  /// origin highlighted instead of lighting up nothing.
+  int _tab = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final tab = AppRoutes.tabIndexOf(widget.location);
+    if (tab != null) _tab = tab;
+
+    final panelOpen = ref.watch(addPanelProvider).open;
     final panel = ref.read(addPanelProvider.notifier);
 
-    void goTo(int index) {
-      panel.close();
-      shell.goBranch(index);
-    }
-
-    return PopScope(
-      // Back closes the panel first instead of leaving the app.
-      canPop: !panelOpen,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) panel.close();
+    // Back closes an open panel first. PopScope covers pops of this route; the
+    // listener also covers screens pushed inside the frame (an item), whose
+    // back press would otherwise pop that screen and leave the panel open.
+    return BackButtonListener(
+      onBackButtonPressed: () async {
+        if (!ref.read(addPanelProvider).open) return false;
+        panel.close();
+        return true;
       },
-      child: Scaffold(
-        body: Stack(children: [shell, const AddPanelHost()]),
-        bottomNavigationBar: DecoratedBox(
-          decoration: BoxDecoration(
-            color: navTheme.backgroundColor,
-            border: Border(top: BorderSide(color: theme.dividerTheme.color!)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              height: 72,
-              child: Row(
-                children: [
-                  _NavItem(
-                    icon: Icons.home_rounded,
-                    label: context.l10n.navHome,
-                    selected: current == 0,
-                    onTap: () => goTo(0),
-                  ),
-                  _NavItem(
-                    icon: Icons.insights_rounded,
-                    label: context.l10n.navInsights,
-                    selected: current == 1,
-                    onTap: () => goTo(1),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Semantics(
-                        button: true,
-                        label: panelOpen
-                            ? context.l10n.addPanelClose
-                            : context.l10n.navAdd,
-                        child: Material(
-                          color: scheme.primary,
-                          shape: const CircleBorder(),
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: panel.toggle,
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              // The plus turns into a cross while open.
-                              child: AnimatedRotation(
-                                turns: panelOpen ? 0.125 : 0,
-                                duration: const Duration(milliseconds: 220),
-                                curve: Curves.easeOutCubic,
-                                child: Icon(
-                                  Icons.add_rounded,
-                                  color: scheme.onPrimary,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  _NavItem(
-                    icon: Icons.calendar_month_rounded,
-                    label: context.l10n.navCalendar,
-                    selected: current == 2,
-                    onTap: () => goTo(2),
-                  ),
-                  _NavItem(
-                    icon: Icons.more_horiz_rounded,
-                    label: context.l10n.navMore,
-                    selected: current == 3,
-                    onTap: () => goTo(3),
-                  ),
-                ],
-              ),
-            ),
+      child: PopScope(
+        canPop: !panelOpen,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) panel.close();
+        },
+        child: Scaffold(
+          body: Stack(children: [widget.child, const AddPanelHost()]),
+          bottomNavigationBar: AppBottomNavigation(
+            currentIndex: _tab,
+            addPanelOpen: panelOpen,
+            onToggleAdd: panel.toggle,
+            onSelectTab: (index) {
+              panel.close();
+              context.go(AppRoutes.tabPaths[index]);
+            },
           ),
         ),
       ),
@@ -115,8 +69,8 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-/// Dim scrim plus the add panel, sliding up from the bottom of the body (which
-/// is the top edge of the navigation bar, so the bar stays visible).
+/// Dim scrim plus the add/edit panel, sliding up from the bottom of the body
+/// (which is the top edge of the navigation bar, so the bar stays visible).
 class AddPanelHost extends ConsumerStatefulWidget {
   const AddPanelHost({super.key});
 
@@ -142,8 +96,8 @@ class _AddPanelHostState extends ConsumerState<AddPanelHost>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<bool>(addPanelProvider, (previous, open) {
-      if (open) {
+    ref.listen<AddPanelState>(addPanelProvider, (previous, next) {
+      if (next.open) {
         _controller.forward();
       } else {
         _controller.reverse();
@@ -186,6 +140,9 @@ class _AddPanelHostState extends ConsumerState<AddPanelHost>
                         maxWidth: _maxPanelWidth,
                       ),
                       child: AddSubscriptionPanel(
+                        // Read when the panel is built, so closing (which keeps
+                        // the item) does not rebuild it into add mode.
+                        editing: ref.read(addPanelProvider).editing,
                         maxHeight: constraints.maxHeight * 0.92,
                       ),
                     ),
@@ -196,54 +153,6 @@ class _AddPanelHostState extends ConsumerState<AddPanelHost>
           },
         );
       },
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final navTheme = Theme.of(context).navigationBarTheme;
-    final states = <WidgetState>{if (selected) WidgetState.selected};
-    final color = navTheme.iconTheme!.resolve(states)!.color!;
-    return Expanded(
-      child: Semantics(
-        button: true,
-        selected: selected,
-        label: label,
-        child: InkWell(
-          onTap: onTap,
-          child: ExcludeSemantics(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: color),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

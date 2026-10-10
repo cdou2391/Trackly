@@ -127,7 +127,7 @@ void main() {
     });
 
     tracklyTest('the empty-state button opens it', (tester) async {
-      await pumpTrackly(tester);
+      await pumpTrackly(tester, size: const Size(390, 1800));
       await _tap(
         tester,
         find.widgetWithText(OutlinedButton, 'Add subscription'),
@@ -303,20 +303,20 @@ void main() {
       expect(saved.nextDueDate, DateTime(2026, 10, 9));
 
       // Home: the trial counts in Trial, not Active, and not in the total.
-      expect(find.text(r'$0.00 / month'), findsOneWidget);
+      expect(find.text(r'$0.00 /month', findRichText: true), findsOneWidget);
       expect(find.text('Trial'), findsWidgets);
     });
 
     tracklyTest('the new item shows up on Home behind the closed panel', (
       tester,
     ) async {
-      await pumpTrackly(tester);
+      await pumpTrackly(tester, size: const Size(390, 1800));
       await _openPanel(tester);
       await _fillBasics(tester, name: 'Gym', amount: '35');
       await tester.tap(_save());
       await settle(tester);
 
-      expect(find.text(r'$35.00 / month'), findsOneWidget);
+      expect(find.text(r'$35.00 /month', findRichText: true), findsOneWidget);
       expect(find.text('Gym'), findsWidgets);
     });
   });
