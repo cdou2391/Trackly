@@ -10,6 +10,7 @@ class CatalogService {
     required this.name,
     required this.categoryId,
     this.logoAsset,
+    this.blackMark = false,
   });
 
   final String key;
@@ -21,6 +22,10 @@ class CatalogService {
   /// Bundled SVG, for example `assets/logos/netflix.svg`. Null until a logo is
   /// added. See `assets/logos/LICENSES.md` for sources and trademark notes.
   final String? logoAsset;
+
+  /// The logo is a single black mark, which would disappear on a dark page, so
+  /// it is drawn white in the dark theme.
+  final bool blackMark;
 }
 
 const _logos = 'assets/logos';
@@ -65,12 +70,14 @@ const serviceCatalog = <CatalogService>[
     name: 'Apple TV+',
     categoryId: 'entertainment',
     logoAsset: '$_logos/apple_tv_plus.svg',
+    blackMark: true,
   ),
   CatalogService(
     key: 'max',
     name: 'Max',
     categoryId: 'entertainment',
     logoAsset: '$_logos/max.svg',
+    blackMark: true,
   ),
   CatalogService(key: 'hulu', name: 'Hulu', categoryId: 'entertainment'),
   CatalogService(
@@ -102,6 +109,7 @@ const serviceCatalog = <CatalogService>[
     name: 'ChatGPT Plus',
     categoryId: 'software',
     logoAsset: '$_logos/chatgpt_plus.svg',
+    blackMark: true,
   ),
   CatalogService(
     key: 'adobe',

@@ -127,6 +127,24 @@ void main() {
       );
     });
 
+    test('black marks are exactly the logos whose only color is black', () {
+      final flagged = {
+        for (final s in withLogo)
+          if (s.blackMark) s.key,
+      };
+      // Distinct fill colors in each file. Netflix also contains black, but as
+      // the square behind its red N, so it must not be inverted.
+      final onlyBlack = {
+        for (final s in withLogo)
+          if (_fills(File(s.logoAsset!).readAsStringSync())
+              .difference({'#000000'})
+              .isEmpty)
+            s.key,
+      };
+      expect(flagged, {'apple_tv_plus', 'max', 'chatgpt_plus'});
+      expect(flagged, onlyBlack);
+    });
+
     test('the licenses file credits every logo', () {
       final notice = File('assets/logos/LICENSES.md').readAsStringSync();
       expect(notice, contains('CC0'));
@@ -154,3 +172,9 @@ void main() {
     });
   });
 }
+
+/// The distinct fill colors set in an SVG (ignoring `none`).
+Set<String> _fills(String svg) => {
+  for (final m in RegExp(r'fill="([^"]+)"').allMatches(svg))
+    if (m.group(1) != 'none') m.group(1)!.toLowerCase(),
+};

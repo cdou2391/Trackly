@@ -124,23 +124,107 @@ void main() {
       );
     });
 
-    tracklyTest('a logo sits on a white tile, also in the dark theme', (
+    tracklyTest('a logo fills the whole icon: no tile, border or padding', (
       tester,
     ) async {
+      await pumpTrackly(
+        tester,
+        items: [testItem('Netflix', logoKey: 'netflix')],
+      );
+
+      final icon = find.byType(ServiceIcon);
+      final logo = find.descendant(of: icon, matching: find.byType(SvgPicture));
+      // Nothing wraps it: no container, decoration, padding or clip.
+      for (final wrapper in [
+        find.byType(Container),
+        find.byType(DecoratedBox),
+        find.byType(Padding),
+        find.byType(ClipRRect),
+      ]) {
+        expect(find.descendant(of: icon, matching: wrapper), findsNothing);
+      }
+      // And it is exactly as big as the icon element.
+      expect(tester.getSize(logo), tester.getSize(icon));
+      expect(tester.getSize(logo), const Size(44, 44));
+    });
+
+    tracklyTest('the logo fills the larger detail-screen icon too', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 1400),
+        items: [
+          testItem('Netflix', due: DateTime(2026, 10, 15), logoKey: 'netflix'),
+        ],
+      );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      final icon = find.byType(ServiceIcon);
+      expect(tester.getSize(icon), const Size(56, 56));
+      expect(
+        tester.getSize(
+          find.descendant(of: icon, matching: find.byType(SvgPicture)),
+        ),
+        const Size(56, 56),
+      );
+    });
+
+    tracklyTest('black marks turn white on the dark theme', (tester) async {
       await pumpTrackly(
         tester,
         themeMode: ThemeMode.dark,
         items: [testItem('Apple TV+', logoKey: 'apple_tv_plus')],
       );
-      final tile = tester.widget<Container>(
-        find
-            .descendant(
-              of: find.byType(ServiceIcon),
-              matching: find.byType(Container),
-            )
-            .first,
+      final logo = tester.widget<SvgPicture>(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
       );
-      expect((tile.decoration as BoxDecoration).color, Colors.white);
+      expect(
+        logo.colorFilter,
+        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+      );
+    });
+
+    tracklyTest('black marks keep their own color on the light theme', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        items: [testItem('Apple TV+', logoKey: 'apple_tv_plus')],
+      );
+      final logo = tester.widget<SvgPicture>(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+      );
+      expect(logo.colorFilter, isNull);
+    });
+
+    tracklyTest('colored logos are never recolored, in either theme', (
+      tester,
+    ) async {
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        await pumpTrackly(
+          tester,
+          themeMode: mode,
+          items: [testItem('Netflix', logoKey: 'netflix')],
+        );
+        final logo = tester.widget<SvgPicture>(
+          find.descendant(
+            of: find.byType(ServiceIcon),
+            matching: find.byType(SvgPicture),
+          ),
+        );
+        expect(logo.colorFilter, isNull, reason: mode.name);
+        // Unmount so the next pump starts clean (tracklyTest cleans up once).
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+      }
     });
 
     tracklyTest('a catalog service without a logo shows its letter', (

@@ -28,8 +28,9 @@ IconData categoryIconData(String? categoryId) {
   return _categoryIcons[key] ?? Icons.receipt_long_rounded;
 }
 
-/// Service tile. Resolution order: the catalog logo, then a letter tile for a
-/// catalog service without one, then the category icon, then a generic icon.
+/// Service icon. Resolution order: the catalog logo (filling the whole element),
+/// then a letter tile for a catalog service without one, then the category
+/// icon, then a generic icon.
 class ServiceIcon extends StatelessWidget {
   const ServiceIcon({this.logoKey, this.categoryId, this.size = 48, super.key});
 
@@ -44,20 +45,19 @@ class ServiceIcon extends StatelessWidget {
 
     final logo = service?.logoAsset;
 
-    // Brand logos are drawn for light backgrounds (some are black), so they sit
-    // on a white tile in every theme.
+    // A logo is the icon: no tile, border or padding, filling the whole
+    // element. Black marks turn white on a dark page so they stay visible.
     if (logo != null) {
+      final onDark = Theme.of(context).brightness == Brightness.dark;
       return ExcludeSemantics(
-        child: Container(
+        child: SvgPicture.asset(
+          logo,
           width: size,
           height: size,
-          padding: EdgeInsets.all(size * 0.2),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(size * 0.3),
-            border: Border.all(color: tokens.cardBorder),
-          ),
-          child: SvgPicture.asset(logo, fit: BoxFit.contain),
+          fit: BoxFit.contain,
+          colorFilter: onDark && service!.blackMark
+              ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+              : null,
         ),
       );
     }
