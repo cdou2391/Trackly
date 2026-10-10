@@ -28,6 +28,9 @@ IconData categoryIconData(String? categoryId) {
   return _categoryIcons[key] ?? Icons.receipt_long_rounded;
 }
 
+/// Corner radius shared by every kind of service icon.
+double _cornerRadius(double size) => size * 0.3;
+
 /// Service icon. Resolution order: the catalog logo (filling the whole element),
 /// then a letter tile for a catalog service without one, then the category
 /// icon, then a generic icon.
@@ -46,18 +49,23 @@ class ServiceIcon extends StatelessWidget {
     final logo = service?.logoAsset;
 
     // A logo is the icon: no tile, border or padding, filling the whole
-    // element. Black marks turn white on a dark page so they stay visible.
+    // element, clipped to the same rounded shape as the letter and category
+    // tiles so every icon in a list matches. Black marks turn white on a dark
+    // page so they stay visible.
     if (logo != null) {
       final onDark = Theme.of(context).brightness == Brightness.dark;
       return ExcludeSemantics(
-        child: SvgPicture.asset(
-          logo,
-          width: size,
-          height: size,
-          fit: BoxFit.contain,
-          colorFilter: onDark && service!.blackMark
-              ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
-              : null,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_cornerRadius(size)),
+          child: SvgPicture.asset(
+            logo,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            colorFilter: onDark && service!.blackMark
+                ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                : null,
+          ),
         ),
       );
     }
@@ -80,7 +88,7 @@ class ServiceIcon extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: tokens.tileFill,
-          borderRadius: BorderRadius.circular(size * 0.3),
+          borderRadius: BorderRadius.circular(_cornerRadius(size)),
         ),
         child: child,
       ),

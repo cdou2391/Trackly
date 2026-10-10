@@ -12,6 +12,7 @@ import 'package:trackly/features/subscriptions/application/subscription_creator.
 import 'package:trackly/features/subscriptions/application/subscription_edit.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_item.dart';
+import 'package:trackly/features/home/widgets/subscription_row.dart';
 import 'package:trackly/features/subscriptions/domain/service_catalog.dart';
 import 'package:trackly/shared/widgets/service_icon.dart';
 
@@ -134,18 +135,79 @@ void main() {
 
       final icon = find.byType(ServiceIcon);
       final logo = find.descendant(of: icon, matching: find.byType(SvgPicture));
-      // Nothing wraps it: no container, decoration, padding or clip.
+      // Nothing frames it: no container, decoration or padding.
       for (final wrapper in [
         find.byType(Container),
         find.byType(DecoratedBox),
         find.byType(Padding),
-        find.byType(ClipRRect),
       ]) {
         expect(find.descendant(of: icon, matching: wrapper), findsNothing);
       }
       // And it is exactly as big as the icon element.
       expect(tester.getSize(logo), tester.getSize(icon));
       expect(tester.getSize(logo), const Size(44, 44));
+    });
+
+    tracklyTest('a logo is rounded like the other icons', (tester) async {
+      await pumpTrackly(
+        tester,
+        items: [testItem('Netflix', logoKey: 'netflix')],
+      );
+
+      final clip = tester.widget<ClipRRect>(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(ClipRRect),
+        ),
+      );
+      // 30% of the icon size: 13.2 dp on a 44 dp icon.
+      expect(clip.borderRadius, BorderRadius.circular(44 * 0.3));
+    });
+
+    tracklyTest('logo, letter and category icons all share one corner radius', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 1800),
+        items: [
+          testItem('Netflix', due: DateTime(2026, 10, 12), logoKey: 'netflix'),
+          testItem('Hulu', due: DateTime(2026, 10, 13), logoKey: 'hulu'),
+          testItem('Gym', due: DateTime(2026, 10, 14)),
+        ],
+      );
+
+      Finder iconOf(String name) => find.ancestor(
+        of: find.text(name),
+        matching: find.byType(SubscriptionRow),
+      );
+      BorderRadius tileRadius(String name) {
+        final tile = tester.widget<Container>(
+          find.descendant(
+            of: find.descendant(
+              of: iconOf(name),
+              matching: find.byType(ServiceIcon),
+            ),
+            matching: find.byType(Container),
+          ),
+        );
+        return (tile.decoration as BoxDecoration).borderRadius! as BorderRadius;
+      }
+
+      final logoRadius = tester
+          .widget<ClipRRect>(
+            find.descendant(
+              of: find.descendant(
+                of: iconOf('Netflix'),
+                matching: find.byType(ServiceIcon),
+              ),
+              matching: find.byType(ClipRRect),
+            ),
+          )
+          .borderRadius;
+
+      expect(tileRadius('Hulu'), logoRadius); // letter tile
+      expect(tileRadius('Gym'), logoRadius); // category icon
     });
 
     tracklyTest('the logo fills the larger detail-screen icon too', (
