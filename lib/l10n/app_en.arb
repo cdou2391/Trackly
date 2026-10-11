@@ -157,5 +157,25 @@
   "noItemsInFilter": "Nothing here yet.",
   "historyTitle": "Payment history",
   "historyEmpty": "Payments you mark as paid will show up here.",
-  "moreSectionTracking": "Tracking"
+  "moreSectionTracking": "Tracking",
+
+  "notifChannelName": "Renewal reminders",
+  "notifChannelDescription": "Reminders before a subscription or bill is due",
+  "notifDueSoon": "{count, plural, =1{Due tomorrow} other{Due in {count} days}} · {amount}",
+  "@notifDueSoon": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
+  "notifDueToday": "Due today · {amount}",
+  "@notifDueToday": { "placeholders": { "amount": { "type": "String" } } },
+  "notifTrialEnding": "{count, plural, =1{Trial ends tomorrow} other{Trial ends in {count} days}}. You'll be charged {amount} after.",
+  "@notifTrialEnding": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
+  "notifTrialEndsToday": "Trial ends today. You'll be charged {amount}.",
+  "@notifTrialEndsToday": { "placeholders": { "amount": { "type": "String" } } },
+
+  "remindersPromptTitle": "Get reminded before it renews?",
+  "remindersPromptBody": "Trackly can send a notification before a charge. Reminders are scheduled on your device and never leave it.",
+  "remindersPromptConfirm": "Turn on reminders",
+  "remindersPromptLater": "Not now"
 }

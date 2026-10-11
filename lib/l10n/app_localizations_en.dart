@@ -415,4 +415,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreSectionTracking => 'Tracking';
+
+  @override
+  String get notifChannelName => 'Renewal reminders';
+
+  @override
+  String get notifChannelDescription =>
+      'Reminders before a subscription or bill is due';
+
+  @override
+  String notifDueSoon(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Due in $count days',
+      one: 'Due tomorrow',
+    );
+    return '$_temp0 · $amount';
+  }
+
+  @override
+  String notifDueToday(String amount) {
+    return 'Due today · $amount';
+  }
+
+  @override
+  String notifTrialEnding(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Trial ends in $count days',
+      one: 'Trial ends tomorrow',
+    );
+    return '$_temp0. You\'ll be charged $amount after.';
+  }
+
+  @override
+  String notifTrialEndsToday(String amount) {
+    return 'Trial ends today. You\'ll be charged $amount.';
+  }
+
+  @override
+  String get remindersPromptTitle => 'Get reminded before it renews?';
+
+  @override
+  String get remindersPromptBody =>
+      'Trackly can send a notification before a charge. Reminders are scheduled on your device and never leave it.';
+
+  @override
+  String get remindersPromptConfirm => 'Turn on reminders';
+
+  @override
+  String get remindersPromptLater => 'Not now';
 }

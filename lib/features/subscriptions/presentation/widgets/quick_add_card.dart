@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,7 @@ import '../../../home/widgets/curves.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../domain/recurring_enums.dart';
 import '../../domain/service_catalog.dart';
+import '../../../../core/notifications/reminder_permission.dart';
 import '../../application/subscription_creator.dart';
 import '../labels.dart';
 
@@ -125,6 +128,8 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final service = _selectedService;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final container = ProviderScope.containerOf(context);
 
     setState(() => _saving = true);
     try {
@@ -157,6 +162,7 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
         _frequency = BillingFrequency.monthly;
         _started = false;
       });
+      unawaited(offerReminders(navigator, container, item));
     } catch (_) {
       // The creator already reported the error.
       if (!mounted) return;

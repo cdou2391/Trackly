@@ -4,6 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/navigation/app_router.dart';
+import 'core/notifications/reminder_sync.dart';
+import 'core/notifications/reminder_taps.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/application/settings_providers.dart';
 import 'features/subscriptions/application/catalog_backfill.dart';
@@ -16,6 +18,9 @@ class TracklyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Give existing items their catalog logo (runs once per launch).
     ref.watch(catalogBackfillProvider);
+    // Keep scheduled reminders in step with the data, and open tapped ones.
+    ref.watch(reminderSyncProvider);
+    ref.watch(reminderTapsProvider);
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,

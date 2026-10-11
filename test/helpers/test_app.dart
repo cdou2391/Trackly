@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/app.dart';
 import 'package:trackly/core/database/app_database.dart';
+import 'package:trackly/core/notifications/notification_prefs.dart';
+import 'package:trackly/core/notifications/notification_service.dart';
 import 'package:trackly/features/home/application/home_providers.dart';
 import 'package:trackly/features/settings/application/settings_providers.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
@@ -110,6 +112,8 @@ Future<AppDatabase> pumpTrackly(
   Size size = const Size(390, 844),
   ThemeMode themeMode = ThemeMode.light,
   double textScale = 1.0,
+  NotificationService notifications = const NoopNotificationService(),
+  NotificationPrefs? notificationPrefs,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -130,6 +134,9 @@ Future<AppDatabase> pumpTrackly(
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
         nowProvider.overrideWithValue(() => testNow),
+        notificationServiceProvider.overrideWithValue(notifications),
+        if (notificationPrefs != null)
+          notificationPrefsProvider.overrideWithValue(notificationPrefs),
         themeModeProvider.overrideWith(() => _FixedThemeMode(themeMode)),
       ],
       child: const TracklyApp(),

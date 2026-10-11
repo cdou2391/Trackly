@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,7 @@ import '../../../../shared/widgets/snack.dart';
 import '../../../../shared/widgets/form_metrics.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../settings/application/settings_providers.dart';
+import '../../../../core/notifications/reminder_permission.dart';
 import '../../application/add_panel_controller.dart';
 import '../../application/categories_provider.dart';
 import '../../application/subscription_actions.dart';
@@ -201,6 +204,8 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     final messenger = ScaffoldMessenger.of(context);
     final closePanel = ref.read(addPanelProvider.notifier).close;
     final service = _selectedService;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final container = ProviderScope.containerOf(context);
 
     setState(() => _saving = true);
     try {
@@ -233,6 +238,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
 
       messenger.showReplacing(SnackBar(content: Text(l10n.editSaved)));
       closePanel();
+      unawaited(offerReminders(navigator, container, edited));
     } catch (_) {
       // The actions layer already reported the error.
       if (!mounted) return;
@@ -254,6 +260,8 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     final messenger = ScaffoldMessenger.of(context);
     final closePanel = ref.read(addPanelProvider.notifier).close;
     final service = _selectedService;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final container = ProviderScope.containerOf(context);
 
     setState(() => _saving = true);
     try {
@@ -288,6 +296,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
         ),
       );
       closePanel();
+      unawaited(offerReminders(navigator, container, item));
     } catch (_) {
       // The creator already reported the error.
       if (!mounted) return;

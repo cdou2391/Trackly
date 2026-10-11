@@ -807,6 +807,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tracking'**
   String get moreSectionTracking;
+
+  /// No description provided for @notifChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal reminders'**
+  String get notifChannelName;
+
+  /// No description provided for @notifChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders before a subscription or bill is due'**
+  String get notifChannelDescription;
+
+  /// No description provided for @notifDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Due tomorrow} other{Due in {count} days}} · {amount}'**
+  String notifDueSoon(int count, String amount);
+
+  /// No description provided for @notifDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today · {amount}'**
+  String notifDueToday(String amount);
+
+  /// No description provided for @notifTrialEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Trial ends tomorrow} other{Trial ends in {count} days}}. You\'ll be charged {amount} after.'**
+  String notifTrialEnding(int count, String amount);
+
+  /// No description provided for @notifTrialEndsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ends today. You\'ll be charged {amount}.'**
+  String notifTrialEndsToday(String amount);
+
+  /// No description provided for @remindersPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get reminded before it renews?'**
+  String get remindersPromptTitle;
+
+  /// No description provided for @remindersPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackly can send a notification before a charge. Reminders are scheduled on your device and never leave it.'**
+  String get remindersPromptBody;
+
+  /// No description provided for @remindersPromptConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on reminders'**
+  String get remindersPromptConfirm;
+
+  /// No description provided for @remindersPromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get remindersPromptLater;
 }
 
 class _AppLocalizationsDelegate

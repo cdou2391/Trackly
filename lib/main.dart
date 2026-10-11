@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'core/analytics/analytics_events.dart';
@@ -13,6 +14,10 @@ import 'core/analytics/analytics_service.dart';
 import 'core/analytics/firebase_analytics_service.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_reporter.dart';
+import 'core/notifications/local_notification_service.dart';
+import 'core/notifications/notification_prefs.dart';
+import 'core/notifications/notification_service.dart';
+import 'core/notifications/reminder_text.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +40,9 @@ Future<void> _runApp() async {
       : const NoopErrorReporter();
   final analytics = await _initAnalytics(errorReporter);
 
+  final notifications = await _initNotifications(errorReporter);
+  final prefs = await SharedPreferences.getInstance();
+
   unawaited(analytics.logEvent(AnalyticsEvents.appOpened));
 
   runApp(
@@ -42,6 +50,10 @@ Future<void> _runApp() async {
       overrides: [
         errorReporterProvider.overrideWithValue(errorReporter),
         analyticsProvider.overrideWithValue(analytics),
+        notificationServiceProvider.overrideWithValue(notifications),
+        notificationPrefsProvider.overrideWithValue(
+          SharedNotificationPrefs(prefs),
+        ),
       ],
       child: const TracklyApp(),
     ),
@@ -61,5 +73,25 @@ Future<AnalyticsService> _initAnalytics(ErrorReporter errorReporter) async {
   } catch (error, stackTrace) {
     await errorReporter.captureException(error, stackTrace);
     return const NoopAnalyticsService();
+  }
+}
+
+/// Local reminders. A failure to set them up must not stop the app, so it
+/// falls back to a no-op (reminders are simply unavailable) and is reported.
+Future<NotificationService> _initNotifications(
+  ErrorReporter errorReporter,
+) async {
+  try {
+    final l10n = notificationLocalizations(PlatformDispatcher.instance.locale);
+    final service = LocalNotificationService(
+      errorReporter: errorReporter,
+      channelName: l10n.notifChannelName,
+      channelDescription: l10n.notifChannelDescription,
+    );
+    await service.initialize();
+    return service;
+  } catch (error, stackTrace) {
+    await errorReporter.captureException(error, stackTrace);
+    return const NoopNotificationService();
   }
 }
