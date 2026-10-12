@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The reminder notification icon is looked up by name at run time
+     (flutter_local_notifications), so nothing in the build references it and
+     the release build's resource shrinker would delete it. Without it the
+     phone silently never shows a reminder. tool/apk_has_resource.sh checks the
+     built APK still contains it. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_notify"
+    tools:shrinkMode="strict" />
