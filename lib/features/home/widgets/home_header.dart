@@ -12,7 +12,6 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
-    // The search screen is not built yet.
     return ScreenHeader(
       title: context.l10n.appName,
       subtitle: context.l10n.homeSubtitle,
@@ -20,7 +19,7 @@ class HomeHeader extends StatelessWidget {
         IconButton(
           tooltip: context.l10n.searchTooltip,
           icon: Icon(Icons.search_rounded, size: 26, color: onSurface),
-          onPressed: () {},
+          onPressed: () => context.push(AppRoutes.search),
         ),
         IconButton(
           tooltip: context.l10n.settingsTooltip,

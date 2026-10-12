@@ -33,6 +33,9 @@ abstract final class AnalyticsEvents {
   static const insightsOpened = 'insights_opened';
   static const historyOpened = 'history_opened';
 
+  static const searchOpened = 'search_opened';
+  static const searchResultOpened = 'search_result_opened';
+
   static const upcomingItemOpened = 'upcoming_item_opened';
   static const recentPaymentOpened = 'recent_payment_opened';
 

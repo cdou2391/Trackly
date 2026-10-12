@@ -658,4 +658,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get snackAllDeleted => 'All data deleted';
+
+  @override
+  String get searchHint => 'Search your subscriptions';
+
+  @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchPrompt => 'Search by name, category or note.';
+
+  @override
+  String get searchNoItems =>
+      'Nothing to search yet. Add a subscription first.';
+
+  @override
+  String searchNoMatches(String query) {
+    return 'No matches for “$query”';
+  }
+
+  @override
+  String searchResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
 }
