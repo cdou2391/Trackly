@@ -67,7 +67,8 @@ jobs:
 
       - name: Check it fell back to the debug key
         run: |
-          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk | tee cert.txt
+          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk > cert.txt
+          cat cert.txt
           grep -q "CN=Android Debug" cert.txt
 
       - name: Refuse the fallback when a key is required
@@ -92,7 +93,8 @@ jobs:
 
       - name: Check it is signed by the throwaway key
         run: |
-          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk | tee cert.txt
+          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk > cert.txt
+          cat cert.txt
           grep -q "CN=Trackly CI Throwaway" cert.txt
 
       - uses: actions/upload-artifact@v4

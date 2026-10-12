@@ -95,7 +95,8 @@ jobs:
       - name: Check the signature
         run: |
           APK=build/app/outputs/flutter-apk/app-release.apk
-          tool/apk_cert.sh "$APK" | tee cert.txt
+          tool/apk_cert.sh "$APK" > cert.txt
+          cat cert.txt
           if grep -q "CN=Android Debug" cert.txt; then
             echo "::error::The APK is signed with the debug key."
             exit 1
