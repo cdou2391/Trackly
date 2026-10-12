@@ -46,6 +46,35 @@ name of the secret; it never publishes a debug-signed build.
 The release notes show the signing certificate's SHA-256. It must be identical
 on every release.
 
+## If the release fails at "Restore and check the release key"
+
+The step names the problem. It never prints a secret.
+
+| Message | Fix |
+|---|---|
+| value is missing or empty | Add the secret named in the message (names are exact). |
+| contains N characters that are not base64 | The value was copied with extra text, such as a shell prompt, quotes or a label. |
+| length is not a multiple of 4 | The value was cut off when copied. |
+| not valid base64 | Set it again from the command output. |
+| keystore would not open | Wrong `ANDROID_KEYSTORE_PASSWORD` or `ANDROID_KEY_ALIAS` (the alias is `trackly`). |
+| PKCS12 keystore uses one password | Set `ANDROID_KEY_PASSWORD` to the same value as `ANDROID_KEYSTORE_PASSWORD`. |
+
+To avoid copy errors, set the keystore secret straight from the command rather
+than pasting it:
+
+```bash
+base64 -w0 trackly-release.jks | gh secret set ANDROID_KEYSTORE_BASE64 --repo cdou2391/Trackly
+```
+
+To check the value you intend to store is intact before setting it:
+
+```bash
+base64 -w0 trackly-release.jks | base64 -d | cmp - trackly-release.jks && echo OK
+```
+
+When the step passes, the log shows the key's SHA-256 fingerprint. It must match
+the `SHA256:` line from `keytool -list -v -keystore trackly-release.jks`.
+
 ## Moving from the debug-signed preview
 
 `v1.0.0-preview.1` was signed with a throwaway debug key. Android cannot
