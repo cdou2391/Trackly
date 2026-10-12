@@ -63,6 +63,9 @@ abstract class NotificationService {
 
   Future<void> cancel(int id);
 
+  /// Cancels every scheduled reminder.
+  Future<void> cancelAll();
+
   /// Everything currently scheduled.
   Future<List<PendingReminder>> pending();
 
@@ -91,6 +94,9 @@ class NoopNotificationService implements NotificationService {
 
   @override
   Future<void> cancel(int id) async {}
+
+  @override
+  Future<void> cancelAll() async {}
 
   @override
   Future<List<PendingReminder>> pending() async => const [];

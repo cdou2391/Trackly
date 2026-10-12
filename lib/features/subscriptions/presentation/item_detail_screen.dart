@@ -10,6 +10,7 @@ import '../../../core/utils/recurrence_utils.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/snack.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/service_icon.dart';
 import '../../home/application/home_providers.dart';
 import '../../payments/presentation/widgets/payment_row.dart';
@@ -550,7 +551,7 @@ class _DangerZone extends ConsumerWidget {
             style: TextButton.styleFrom(foregroundColor: danger),
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
-              final confirmed = await _confirm(
+              final confirmed = await confirmDialog(
                 context,
                 title: l10n.cancelDialogTitle(item.name),
                 body: l10n.cancelDialogBody,
@@ -576,7 +577,7 @@ class _DangerZone extends ConsumerWidget {
           onPressed: () async {
             final messenger = ScaffoldMessenger.of(context);
             final router = GoRouter.of(context);
-            final confirmed = await _confirm(
+            final confirmed = await confirmDialog(
               context,
               title: l10n.deleteDialogTitle(item.name),
               body: l10n.deleteDialogBody,
@@ -604,30 +605,3 @@ class _DangerZone extends ConsumerWidget {
 }
 
 /// A confirmation dialog whose confirm button is styled as destructive.
-Future<bool?> _confirm(
-  BuildContext context, {
-  required String title,
-  required String body,
-  required String confirm,
-  required String cancel,
-}) {
-  final danger = context.tokens.danger.fg;
-  return showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(body),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancel),
-        ),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: danger),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirm),
-        ),
-      ],
-    ),
-  );
-}

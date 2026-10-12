@@ -1011,6 +1011,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a subscription to see your monthly cost and where it goes.'**
   String get insightsEmptyBody;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSectionDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'For new subscriptions'**
+  String get settingsSectionDefaults;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// No description provided for @settingsReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get settingsReminders;
+
+  /// No description provided for @settingsSectionAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsSectionAppearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @settingsSectionNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsSectionNotifications;
+
+  /// No description provided for @settingsNotificationsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are on'**
+  String get settingsNotificationsOn;
+
+  /// No description provided for @settingsNotificationsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off, so you won’t get reminders.'**
+  String get settingsNotificationsOff;
+
+  /// No description provided for @settingsTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get settingsTurnOn;
+
+  /// No description provided for @settingsAllowInPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications for Trackly in your phone’s settings to get reminders.'**
+  String get settingsAllowInPhone;
+
+  /// No description provided for @settingsReminderDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'A reminder can arrive a few minutes after its time: Android delays reminders to save battery.'**
+  String get settingsReminderDelay;
+
+  /// No description provided for @settingsSectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get settingsSectionData;
+
+  /// No description provided for @settingsClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear payment history'**
+  String get settingsClearHistory;
+
+  /// No description provided for @settingsClearHistoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your subscriptions and bills'**
+  String get settingsClearHistoryHint;
+
+  /// No description provided for @settingsDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data'**
+  String get settingsDeleteAll;
+
+  /// No description provided for @settingsDeleteAllHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions, history and settings'**
+  String get settingsDeleteAllHint;
+
+  /// No description provided for @clearHistoryDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear payment history?'**
+  String get clearHistoryDialogTitle;
+
+  /// No description provided for @clearHistoryDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every recorded payment and skip. Your subscriptions and their next charge dates stay as they are. This can’t be undone.'**
+  String get clearHistoryDialogBody;
+
+  /// No description provided for @clearHistoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get clearHistoryConfirm;
+
+  /// No description provided for @deleteAllDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data?'**
+  String get deleteAllDialogTitle;
+
+  /// No description provided for @deleteAllDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every subscription, bill and trial, their payment history and your settings, and cancels all reminders. This can’t be undone.'**
+  String get deleteAllDialogBody;
+
+  /// No description provided for @deleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get deleteAllConfirm;
+
+  /// No description provided for @snackHistoryCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment history cleared'**
+  String get snackHistoryCleared;
+
+  /// No description provided for @snackAllDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All data deleted'**
+  String get snackAllDeleted;
 }
 
 class _AppLocalizationsDelegate

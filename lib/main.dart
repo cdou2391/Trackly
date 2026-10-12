@@ -19,6 +19,7 @@ import 'core/notifications/notification_prefs.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_text.dart';
 import 'core/startup/boot_gate.dart';
+import 'features/settings/application/settings_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,6 +68,7 @@ Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
       notificationPrefsProvider.overrideWithValue(
         SharedNotificationPrefs(prefs),
       ),
+      settingsStoreProvider.overrideWithValue(SharedSettingsStore(prefs)),
     ],
     child: const TracklyApp(),
   );

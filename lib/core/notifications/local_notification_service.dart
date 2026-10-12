@@ -101,6 +101,9 @@ class LocalNotificationService implements NotificationService {
   Future<void> cancel(int id) => _plugin.cancel(id: id);
 
   @override
+  Future<void> cancelAll() => _plugin.cancelAll();
+
+  @override
   Future<List<PendingReminder>> pending() async {
     final requests = await _plugin.pendingNotificationRequests();
     return [

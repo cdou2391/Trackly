@@ -11,8 +11,10 @@ import '../../../../core/utils/recurrence_utils.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../shared/widgets/snack.dart';
 import '../../../../shared/widgets/form_metrics.dart';
+import '../../../../shared/widgets/picker_field.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../settings/application/settings_providers.dart';
+import '../../../settings/application/settings_store.dart';
 import '../../../../core/notifications/reminder_permission.dart';
 import '../../application/add_panel_controller.dart';
 import '../../application/categories_provider.dart';
@@ -31,9 +33,6 @@ const _frequencies = [
   BillingFrequency.semiAnnual,
   BillingFrequency.yearly,
 ];
-
-/// Same day, 1, 3 or 7 days before.
-const _reminderOptions = [0, 1, 3, 7];
 
 /// The full add form, shown as a panel that slides up from the bottom
 /// navigation. Quick Add on Home is the fast path; this has every field.
@@ -71,8 +70,9 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
   bool _isTrial = false;
   DateTime? _trialEnd;
   bool _remindersEnabled = true;
-  int _reminderDays = 3;
-  int _reminderMinute = defaultReminderMinuteOfDay;
+  // New subscriptions start from the user's default reminder timing.
+  late int _reminderDays = ref.read(defaultReminderProvider).days;
+  late int _reminderMinute = ref.read(defaultReminderProvider).minuteOfDay;
   String? _categoryId;
 
   bool _saving = false;
@@ -523,7 +523,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                         const SizedBox(width: TracklySpacing.sm),
                         Expanded(
                           child: _isTrial
-                              ? _DateField(
+                              ? PickerField(
                                   label: l10n.addTrialEnds,
                                   value: _trialEnd == null
                                       ? null
@@ -533,7 +533,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                                         ),
                                   onTap: _pickTrialEnd,
                                 )
-                              : _DateField(
+                              : PickerField(
                                   // Adding: when billing started. Editing:
                                   // when the next charge is due.
                                   label: _editing != null
@@ -566,7 +566,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                       Wrap(
                         spacing: TracklySpacing.sm,
                         children: [
-                          for (final days in _reminderOptions)
+                          for (final days in reminderDayOptions)
                             ChoiceChip(
                               label: Text(
                                 days == 0
@@ -580,7 +580,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                         ],
                       ),
                       const SizedBox(height: TracklySpacing.md),
-                      _DateField(
+                      PickerField(
                         label: l10n.addRemindAt,
                         value: reminderTimeLabel(context, _reminderMinute),
                         onTap: _pickReminderTime,
@@ -701,33 +701,6 @@ class _SectionLabel extends StatelessWidget {
           style: Theme.of(context).textTheme.labelMedium
               ?.copyWith(letterSpacing: 0.5, fontWeight: FontWeight.w600),
         ),
-      ),
-    );
-  }
-}
-
-class _DateField extends StatelessWidget {
-  const _DateField({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-
-  final String label;
-  final String? value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(TracklyRadius.medium),
-      onTap: onTap,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          constraints: kFormFieldConstraints,
-        ),
-        child: Text(value ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
     );
   }
