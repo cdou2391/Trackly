@@ -11,6 +11,7 @@ class FakeNotificationService implements NotificationService {
   int permissionRequests = 0;
   int scheduleCalls = 0;
   int cancelCalls = 0;
+  int cancelAllCalls = 0;
 
   /// Ids whose `schedule` call should throw.
   final failingIds = <int>{};
@@ -45,6 +46,12 @@ class FakeNotificationService implements NotificationService {
   Future<void> cancel(int id) async {
     cancelCalls++;
     scheduled.remove(id);
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    cancelAllCalls++;
+    scheduled.clear();
   }
 
   @override

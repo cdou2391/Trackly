@@ -572,4 +572,90 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get insightsEmptyBody =>
       'Add a subscription to see your monthly cost and where it goes.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSectionDefaults => 'For new subscriptions';
+
+  @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsReminders => 'Remind me';
+
+  @override
+  String get settingsSectionAppearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get settingsSectionNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsOn => 'Reminders are on';
+
+  @override
+  String get settingsNotificationsOff =>
+      'Notifications are off, so you won’t get reminders.';
+
+  @override
+  String get settingsTurnOn => 'Turn on';
+
+  @override
+  String get settingsAllowInPhone =>
+      'Allow notifications for Trackly in your phone’s settings to get reminders.';
+
+  @override
+  String get settingsReminderDelay =>
+      'A reminder can arrive a few minutes after its time: Android delays reminders to save battery.';
+
+  @override
+  String get settingsSectionData => 'Your data';
+
+  @override
+  String get settingsClearHistory => 'Clear payment history';
+
+  @override
+  String get settingsClearHistoryHint => 'Keeps your subscriptions and bills';
+
+  @override
+  String get settingsDeleteAll => 'Delete all data';
+
+  @override
+  String get settingsDeleteAllHint => 'Subscriptions, history and settings';
+
+  @override
+  String get clearHistoryDialogTitle => 'Clear payment history?';
+
+  @override
+  String get clearHistoryDialogBody =>
+      'This removes every recorded payment and skip. Your subscriptions and their next charge dates stay as they are. This can’t be undone.';
+
+  @override
+  String get clearHistoryConfirm => 'Clear history';
+
+  @override
+  String get deleteAllDialogTitle => 'Delete all data?';
+
+  @override
+  String get deleteAllDialogBody =>
+      'This removes every subscription, bill and trial, their payment history and your settings, and cancels all reminders. This can’t be undone.';
+
+  @override
+  String get deleteAllConfirm => 'Delete everything';
+
+  @override
+  String get snackHistoryCleared => 'Payment history cleared';
+
+  @override
+  String get snackAllDeleted => 'All data deleted';
 }

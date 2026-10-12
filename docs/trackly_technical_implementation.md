@@ -3068,5 +3068,31 @@ Pure logic (`occurrencesInRange`, `buildCalendarMonth`, `buildInsightsSummary`) 
 - Each item has its own **reminder time**, set in the add/edit form under the day chips ("Remind me at", with the phone's 12- or 24-hour style) and shown on the item screen ("3 days before at 6:30 PM"). Before this, every reminder was fixed at 9:00.
 - It is stored as `reminder_minute_of_day` on `recurring_items`: minutes after local midnight, 0-1439 (a `CHECK` enforces the range). **Schema version 2**; the upgrade adds the column, and existing items get 540 (09:00), exactly what they had, so nothing changes until the user edits an item. The v2 schema and its test helpers are committed under `drift_schemas/` and `test/database/generated/`, with an upgrade test that starts from a v1 database containing data.
 - The planner puts both reminders (the "N days before" one and the "due today" one) at the item's time. A time that has already passed today is left out, as before. Changing the time reschedules the same notifications (their ids do not depend on the time) rather than adding duplicates.
-- New items, including Quick Add, start at 09:00. A **default time in Settings** is planned with the Settings screen.
+- New items, including Quick Add, start at the default time from Settings (§92), 09:00 until the user changes it.
 - Analytics: `subscription_created` gains `reminder_hour` (0-23), nothing finer.
+
+# 92. Settings (as built)
+
+Opened from the Home gear and from **More > Settings** (`/settings`, a sub-page with a back button). Four sections:
+
+| Section | What it does |
+| --- | --- |
+| **For new subscriptions** | Default **currency**, and default **reminder** timing (Same day / 1 / 3 / 7 days before, and the time of day). Used by Quick Add and by the add form for a new item. Existing items are never changed. The default currency is also the one empty totals show on Home, Calendar and Insights. |
+| **Appearance** | **System / Light / Dark**. Light until the user chooses (§87). Applies at once. |
+| **Notifications** | Shows whether the phone lets Trackly notify. **Turn on** asks for the permission (and schedules the reminders if granted). If the user refuses, the screen says to allow it in the phone's settings; Android will not ask again. The status refreshes when the user returns from the phone's settings. States that a reminder can arrive a few minutes late (Android delays inexact alarms). |
+| **Your data** | **Clear payment history** (payments and skips; subscriptions and their next dates stay) and **Delete all data** (every item, its history, every scheduled reminder and every setting). Both ask for confirmation, with the consequence in the text, and cannot be undone. |
+
+## Storage
+
+- Choices are kept in `shared_preferences` behind `SettingsStore` (keys `default_currency`, `theme_mode`, `default_reminder_days`, `default_reminder_minute`). A missing or unusable value reads as "not chosen" and the default applies. A write that fails is reported through the error reporter and does not break the screen: the choice is already applied in memory.
+- Settings are not in the database, so they are not part of any export of subscription data.
+- **Delete all data** removes items and payments in one transaction, clears the settings, then cancels all notifications. If cancelling fails the data is still gone, the failure is reported, and the next launch reconciles reminders anyway.
+- It does not delete data held outside the phone (there is none in v1: the app is local-first with no account) or Android's own record of the permission.
+
+## Analytics
+
+`currency_changed` (`currency`), `theme_changed` (`theme`), and the existing `notification_permission_*` events when **Turn on** is used. Nothing is logged for the data actions.
+
+## Not done
+
+Language choice (English only), a "Reminders off" master switch (turn them off per item), export, and a lock screen. Planned: CSV export and Categories under More.

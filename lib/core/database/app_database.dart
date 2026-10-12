@@ -25,6 +25,15 @@ class AppDatabase extends _$AppDatabase {
   /// The on-device database file: `trackly.db`.
   AppDatabase.open() : super(driftDatabase(name: 'trackly'));
 
+  /// Removes every subscription, bill and trial, and every payment (payments
+  /// go with their item). The built-in categories stay.
+  Future<void> deleteAllUserData() {
+    return transaction(() async {
+      await paymentsDao.clearHistory();
+      await recurringItemsDao.deleteAll();
+    });
+  }
+
   /// Bump on every schema change, add a step to [migration], and dump the new
   /// schema with `dart run drift_dev schema dump` (see drift_schemas/).
   /// Never delete the database to migrate.

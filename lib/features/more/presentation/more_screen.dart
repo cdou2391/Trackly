@@ -43,6 +43,12 @@ class MoreScreen extends StatelessWidget {
                       label: l10n.historyTitle,
                       onTap: () => context.push(AppRoutes.history),
                     ),
+                    const SizedBox(height: TracklySpacing.sm),
+                    _MoreTile(
+                      icon: Icons.settings_rounded,
+                      label: l10n.settingsTitle,
+                      onTap: () => context.push(AppRoutes.settings),
+                    ),
                   ],
                 ),
               ),

@@ -140,6 +140,10 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
               name: _nameController.text,
               amount: amount,
               currencyCode: ref.read(defaultCurrencyProvider),
+              reminderDaysBefore: ref.read(defaultReminderProvider).days,
+              reminderMinuteOfDay: ref
+                  .read(defaultReminderProvider)
+                  .minuteOfDay,
               frequency: _frequency,
               startDate: _effectiveStart,
               categoryId: service?.categoryId,

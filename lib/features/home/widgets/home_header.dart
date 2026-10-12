@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_router.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/screen_header.dart';
 
@@ -10,7 +12,7 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
-    // Search and settings screens are not built yet.
+    // The search screen is not built yet.
     return ScreenHeader(
       title: context.l10n.appName,
       subtitle: context.l10n.homeSubtitle,
@@ -23,7 +25,7 @@ class HomeHeader extends StatelessWidget {
         IconButton(
           tooltip: context.l10n.settingsTooltip,
           icon: Icon(Icons.settings_outlined, size: 26, color: onSurface),
-          onPressed: () {},
+          onPressed: () => context.push(AppRoutes.settings),
         ),
       ],
     );

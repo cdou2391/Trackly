@@ -10,6 +10,7 @@ import 'package:trackly/core/notifications/notification_prefs.dart';
 import 'package:trackly/core/notifications/notification_service.dart';
 import 'package:trackly/features/home/application/home_providers.dart';
 import 'package:trackly/features/settings/application/settings_providers.dart';
+import 'package:trackly/features/settings/application/settings_store.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_item.dart';
 
@@ -113,7 +114,8 @@ class _FixedThemeMode extends ThemeModeController {
 }
 
 /// Pumps the whole app on a phone-sized screen (390x844 by default) with an
-/// in-memory database. The light theme is the default design.
+/// in-memory database. The light theme is the default design. Pass [settings]
+/// to use (and inspect) a real settings store instead of a fixed theme.
 Future<AppDatabase> pumpTrackly(
   WidgetTester tester, {
   List<RecurringItem> items = const [],
@@ -123,6 +125,7 @@ Future<AppDatabase> pumpTrackly(
   NotificationService notifications = const NoopNotificationService(),
   NotificationPrefs? notificationPrefs,
   AnalyticsService? analytics,
+  SettingsStore? settings,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -147,7 +150,11 @@ Future<AppDatabase> pumpTrackly(
         notificationServiceProvider.overrideWithValue(notifications),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),
-        themeModeProvider.overrideWith(() => _FixedThemeMode(themeMode)),
+        // With a real store the theme comes from it, as in the app.
+        if (settings != null)
+          settingsStoreProvider.overrideWithValue(settings)
+        else
+          themeModeProvider.overrideWith(() => _FixedThemeMode(themeMode)),
       ],
       child: const TracklyApp(),
     ),
