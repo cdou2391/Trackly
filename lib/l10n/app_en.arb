@@ -177,5 +177,32 @@
   "remindersPromptTitle": "Get reminded before it renews?",
   "remindersPromptBody": "Trackly can send a notification before a charge. Reminders are scheduled on your device and never leave it.",
   "remindersPromptConfirm": "Turn on reminders",
-  "remindersPromptLater": "Not now"
+  "remindersPromptLater": "Not now",
+
+  "chipPaid": "Paid",
+
+  "calendarMonthTotal": "Total this month",
+  "calendarLeftFrom": "Left from {date}",
+  "@calendarLeftFrom": { "placeholders": { "date": { "type": "String" } } },
+  "calendarPrevMonth": "Previous month",
+  "calendarNextMonth": "Next month",
+  "calendarToday": "Today",
+  "calendarNoCharges": "No charges on this day.",
+  "calendarDayLabel": "{date}: {count, plural, =0{no charges} =1{1 charge} other{{count} charges}}",
+  "@calendarDayLabel": {
+    "placeholders": { "date": { "type": "String" }, "count": { "type": "int" } }
+  },
+
+  "insightsPerMonth": "Per month",
+  "insightsPerYear": "Per year",
+  "insightsChargesAhead": "Charges ahead",
+  "insightsChargesAheadSemantics": "{count, plural, =1{1 charge} other{{count} charges}} in the next month",
+  "@insightsChargesAheadSemantics": { "placeholders": { "count": { "type": "int" } } },
+  "insightsByCategory": "By category",
+  "insightsCategorySubs": "{count, plural, =1{1 subscription} other{{count} subscriptions}}",
+  "@insightsCategorySubs": { "placeholders": { "count": { "type": "int" } } },
+  "insightsShare": "{percent}%",
+  "@insightsShare": { "placeholders": { "percent": { "type": "int" } } },
+  "insightsEmptyTitle": "No spending to show yet",
+  "insightsEmptyBody": "Add a subscription to see your monthly cost and where it goes."
 }

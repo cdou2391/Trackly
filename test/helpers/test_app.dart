@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/app.dart';
+import 'package:trackly/core/analytics/analytics_service.dart';
 import 'package:trackly/core/database/app_database.dart';
 import 'package:trackly/core/notifications/notification_prefs.dart';
 import 'package:trackly/core/notifications/notification_service.dart';
@@ -72,6 +73,7 @@ RecurringItem testItem(
   BillingFrequency frequency = BillingFrequency.monthly,
   DateTime? trialEnd,
   String? logoKey,
+  String? categoryId,
   ItemStatus status = ItemStatus.active,
 }) {
   return RecurringItem(
@@ -89,6 +91,7 @@ RecurringItem testItem(
     isTrial: trialEnd != null,
     trialEndDate: trialEnd,
     logoKey: logoKey,
+    categoryId: categoryId,
     createdAt: testNow,
     updatedAt: testNow,
   );
@@ -114,6 +117,7 @@ Future<AppDatabase> pumpTrackly(
   double textScale = 1.0,
   NotificationService notifications = const NoopNotificationService(),
   NotificationPrefs? notificationPrefs,
+  AnalyticsService? analytics,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -134,6 +138,7 @@ Future<AppDatabase> pumpTrackly(
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
         nowProvider.overrideWithValue(() => testNow),
+        if (analytics != null) analyticsProvider.overrideWithValue(analytics),
         notificationServiceProvider.overrideWithValue(notifications),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),
