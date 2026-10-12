@@ -84,6 +84,9 @@ jobs:
             --build-name "$NAME" \
             --build-number "$GITHUB_RUN_NUMBER"
 
+      - name: Check the reminder icon survived the release build
+        run: tool/apk_has_resource.sh build/app/outputs/flutter-apk/app-release.apk drawable/ic_stat_notify
+
       - name: Check the signature
         run: |
           APK=build/app/outputs/flutter-apk/app-release.apk
