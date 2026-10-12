@@ -2,9 +2,13 @@ name: Release APK
 
 # Builds an installable APK and attaches it to a GitHub pre-release.
 #
-# Push a tag such as `v1.0.0-preview.1` to publish. The release is signed with
-# the debug key (see android/app/build.gradle.kts) and built without Sentry or
-# Firebase config, so it is for testing, not for the Play Store.
+# Run it from the Actions tab (branch main) with a tag such as
+# `v1.0.0-preview.2`, or push a `v*` tag.
+#
+# The APK is signed with the permanent release key stored in repository
+# secrets, so each release installs over the previous one and keeps the app's
+# data. The workflow refuses to run without the key: it never publishes a
+# debug-signed release. Setup: docs/release_signing.md.
 
 on:
   push:
@@ -24,12 +28,36 @@ concurrency:
 
 jobs:
   apk:
+    # This job can read the signing key, so only run it from main or a tag.
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      # Fail the build rather than fall back to the debug key.
+      REQUIRE_RELEASE_SIGNING: 'true'
     steps:
       - uses: actions/checkout@v4
+
+      # Cheap and first, so a missing secret fails in seconds, not after the tests.
+      - name: Restore the release key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=0
+          for name in KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Repository secret for $name is missing. See docs/release_signing.md."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
       - uses: actions/setup-java@v4
         with:
@@ -51,31 +79,53 @@ jobs:
         run: flutter test
 
       - name: Build APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          # v1.2.3-preview.1 -> build name 1.2.3; the run number is the build code.
+          # v1.2.3-preview.1 -> build name 1.2.3. The run number is the version
+          # code; Android only installs a version code higher than the one
+          # already on the phone, and the run number only ever goes up.
           NAME="$(echo "$TAG" | sed -E 's/^v//; s/[-+].*$//')"
           flutter build apk --release \
             --build-name "$NAME" \
             --build-number "$GITHUB_RUN_NUMBER"
 
+      - name: Check the signature
+        run: |
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          tool/apk_cert.sh "$APK" > cert.txt
+          cat cert.txt
+          if grep -q "CN=Android Debug" cert.txt; then
+            echo "::error::The APK is signed with the debug key."
+            exit 1
+          fi
+
       - name: Name the APK
         run: |
-          cp build/app/outputs/flutter-apk/app-release.apk \
-            "trackly-${TAG}-debug-signed.apk"
-          sha256sum "trackly-${TAG}-debug-signed.apk" | tee SHA256SUMS.txt
+          cp build/app/outputs/flutter-apk/app-release.apk "trackly-${TAG}.apk"
+          sha256sum "trackly-${TAG}.apk" | tee SHA256SUMS.txt
 
       - name: Publish pre-release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          FINGERPRINT="$(grep 'SHA-256' cert.txt | sed -E 's/.*digest: *//')"
           gh release create "$TAG" \
-            "trackly-${TAG}-debug-signed.apk" SHA256SUMS.txt \
+            "trackly-${TAG}.apk" SHA256SUMS.txt \
             --target "$GITHUB_SHA" \
             --prerelease \
             --title "Trackly ${TAG} (pre-release)" \
             --notes "Test build of Trackly, built from \`${GITHUB_SHA::7}\`.
 
-          - Signed with the **debug key**: for testing only, not for the Play Store.
+          - Signed with the Trackly **release key**. Every release uses the same key, so a newer version installs over an older one and keeps your data.
+          - Signing certificate SHA-256: \`${FINGERPRINT}\`
           - Built without Sentry or Firebase configuration, so no telemetry is sent.
           - Android only. Install by opening the APK and allowing installs from this source.
-          - Verify the download against \`SHA256SUMS.txt\`."
+          - Verify the download against \`SHA256SUMS.txt\`.
+          - Coming from \`v1.0.0-preview.1\` (debug-signed)? Uninstall it once first; Android cannot install over an app signed with a different key. Later releases will not need this."
+
+      - name: Remove the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
