@@ -3062,3 +3062,11 @@ Pure logic (`occurrencesInRange`, `buildCalendarMonth`, `buildInsightsSummary`) 
 - With the system "remove animations" setting on, the logo and text appear at once and the loader is still.
 - The splash uses the light theme, like the rest of the app until theme choice exists (§87). The very first frame, before Flutter starts, is still the native launch screen (plain white).
 - **Not done:** the iOS app icon is still Flutter's default; only the Android icon was redesigned.
+
+# 91. Reminder time of day (as built)
+
+- Each item has its own **reminder time**, set in the add/edit form under the day chips ("Remind me at", with the phone's 12- or 24-hour style) and shown on the item screen ("3 days before at 6:30 PM"). Before this, every reminder was fixed at 9:00.
+- It is stored as `reminder_minute_of_day` on `recurring_items`: minutes after local midnight, 0-1439 (a `CHECK` enforces the range). **Schema version 2**; the upgrade adds the column, and existing items get 540 (09:00), exactly what they had, so nothing changes until the user edits an item. The v2 schema and its test helpers are committed under `drift_schemas/` and `test/database/generated/`, with an upgrade test that starts from a v1 database containing data.
+- The planner puts both reminders (the "N days before" one and the "due today" one) at the item's time. A time that has already passed today is left out, as before. Changing the time reschedules the same notifications (their ids do not depend on the time) rather than adding duplicates.
+- New items, including Quick Add, start at 09:00. A **default time in Settings** is planned with the Settings screen.
+- Analytics: `subscription_created` gains `reminder_hour` (0-23), nothing finer.

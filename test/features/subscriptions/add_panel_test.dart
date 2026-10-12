@@ -49,7 +49,91 @@ Future<void> _choose(
   await settle(tester);
 }
 
+/// Sets the time in the open time picker by typing it (hour, minute, AM/PM).
+Future<void> _typeTime(
+  WidgetTester tester, {
+  required String hour,
+  required String minute,
+  required String period,
+}) async {
+  await tester.tap(find.byTooltip('Switch to text input mode'));
+  await settle(tester);
+  final fields = find.descendant(
+    of: find.byType(Dialog),
+    matching: find.byType(TextField),
+  );
+  await tester.enterText(fields.at(0), hour);
+  await tester.enterText(fields.at(1), minute);
+  await tester.tap(
+    find.descendant(of: find.byType(Dialog), matching: find.text(period)),
+  );
+  await tester.pump();
+  await tester.tap(find.text('OK'));
+  await settle(tester);
+}
+
 void main() {
+  group('reminder time', () {
+    tracklyTest('shows 9:00 AM by default and saves it', (tester) async {
+      final db = await pumpTrackly(tester);
+      await _openPanel(tester);
+
+      expect(_inPanel(find.text('Remind me at')), findsOneWidget);
+      expect(_inPanel(find.text('9:00 AM')), findsOneWidget);
+
+      await _fillBasics(tester);
+      await tester.tap(_save());
+      await settle(tester);
+
+      final saved = (await tester.runAsync(
+        () => db.recurringItemsDao.getActive(),
+      ))!.single;
+      expect(saved.reminderMinuteOfDay, 9 * 60);
+    });
+
+    tracklyTest('is hidden while reminders are off', (tester) async {
+      await pumpTrackly(tester);
+      await _openPanel(tester);
+
+      await _tap(tester, _inPanel(find.text('Remind me')));
+      expect(_inPanel(find.text('Remind me at')), findsNothing);
+
+      await _tap(tester, _inPanel(find.text('Remind me')));
+      expect(_inPanel(find.text('Remind me at')), findsOneWidget);
+    });
+
+    tracklyTest('a chosen time is shown and saved', (tester) async {
+      final db = await pumpTrackly(tester);
+      await _openPanel(tester);
+      await _fillBasics(tester);
+
+      await _tap(tester, _inPanel(find.text('9:00 AM')));
+      await _typeTime(tester, hour: '6', minute: '30', period: 'PM');
+
+      expect(_inPanel(find.text('6:30 PM')), findsOneWidget);
+      expect(_inPanel(find.text('9:00 AM')), findsNothing);
+
+      await tester.tap(_save());
+      await settle(tester);
+
+      final saved = (await tester.runAsync(
+        () => db.recurringItemsDao.getActive(),
+      ))!.single;
+      expect(saved.reminderMinuteOfDay, 18 * 60 + 30);
+    });
+
+    tracklyTest('cancelling the picker keeps the time', (tester) async {
+      await pumpTrackly(tester);
+      await _openPanel(tester);
+
+      await _tap(tester, _inPanel(find.text('9:00 AM')));
+      await tester.tap(find.text('Cancel'));
+      await settle(tester);
+
+      expect(_inPanel(find.text('9:00 AM')), findsOneWidget);
+    });
+  });
+
   group('opening and closing', () {
     tracklyTest('is not built until the + is tapped', (tester) async {
       await pumpTrackly(tester);

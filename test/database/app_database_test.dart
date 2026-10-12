@@ -123,6 +123,7 @@ void main() {
         trialEndDate: DateTime(2026, 11, 15),
         remindersEnabled: false,
         reminderDaysBefore: 7,
+        reminderMinuteOfDay: 18 * 60 + 30,
         categoryId: 'software',
         notes: 'Annual plan',
         logoKey: 'canva',
@@ -146,6 +147,7 @@ void main() {
       expect(loaded.trialEndDate, DateTime(2026, 11, 15));
       expect(loaded.remindersEnabled, isFalse);
       expect(loaded.reminderDaysBefore, 7);
+      expect(loaded.reminderMinuteOfDay, 18 * 60 + 30);
       expect(loaded.categoryId, 'software');
       expect(loaded.notes, 'Annual plan');
       expect(loaded.logoKey, 'canva');

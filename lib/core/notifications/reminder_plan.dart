@@ -5,9 +5,6 @@ import '../../features/subscriptions/domain/recurring_item.dart';
 import '../utils/cost_utils.dart';
 import '../utils/recurrence_utils.dart';
 
-/// Local time of day (hour) that reminders are delivered.
-const reminderHour = 9;
-
 enum ReminderType {
   /// "Due in N days": sent N days ahead, as set on the item.
   dueSoon('due_soon'),
@@ -43,7 +40,8 @@ class PlannedReminder {
   final String itemId;
   final ReminderType type;
 
-  /// Local wall-clock time to deliver it (the reminder day at [reminderHour]).
+  /// Local wall-clock time to deliver it (the reminder day, at the item's
+  /// reminder time).
   final DateTime when;
 
   /// How many days before the due date it is sent (0 for [ReminderType.dueToday]).
@@ -73,8 +71,14 @@ List<PlannedReminder> planReminders(
   final trial = isInActiveTrial(item, now);
   final days = item.reminderDaysBefore;
 
-  DateTime at(DateTime day) =>
-      DateTime(day.year, day.month, day.day, reminderHour);
+  final minuteOfDay = item.reminderMinuteOfDay;
+  DateTime at(DateTime day) => DateTime(
+    day.year,
+    day.month,
+    day.day,
+    minuteOfDay ~/ 60,
+    minuteOfDay % 60,
+  );
 
   final reminders = [
     if (days > 0)

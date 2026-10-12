@@ -55,7 +55,7 @@ void main() {
       expect(find.text('Next charge'), findsOneWidget);
       expect(find.text('Oct 15, 2026'), findsOneWidget);
       expect(find.text('Reminder'), findsOneWidget);
-      expect(find.text('3 days before'), findsOneWidget);
+      expect(find.text('3 days before at 9:00 AM'), findsOneWidget);
       expect(find.text('Subscription'), findsOneWidget);
       expect(find.text('Mark as paid'), findsOneWidget);
       expect(find.text('Skip this charge'), findsOneWidget);
@@ -64,6 +64,24 @@ void main() {
       expect(find.text('No payments recorded yet.'), findsOneWidget);
       expect(find.text('Cancel subscription'), findsOneWidget);
       expect(find.text('Delete'), findsOneWidget);
+    });
+
+    tracklyTest('shows the item\'s own reminder time', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: _size,
+        items: [
+          testItem(
+            'Netflix',
+            due: DateTime(2026, 10, 15),
+            reminderMinuteOfDay: 18 * 60 + 30,
+          ),
+        ],
+      );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      expect(find.text('3 days before at 6:30 PM'), findsOneWidget);
     });
 
     tracklyTest('back returns to Home', (tester) async {
@@ -326,6 +344,62 @@ void main() {
       expect(stored.logoKey, 'netflix');
       expect(stored.nextDueDate, DateTime(2026, 10, 15));
       expect(stored.status, ItemStatus.active);
+    });
+
+    tracklyTest('editing shows the reminder time and saves a new one', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(
+        tester,
+        size: _size,
+        items: [
+          testItem(
+            'Netflix',
+            due: DateTime(2026, 10, 15),
+            reminderMinuteOfDay: 18 * 60 + 30,
+          ),
+        ],
+      );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+      await tester.tap(find.byTooltip('Edit'));
+      await settle(tester);
+
+      expect(inPanel(find.text('Remind me at')), findsOneWidget);
+      expect(inPanel(find.text('6:30 PM')), findsOneWidget);
+
+      await tester.ensureVisible(inPanel(find.text('6:30 PM')));
+      await tester.pump();
+      await tester.tap(inPanel(find.text('6:30 PM')));
+      await settle(tester);
+      await tester.tap(find.byTooltip('Switch to text input mode'));
+      await settle(tester);
+      final fields = find.descendant(
+        of: find.byType(Dialog),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(fields.at(0), '7');
+      await tester.enterText(fields.at(1), '15');
+      await tester.tap(
+        find.descendant(of: find.byType(Dialog), matching: find.text('AM')),
+      );
+      await tester.pump();
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+
+      await tester.tap(
+        inPanel(find.widgetWithText(FilledButton, 'Save changes')),
+      );
+      await settle(tester);
+
+      expect(find.text('3 days before at 7:15 AM'), findsOneWidget);
+      final stored = (await tester.runAsync(
+        () => db.recurringItemsDao.getById('Netflix'),
+      ))!;
+      expect(stored.reminderMinuteOfDay, 7 * 60 + 15);
+      // Everything else is untouched.
+      expect(stored.reminderDaysBefore, 3);
+      expect(stored.nextDueDate, DateTime(2026, 10, 15));
     });
 
     tracklyTest('Save is disabled when the name is cleared', (tester) async {

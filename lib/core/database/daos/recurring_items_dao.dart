@@ -117,6 +117,7 @@ extension RecurringItemToCompanion on RecurringItem {
       trialEndDate: Value(trialEndDate),
       remindersEnabled: Value(remindersEnabled),
       reminderDaysBefore: Value(reminderDaysBefore),
+      reminderMinuteOfDay: Value(reminderMinuteOfDay),
       categoryId: Value(categoryId),
       notes: Value(notes),
       logoKey: Value(logoKey),

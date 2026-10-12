@@ -14,6 +14,7 @@ class EditedSubscription {
     required this.nextDueDate,
     required this.remindersEnabled,
     required this.reminderDaysBefore,
+    this.reminderMinuteOfDay = defaultReminderMinuteOfDay,
     this.isTrial = false,
     this.trialEndDate,
     this.categoryId,
@@ -29,6 +30,7 @@ class EditedSubscription {
   final DateTime nextDueDate;
   final bool remindersEnabled;
   final int reminderDaysBefore;
+  final int reminderMinuteOfDay;
   final bool isTrial;
   final DateTime? trialEndDate;
   final String? categoryId;
@@ -76,6 +78,7 @@ RecurringItem buildEditedItem(
     trialEndDate: trialEnd == null ? null : dateOnly(trialEnd),
     remindersEnabled: edit.remindersEnabled,
     reminderDaysBefore: edit.reminderDaysBefore,
+    reminderMinuteOfDay: edit.reminderMinuteOfDay,
     categoryId: edit.categoryId,
     notes: (notes == null || notes.isEmpty) ? null : notes,
     logoKey: edit.logoKey ?? findServiceByName(edit.name)?.key,

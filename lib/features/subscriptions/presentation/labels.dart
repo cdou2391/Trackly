@@ -22,6 +22,15 @@ extension BillingFrequencyLabel on BillingFrequency {
   }
 }
 
+/// A reminder time such as "9:00 AM" or "18:30", in the phone's 12/24-hour
+/// style.
+String reminderTimeLabel(BuildContext context, int minuteOfDay) {
+  return MaterialLocalizations.of(context).formatTimeOfDay(
+    TimeOfDay(hour: minuteOfDay ~/ 60, minute: minuteOfDay % 60),
+    alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+  );
+}
+
 typedef DueStatus = ({String label, ChipTone tone, IconData icon});
 
 /// Relative due label with a tone and icon: red with a bell when due today or

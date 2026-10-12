@@ -34,6 +34,7 @@ RecurringItem changed(
   DateTime? nextDueDate,
   ItemStatus? status,
   bool? remindersEnabled,
+  int? reminderMinuteOfDay,
 }) {
   return RecurringItem(
     id: item.id,
@@ -47,6 +48,7 @@ RecurringItem changed(
     status: status ?? item.status,
     remindersEnabled: remindersEnabled ?? item.remindersEnabled,
     reminderDaysBefore: item.reminderDaysBefore,
+    reminderMinuteOfDay: reminderMinuteOfDay ?? item.reminderMinuteOfDay,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
   );
@@ -97,6 +99,41 @@ void main() {
     expect(today.body, 'Due today · \$15.49');
     expect(ReminderPayload.parse(soon.payload)?.itemId, 'Netflix');
   });
+
+  test('delivers at the item\'s reminder time', () async {
+    await db.recurringItemsDao.insertItem(
+      testItem('Netflix', reminderMinuteOfDay: 18 * 60 + 30),
+    );
+    await sync.reconcile();
+
+    final times = service.scheduled.values.map((r) => r.when).toSet();
+    expect(times, {
+      DateTime(2026, 10, 17, 18, 30),
+      DateTime(2026, 10, 20, 18, 30),
+    });
+  });
+
+  test(
+    'changing the time reschedules the same reminders, no duplicates',
+    () async {
+      final netflix = testItem('Netflix');
+      await db.recurringItemsDao.insertItem(netflix);
+      await sync.reconcile();
+      final idsBefore = service.scheduled.keys.toSet();
+      expect(service.scheduled.values.map((r) => r.when.hour), everyElement(9));
+
+      await db.recurringItemsDao.updateItem(
+        changed(netflix, reminderMinuteOfDay: 20 * 60),
+      );
+      await sync.reconcile();
+
+      expect(service.scheduled.keys.toSet(), idsBefore);
+      expect(
+        service.scheduled.values.map((r) => r.when.hour),
+        everyElement(20),
+      );
+    },
+  );
 
   test('is idempotent: a second run schedules nothing', () async {
     await db.recurringItemsDao.insertItem(testItem('Netflix'));

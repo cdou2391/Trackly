@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/utils/cost_utils.dart';
 import 'package:trackly/features/subscriptions/application/subscription_creator.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
+import 'package:trackly/features/subscriptions/domain/recurring_item.dart';
 
 final _now = DateTime(2026, 10, 9, 12);
 
@@ -93,6 +94,32 @@ void main() {
       expect(item.categoryId, 'housing');
       expect(item.logoKey, 'x');
       expect(item.nextDueDate, DateTime(2027, 1, 1));
+    });
+
+    group('reminder time', () {
+      NewSubscription input({int? minute}) => NewSubscription(
+        name: 'Rent',
+        amount: 500,
+        currencyCode: 'USD',
+        frequency: BillingFrequency.monthly,
+        startDate: DateTime(2026, 10, 1),
+        entryMethod: EntryMethod.fullForm,
+        reminderMinuteOfDay: minute ?? defaultReminderMinuteOfDay,
+      );
+
+      test('defaults to 9:00', () {
+        final item = buildRecurringItem(input(), id: 'a', now: _now);
+        expect(item.reminderMinuteOfDay, 9 * 60);
+      });
+
+      test('keeps the chosen time', () {
+        final item = buildRecurringItem(
+          input(minute: 18 * 60 + 30),
+          id: 'a',
+          now: _now,
+        );
+        expect(item.reminderMinuteOfDay, 18 * 60 + 30);
+      });
     });
 
     group('free trials', () {

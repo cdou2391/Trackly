@@ -233,6 +233,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderSameDay => 'Same day';
 
   @override
+  String get addRemindAt => 'Remind me at';
+
+  @override
+  String reminderWhenAt(String when, String time) {
+    return '$when at $time';
+  }
+
+  @override
   String reminderDaysBefore(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

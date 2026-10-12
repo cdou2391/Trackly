@@ -29,7 +29,7 @@ class AppDatabase extends _$AppDatabase {
   /// schema with `dart run drift_dev schema dump` (see drift_schemas/).
   /// Never delete the database to migrate.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -48,6 +48,12 @@ class AppDatabase extends _$AppDatabase {
               ),
           ]);
         });
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          // Reminders gained a time of day; existing items keep 09:00.
+          await m.addColumn(recurringItems, recurringItems.reminderMinuteOfDay);
+        }
       },
       beforeOpen: (details) async {
         // Needed for cascade deletes and category set-null to work.

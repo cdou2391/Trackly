@@ -72,6 +72,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
   DateTime? _trialEnd;
   bool _remindersEnabled = true;
   int _reminderDays = 3;
+  int _reminderMinute = defaultReminderMinuteOfDay;
   String? _categoryId;
 
   bool _saving = false;
@@ -99,6 +100,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     _trialEnd = item.trialEndDate;
     _remindersEnabled = item.remindersEnabled;
     _reminderDays = item.reminderDaysBefore;
+    _reminderMinute = item.reminderMinuteOfDay;
     _categoryId = item.categoryId;
   }
 
@@ -188,6 +190,20 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
     });
   }
 
+  Future<void> _pickReminderTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: _reminderMinute ~/ 60,
+        minute: _reminderMinute % 60,
+      ),
+      helpText: context.l10n.addRemindAt,
+    );
+    if (picked != null && mounted) {
+      setState(() => _reminderMinute = picked.hour * 60 + picked.minute);
+    }
+  }
+
   Future<void> _pickTrialEnd() async {
     final today = _today;
     final picked = await _pickDate(
@@ -220,6 +236,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
           nextDueDate: _mainDate,
           remindersEnabled: _remindersEnabled,
           reminderDaysBefore: _reminderDays,
+          reminderMinuteOfDay: _reminderMinute,
           isTrial: _isTrial,
           trialEndDate: _trialEnd,
           categoryId: _categoryId,
@@ -279,6 +296,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
               logoKey: service?.key,
               remindersEnabled: _remindersEnabled,
               reminderDaysBefore: _reminderDays,
+              reminderMinuteOfDay: _reminderMinute,
               isTrial: _isTrial,
               trialEndDate: _trialEnd,
               notes: _notesController.text,
@@ -544,7 +562,7 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                       onChanged: (value) =>
                           setState(() => _remindersEnabled = value),
                     ),
-                    if (_remindersEnabled)
+                    if (_remindersEnabled) ...[
                       Wrap(
                         spacing: TracklySpacing.sm,
                         children: [
@@ -561,6 +579,13 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                             ),
                         ],
                       ),
+                      const SizedBox(height: TracklySpacing.md),
+                      _DateField(
+                        label: l10n.addRemindAt,
+                        value: reminderTimeLabel(context, _reminderMinute),
+                        onTap: _pickReminderTime,
+                      ),
+                    ],
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
                       childrenPadding: const EdgeInsets.only(
