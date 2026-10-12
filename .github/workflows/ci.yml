@@ -36,9 +36,12 @@ jobs:
       - name: Test
         run: flutter test
 
-  # Proves the Android release build works from a clean checkout (no Firebase
-  # or Sentry config). The APK is debug-signed and kept for a week; real
-  # releases come from the Release APK workflow.
+  # Proves the Android release build works from a clean checkout, and that the
+  # release signing config does what it should. The real release key is not
+  # available here (and must not be), so this builds twice:
+  #   1. with no key: falls back to the debug key, as a fresh clone does;
+  #   2. with a throwaway key made on the spot: must be signed by that key.
+  # Real releases come from the Release APK workflow.
   apk:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -59,8 +62,38 @@ jobs:
 
       - run: flutter pub get
 
-      - name: Build APK
+      - name: Build APK without a signing key
         run: flutter build apk --release
+
+      - name: Check it fell back to the debug key
+        run: |
+          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk | tee cert.txt
+          grep -q "CN=Android Debug" cert.txt
+
+      - name: Refuse the fallback when a key is required
+        run: |
+          if REQUIRE_RELEASE_SIGNING=true flutter build apk --release; then
+            echo "::error::The build should fail when a key is required but missing."
+            exit 1
+          fi
+
+      - name: Build APK with a throwaway release key
+        env:
+          ANDROID_KEYSTORE_PASSWORD: throwaway-ci-password
+          ANDROID_KEY_ALIAS: ci
+          ANDROID_KEY_PASSWORD: throwaway-ci-password
+        run: |
+          keytool -genkeypair -keystore "$RUNNER_TEMP/ci.jks" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 2 \
+            -dname "CN=Trackly CI Throwaway"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/ci.jks"
+          REQUIRE_RELEASE_SIGNING=true flutter build apk --release
+
+      - name: Check it is signed by the throwaway key
+        run: |
+          tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk | tee cert.txt
+          grep -q "CN=Trackly CI Throwaway" cert.txt
 
       - uses: actions/upload-artifact@v4
         with:
