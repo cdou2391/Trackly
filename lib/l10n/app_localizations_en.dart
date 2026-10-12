@@ -467,4 +467,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remindersPromptLater => 'Not now';
+
+  @override
+  String get chipPaid => 'Paid';
+
+  @override
+  String get calendarMonthTotal => 'Total this month';
+
+  @override
+  String calendarLeftFrom(String date) {
+    return 'Left from $date';
+  }
+
+  @override
+  String get calendarPrevMonth => 'Previous month';
+
+  @override
+  String get calendarNextMonth => 'Next month';
+
+  @override
+  String get calendarToday => 'Today';
+
+  @override
+  String get calendarNoCharges => 'No charges on this day.';
+
+  @override
+  String calendarDayLabel(String date, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charges',
+      one: '1 charge',
+      zero: 'no charges',
+    );
+    return '$date: $_temp0';
+  }
+
+  @override
+  String get insightsPerMonth => 'Per month';
+
+  @override
+  String get insightsPerYear => 'Per year';
+
+  @override
+  String get insightsChargesAhead => 'Charges ahead';
+
+  @override
+  String insightsChargesAheadSemantics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charges',
+      one: '1 charge',
+    );
+    return '$_temp0 in the next month';
+  }
+
+  @override
+  String get insightsByCategory => 'By category';
+
+  @override
+  String insightsCategorySubs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subscriptions',
+      one: '1 subscription',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsShare(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get insightsEmptyTitle => 'No spending to show yet';
+
+  @override
+  String get insightsEmptyBody =>
+      'Add a subscription to see your monthly cost and where it goes.';
 }

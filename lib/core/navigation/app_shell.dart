@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/subscriptions/application/add_panel_controller.dart';
 import '../../features/subscriptions/presentation/widgets/add_subscription_panel.dart';
 import '../../l10n/l10n.dart';
+import '../analytics/analytics_events.dart';
+import '../analytics/analytics_service.dart';
 import 'app_bottom_navigation.dart';
 import 'app_router.dart';
 
@@ -29,6 +31,17 @@ class _AppFrameState extends ConsumerState<AppFrame> {
   /// The highlighted tab. A screen opened from a tab (like an item) keeps its
   /// origin highlighted instead of lighting up nothing.
   int _tab = 0;
+
+  /// Tab screens stay alive once visited, so "opened" is logged when the
+  /// tab is chosen rather than when the screen is built.
+  void _logTabOpened(int index) {
+    final event = switch (index) {
+      1 => AnalyticsEvents.insightsOpened,
+      2 => AnalyticsEvents.calendarOpened,
+      _ => null,
+    };
+    if (event != null) ref.read(analyticsProvider).logEvent(event);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +73,7 @@ class _AppFrameState extends ConsumerState<AppFrame> {
             onToggleAdd: panel.toggle,
             onSelectTab: (index) {
               panel.close();
+              _logTabOpened(index);
               context.go(AppRoutes.tabPaths[index]);
             },
           ),

@@ -3022,3 +3022,33 @@ The purpose is to ship a polished, useful recurring-payment tracker, gather real
 - New items whose name exactly matches a catalog service (any case) get its `logo_key` and category automatically; existing items are backfilled the same way at app start. A key already set is never overwritten.
 - Adding a logo later is a file plus one `logoAsset:` line, with no schema change. Tests check that every file exists, is named by its key, is safe, and really draws.
 
+# 89. Calendar and Insights (as built)
+
+## Calendar
+
+- A **month grid** (week starts on the locale's first day), with month navigation (buttons or a horizontal swipe) and a **Today** button when another month is showing.
+- Each day shows one small dot per kind of charge on it: overdue (red), due (amber), paid (green), skipped (grey). Dots are decoration only; the list under the grid and each day's screen-reader label give the same facts in words.
+- Opening the current month selects today; any other month selects its first day.
+- Two figures per currency, never merged:
+  - **Total this month**: every counted charge in the month, paid or not, so the number does not shrink as the user pays.
+  - **Left from {selected day}**: charges still to pay (due or overdue, not paid or skipped) from the selected day to the end of the month. Choosing the 1st of a month gives the whole month.
+- Charges are **projected** from each active item's schedule starting at its next due date (`occurrencesInRange`), so a weekly item appears every week and a monthly one in any month ahead. Recorded payments and skips show on the date they were due, at the amount paid.
+- Charges before today that are not recorded are **overdue** and stay on their original date.
+- Paused and cancelled items have no scheduled charges; their recorded history stays visible.
+- A **skipped** charge is shown but never counted. A charge made while a free trial runs (up to and including its end date) is shown with a Trial chip and is not counted, as on Home and Insights.
+
+## Insights
+
+- Per-month and per-year cost per currency (the same figures as the Home hero).
+- Counts: **Active** (active and not in a trial; paused items are *not* counted here, unlike the Home Active card), **Trial**, and **Charges ahead**.
+- **Charges ahead** counts every charge from today to one calendar month ahead (the Home Upcoming window, inclusive at both ends), uncapped. It includes a weekly item's repeats, a trial's first charge and one overdue charge per item, so a monthly item due today counts twice (today and exactly one month ahead).
+- **By category**: the monthly cost per category, largest first, with its share, one block per currency. Items without a category are grouped as Other. Only active, non-trial items are included.
+- No charts beyond a thin share bar (design guide §40).
+
+## Analytics
+
+`insights_opened` and `calendar_opened` are logged when the tab is chosen (the tab screens stay alive once visited, so building them is not "opening").
+
+## Testing
+
+Pure logic (`occurrencesInRange`, `buildCalendarMonth`, `buildInsightsSummary`) has unit tests including month-end clamping, leap years, weekly and custom schedules, trials, paused items and multiple currencies. Screen tests cover the summary figures, day selection, month stepping, overflow on a 320 dp screen with 1.6x text, and the analytics events.

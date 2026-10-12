@@ -106,6 +106,42 @@ DateTime upcomingCutoff(DateTime today) {
   return addMonthsClamped(dateOnly(today), 1);
 }
 
+/// Every date on a schedule that falls within [from]..[to], both inclusive.
+///
+/// The schedule is the one that passes through [firstDue] and repeats by
+/// [frequency] and [interval]. Dates before [firstDue] are never returned
+/// (they have already happened). [anchorDay] works as in
+/// [calculateNextDueDate], so a month-end schedule keeps its day.
+List<DateTime> occurrencesInRange({
+  required DateTime firstDue,
+  required BillingFrequency frequency,
+  int interval = 1,
+  int? anchorDay,
+  required DateTime from,
+  required DateTime to,
+}) {
+  final end = dateOnly(to);
+  var due = nextOccurrenceOnOrAfter(
+    from: firstDue,
+    frequency: frequency,
+    interval: interval,
+    anchorDay: anchorDay,
+    today: from,
+  );
+
+  final dates = <DateTime>[];
+  while (!due.isAfter(end)) {
+    dates.add(due);
+    due = calculateNextDueDate(
+      fromDate: due,
+      frequency: frequency,
+      interval: interval,
+      anchorDay: anchorDay,
+    );
+  }
+  return dates;
+}
+
 /// The first date on [from]'s schedule that is not before [today].
 ///
 /// Used when resuming a paused item: the old next-due date may be long past,

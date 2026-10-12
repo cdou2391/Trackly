@@ -867,6 +867,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get remindersPromptLater;
+
+  /// No description provided for @chipPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get chipPaid;
+
+  /// No description provided for @calendarMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total this month'**
+  String get calendarMonthTotal;
+
+  /// No description provided for @calendarLeftFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Left from {date}'**
+  String calendarLeftFrom(String date);
+
+  /// No description provided for @calendarPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get calendarPrevMonth;
+
+  /// No description provided for @calendarNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get calendarNextMonth;
+
+  /// No description provided for @calendarToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get calendarToday;
+
+  /// No description provided for @calendarNoCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'No charges on this day.'**
+  String get calendarNoCharges;
+
+  /// No description provided for @calendarDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {count, plural, =0{no charges} =1{1 charge} other{{count} charges}}'**
+  String calendarDayLabel(String date, int count);
+
+  /// No description provided for @insightsPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Per month'**
+  String get insightsPerMonth;
+
+  /// No description provided for @insightsPerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Per year'**
+  String get insightsPerYear;
+
+  /// No description provided for @insightsChargesAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Charges ahead'**
+  String get insightsChargesAhead;
+
+  /// No description provided for @insightsChargesAheadSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 charge} other{{count} charges}} in the next month'**
+  String insightsChargesAheadSemantics(int count);
+
+  /// No description provided for @insightsByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get insightsByCategory;
+
+  /// No description provided for @insightsCategorySubs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subscription} other{{count} subscriptions}}'**
+  String insightsCategorySubs(int count);
+
+  /// No description provided for @insightsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String insightsShare(int percent);
+
+  /// No description provided for @insightsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending to show yet'**
+  String get insightsEmptyTitle;
+
+  /// No description provided for @insightsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a subscription to see your monthly cost and where it goes.'**
+  String get insightsEmptyBody;
 }
 
 class _AppLocalizationsDelegate
