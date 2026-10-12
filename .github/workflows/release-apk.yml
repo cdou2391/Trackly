@@ -26,20 +26,22 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+# Pinned to ubuntu-24.04, like ci.yml: a release build must not change because
+# the runner image did.
 jobs:
   apk:
     # This job can read the signing key, so only run it from main or a tag.
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
       # Fail the build rather than fall back to the debug key.
       REQUIRE_RELEASE_SIGNING: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
