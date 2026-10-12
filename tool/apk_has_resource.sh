@@ -32,7 +32,9 @@ if ! "$aapt2" dump resources "$apk" > "$listing" 2>&1; then
   exit 1
 fi
 
-if grep -F ":$resource" "$listing" > /dev/null; then
+# Lines look like "resource 0x7f07007a drawable/ic_stat_notify". Match the whole
+# name at the end of a line, so "ic_stat_notify_old" does not count.
+if grep -E "[[:space:]:]${resource}\$" "$listing" > /dev/null; then
   echo "apk_has_resource: $resource is in the APK"
 else
   echo "::error::$resource is missing from the APK. The release build removed it, so reminders would never show. Check android/app/src/main/res/raw/keep.xml." >&2
