@@ -4,10 +4,11 @@ import '../../l10n/l10n.dart';
 import '../theme/trackly_tokens.dart';
 import '../theme/trackly_type.dart';
 
-/// Bottom navigation: Home, Insights, Add, Calendar, More.
+/// Bottom navigation: a floating pill with Home, Insights, Calendar and More,
+/// and a round Add button floating beside it on the right.
 ///
-/// The centered Add button is not a tab: it toggles the add panel and turns
-/// into a cross while the panel is open.
+/// The Add button is not a tab: it toggles the add panel and turns into a
+/// cross while the panel is open.
 class AppBottomNavigation extends StatelessWidget {
   const AppBottomNavigation({
     required this.currentIndex,
@@ -23,99 +24,122 @@ class AppBottomNavigation extends StatelessWidget {
   final ValueChanged<int> onSelectTab;
   final VoidCallback onToggleAdd;
 
-  static const barHeight = 76.0;
-  static const _addButtonSize = 62.0;
+  static const barHeight = 68.0;
+  static const _addButtonSize = 64.0;
+  static const _margin = 16.0;
+  static const _gap = 12.0;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final l10n = context.l10n;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: tokens.navBackground,
-        border: Border(top: BorderSide(color: tokens.navBorder)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: barHeight,
-          child: Row(
-            children: [
-              _NavItem(
-                icon: Icons.home_rounded,
-                label: l10n.navHome,
-                selected: currentIndex == 0,
-                onTap: () => onSelectTab(0),
+    // Transparent: the page shows around the floating pieces.
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(_margin, 8, _margin, _margin - 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: tokens.navBackground,
+                  borderRadius: BorderRadius.circular(barHeight / 2),
+                  border: Border.all(color: tokens.navBorder),
+                  boxShadow: _shadow,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(barHeight / 2),
+                  child: SizedBox(
+                    height: barHeight,
+                    child: Row(
+                      children: [
+                        _NavItem(
+                          icon: Icons.home_rounded,
+                          label: l10n.navHome,
+                          selected: currentIndex == 0,
+                          onTap: () => onSelectTab(0),
+                        ),
+                        _NavItem(
+                          icon: Icons.bar_chart_rounded,
+                          label: l10n.navInsights,
+                          selected: currentIndex == 1,
+                          onTap: () => onSelectTab(1),
+                        ),
+                        _NavItem(
+                          icon: Icons.calendar_month_outlined,
+                          label: l10n.navCalendar,
+                          selected: currentIndex == 2,
+                          onTap: () => onSelectTab(2),
+                        ),
+                        _NavItem(
+                          icon: Icons.more_horiz_rounded,
+                          label: l10n.navMore,
+                          selected: currentIndex == 3,
+                          onTap: () => onSelectTab(3),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              _NavItem(
-                icon: Icons.bar_chart_rounded,
-                label: l10n.navInsights,
-                selected: currentIndex == 1,
-                onTap: () => onSelectTab(1),
-              ),
-              Expanded(
-                child: Center(
-                  child: Semantics(
-                    button: true,
-                    label: addPanelOpen ? l10n.addPanelClose : l10n.navAdd,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: tokens.navCenterFill,
-                        boxShadow: [
-                          BoxShadow(
-                            color: tokens.navCenterFill.withValues(alpha: 0.35),
-                            blurRadius: 14,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: onToggleAdd,
-                          child: SizedBox(
-                            width: _addButtonSize,
-                            height: _addButtonSize,
-                            // The plus turns into a cross while open.
-                            child: AnimatedRotation(
-                              turns: addPanelOpen ? 0.125 : 0,
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeOutCubic,
-                              child: Icon(
-                                Icons.add_rounded,
-                                color: tokens.navCenterIcon,
-                                size: 34,
-                              ),
-                            ),
-                          ),
+            ),
+            const SizedBox(width: _gap),
+            Semantics(
+              button: true,
+              label: addPanelOpen ? l10n.addPanelClose : l10n.navAdd,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: tokens.navCenterFill,
+                  boxShadow: [
+                    BoxShadow(
+                      color: tokens.navCenterFill.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: onToggleAdd,
+                    child: SizedBox(
+                      width: _addButtonSize,
+                      height: _addButtonSize,
+                      // The plus turns into a cross while open.
+                      child: AnimatedRotation(
+                        turns: addPanelOpen ? 0.125 : 0,
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: Icon(
+                          Icons.add_rounded,
+                          color: tokens.navCenterIcon,
+                          size: 34,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-              _NavItem(
-                icon: Icons.calendar_month_outlined,
-                label: l10n.navCalendar,
-                selected: currentIndex == 2,
-                onTap: () => onSelectTab(2),
-              ),
-              _NavItem(
-                icon: Icons.more_horiz_rounded,
-                label: l10n.navMore,
-                selected: currentIndex == 3,
-                onTap: () => onSelectTab(3),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  static final _shadow = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.12),
+      blurRadius: 18,
+      offset: const Offset(0, 6),
+    ),
+  ];
 }
 
 class _NavItem extends StatelessWidget {
