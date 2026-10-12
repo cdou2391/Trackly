@@ -44,6 +44,12 @@ class RecurringItems extends Table {
       .withDefault(const Constant(3))
       .check(reminderDaysBefore.isBiggerOrEqualValue(0))();
 
+  /// Local time of day reminders are delivered, as minutes after midnight.
+  /// Added in schema 2; existing rows get 09:00, what they always had.
+  IntColumn get reminderMinuteOfDay => integer()
+      .withDefault(const Constant(540))
+      .check(reminderMinuteOfDay.isBetweenValues(0, 1439))();
+
   TextColumn get categoryId => text().nullable().references(
     Categories,
     #id,

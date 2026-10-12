@@ -513,6 +513,18 @@ class $RecurringItemsTable extends RecurringItems
     requiredDuringInsert: false,
     defaultValue: const Constant(3),
   );
+  static const VerificationMeta _reminderMinuteOfDayMeta =
+      const VerificationMeta('reminderMinuteOfDay');
+  @override
+  late final GeneratedColumn<int> reminderMinuteOfDay = GeneratedColumn<int>(
+    'reminder_minute_of_day',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(reminderMinuteOfDay).isBetweenValues(0, 1439),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(540),
+  );
   static const VerificationMeta _categoryIdMeta = const VerificationMeta(
     'categoryId',
   );
@@ -585,6 +597,7 @@ class $RecurringItemsTable extends RecurringItems
     trialEndDate,
     remindersEnabled,
     reminderDaysBefore,
+    reminderMinuteOfDay,
     categoryId,
     notes,
     logoKey,
@@ -662,6 +675,15 @@ class $RecurringItemsTable extends RecurringItems
         reminderDaysBefore.isAcceptableOrUnknown(
           data['reminder_days_before']!,
           _reminderDaysBeforeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_minute_of_day')) {
+      context.handle(
+        _reminderMinuteOfDayMeta,
+        reminderMinuteOfDay.isAcceptableOrUnknown(
+          data['reminder_minute_of_day']!,
+          _reminderMinuteOfDayMeta,
         ),
       );
     }
@@ -776,6 +798,10 @@ class $RecurringItemsTable extends RecurringItems
         DriftSqlType.int,
         data['${effectivePrefix}reminder_days_before'],
       )!,
+      reminderMinuteOfDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minute_of_day'],
+      )!,
       categoryId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
@@ -837,6 +863,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
   final Value<DateTime?> trialEndDate;
   final Value<bool> remindersEnabled;
   final Value<int> reminderDaysBefore;
+  final Value<int> reminderMinuteOfDay;
   final Value<String?> categoryId;
   final Value<String?> notes;
   final Value<String?> logoKey;
@@ -858,6 +885,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
     this.trialEndDate = const Value.absent(),
     this.remindersEnabled = const Value.absent(),
     this.reminderDaysBefore = const Value.absent(),
+    this.reminderMinuteOfDay = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.logoKey = const Value.absent(),
@@ -880,6 +908,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
     this.trialEndDate = const Value.absent(),
     this.remindersEnabled = const Value.absent(),
     this.reminderDaysBefore = const Value.absent(),
+    this.reminderMinuteOfDay = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.logoKey = const Value.absent(),
@@ -912,6 +941,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
     Expression<String>? trialEndDate,
     Expression<bool>? remindersEnabled,
     Expression<int>? reminderDaysBefore,
+    Expression<int>? reminderMinuteOfDay,
     Expression<String>? categoryId,
     Expression<String>? notes,
     Expression<String>? logoKey,
@@ -935,6 +965,8 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
       if (remindersEnabled != null) 'reminders_enabled': remindersEnabled,
       if (reminderDaysBefore != null)
         'reminder_days_before': reminderDaysBefore,
+      if (reminderMinuteOfDay != null)
+        'reminder_minute_of_day': reminderMinuteOfDay,
       if (categoryId != null) 'category_id': categoryId,
       if (notes != null) 'notes': notes,
       if (logoKey != null) 'logo_key': logoKey,
@@ -959,6 +991,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
     Value<DateTime?>? trialEndDate,
     Value<bool>? remindersEnabled,
     Value<int>? reminderDaysBefore,
+    Value<int>? reminderMinuteOfDay,
     Value<String?>? categoryId,
     Value<String?>? notes,
     Value<String?>? logoKey,
@@ -981,6 +1014,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
       trialEndDate: trialEndDate ?? this.trialEndDate,
       remindersEnabled: remindersEnabled ?? this.remindersEnabled,
       reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+      reminderMinuteOfDay: reminderMinuteOfDay ?? this.reminderMinuteOfDay,
       categoryId: categoryId ?? this.categoryId,
       notes: notes ?? this.notes,
       logoKey: logoKey ?? this.logoKey,
@@ -1047,6 +1081,9 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
     if (reminderDaysBefore.present) {
       map['reminder_days_before'] = Variable<int>(reminderDaysBefore.value);
     }
+    if (reminderMinuteOfDay.present) {
+      map['reminder_minute_of_day'] = Variable<int>(reminderMinuteOfDay.value);
+    }
     if (categoryId.present) {
       map['category_id'] = Variable<String>(categoryId.value);
     }
@@ -1085,6 +1122,7 @@ class RecurringItemsCompanion extends UpdateCompanion<RecurringItem> {
           ..write('trialEndDate: $trialEndDate, ')
           ..write('remindersEnabled: $remindersEnabled, ')
           ..write('reminderDaysBefore: $reminderDaysBefore, ')
+          ..write('reminderMinuteOfDay: $reminderMinuteOfDay, ')
           ..write('categoryId: $categoryId, ')
           ..write('notes: $notes, ')
           ..write('logoKey: $logoKey, ')
@@ -1832,6 +1870,7 @@ typedef $$RecurringItemsTableCreateCompanionBuilder =
       Value<DateTime?> trialEndDate,
       Value<bool> remindersEnabled,
       Value<int> reminderDaysBefore,
+      Value<int> reminderMinuteOfDay,
       Value<String?> categoryId,
       Value<String?> notes,
       Value<String?> logoKey,
@@ -1855,6 +1894,7 @@ typedef $$RecurringItemsTableUpdateCompanionBuilder =
       Value<DateTime?> trialEndDate,
       Value<bool> remindersEnabled,
       Value<int> reminderDaysBefore,
+      Value<int> reminderMinuteOfDay,
       Value<String?> categoryId,
       Value<String?> notes,
       Value<String?> logoKey,
@@ -1989,6 +2029,11 @@ class $$RecurringItemsTableFilterComposer
 
   ColumnFilters<int> get reminderDaysBefore => $composableBuilder(
     column: $table.reminderDaysBefore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2140,6 +2185,11 @@ class $$RecurringItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -2244,6 +2294,11 @@ class $$RecurringItemsTableAnnotationComposer
 
   GeneratedColumn<int> get reminderDaysBefore => $composableBuilder(
     column: $table.reminderDaysBefore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
     builder: (column) => column,
   );
 
@@ -2352,6 +2407,7 @@ class $$RecurringItemsTableTableManager
                 Value<DateTime?> trialEndDate = const Value.absent(),
                 Value<bool> remindersEnabled = const Value.absent(),
                 Value<int> reminderDaysBefore = const Value.absent(),
+                Value<int> reminderMinuteOfDay = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> logoKey = const Value.absent(),
@@ -2373,6 +2429,7 @@ class $$RecurringItemsTableTableManager
                 trialEndDate: trialEndDate,
                 remindersEnabled: remindersEnabled,
                 reminderDaysBefore: reminderDaysBefore,
+                reminderMinuteOfDay: reminderMinuteOfDay,
                 categoryId: categoryId,
                 notes: notes,
                 logoKey: logoKey,
@@ -2396,6 +2453,7 @@ class $$RecurringItemsTableTableManager
                 Value<DateTime?> trialEndDate = const Value.absent(),
                 Value<bool> remindersEnabled = const Value.absent(),
                 Value<int> reminderDaysBefore = const Value.absent(),
+                Value<int> reminderMinuteOfDay = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> logoKey = const Value.absent(),
@@ -2417,6 +2475,7 @@ class $$RecurringItemsTableTableManager
                 trialEndDate: trialEndDate,
                 remindersEnabled: remindersEnabled,
                 reminderDaysBefore: reminderDaysBefore,
+                reminderMinuteOfDay: reminderMinuteOfDay,
                 categoryId: categoryId,
                 notes: notes,
                 logoKey: logoKey,

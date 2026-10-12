@@ -1,5 +1,9 @@
 import 'recurring_enums.dart';
 
+/// When reminders are delivered unless the item says otherwise: 09:00, as
+/// minutes after midnight (the item's reminder time is a local wall-clock time).
+const defaultReminderMinuteOfDay = 9 * 60;
+
 /// A subscription or recurring bill.
 ///
 /// Dates are calendar dates (local, time of day ignored), so a charge on "the
@@ -20,6 +24,7 @@ class RecurringItem {
     this.trialEndDate,
     this.remindersEnabled = true,
     this.reminderDaysBefore = 3,
+    this.reminderMinuteOfDay = defaultReminderMinuteOfDay,
     this.categoryId,
     this.notes,
     this.logoKey,
@@ -27,7 +32,11 @@ class RecurringItem {
     required this.updatedAt,
   }) : assert(interval >= 1, 'interval must be at least 1'),
        assert(amount >= 0, 'amount must not be negative'),
-       assert(!isTrial || trialEndDate != null, 'a trial needs a trialEndDate');
+       assert(!isTrial || trialEndDate != null, 'a trial needs a trialEndDate'),
+       assert(
+         reminderMinuteOfDay >= 0 && reminderMinuteOfDay < 24 * 60,
+         'reminderMinuteOfDay must be 0-1439',
+       );
 
   final String id;
   final String name;
@@ -51,6 +60,10 @@ class RecurringItem {
 
   final bool remindersEnabled;
   final int reminderDaysBefore;
+
+  /// Local time of day the reminders are delivered, as minutes after midnight
+  /// (540 is 09:00).
+  final int reminderMinuteOfDay;
 
   final String? categoryId;
   final String? notes;

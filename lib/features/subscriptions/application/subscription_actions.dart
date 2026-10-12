@@ -203,6 +203,7 @@ class SubscriptionActions {
       trialEndDate: item.trialEndDate,
       remindersEnabled: item.remindersEnabled,
       reminderDaysBefore: item.reminderDaysBefore,
+      reminderMinuteOfDay: item.reminderMinuteOfDay,
       categoryId: item.categoryId,
       notes: item.notes,
       logoKey: item.logoKey,

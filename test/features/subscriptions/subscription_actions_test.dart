@@ -339,6 +339,35 @@ void main() {
     });
   });
 
+  group('reminder time is kept', () {
+    test('through pause, resume and payment', () async {
+      await db.recurringItemsDao.insertItem(
+        RecurringItem(
+          id: 'a',
+          name: 'Netflix',
+          type: RecurringItemType.subscription,
+          amount: 15.49,
+          currencyCode: 'USD',
+          frequency: BillingFrequency.monthly,
+          startDate: DateTime(2026, 1, 15),
+          nextDueDate: DateTime(2026, 10, 15),
+          reminderMinuteOfDay: 18 * 60 + 30,
+          createdAt: DateTime(2026, 1, 1),
+          updatedAt: now,
+        ),
+      );
+
+      await actions().pause(await stored('a'));
+      expect((await stored('a')).reminderMinuteOfDay, 18 * 60 + 30);
+
+      await actions().resume(await stored('a'), DateTime(2026, 11, 15));
+      expect((await stored('a')).reminderMinuteOfDay, 18 * 60 + 30);
+
+      await actions().markPaid(await stored('a'));
+      expect((await stored('a')).reminderMinuteOfDay, 18 * 60 + 30);
+    });
+  });
+
   group('update', () {
     test('persists the edited fields', () async {
       await db.recurringItemsDao.insertItem(item());

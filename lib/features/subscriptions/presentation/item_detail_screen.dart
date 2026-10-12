@@ -229,9 +229,12 @@ class _AmountCard extends ConsumerWidget {
 
     final reminder = !item.remindersEnabled
         ? l10n.reminderOff
-        : item.reminderDaysBefore == 0
-        ? l10n.reminderSameDay
-        : l10n.reminderDaysBefore(item.reminderDaysBefore);
+        : l10n.reminderWhenAt(
+            item.reminderDaysBefore == 0
+                ? l10n.reminderSameDay
+                : l10n.reminderDaysBefore(item.reminderDaysBefore),
+            reminderTimeLabel(context, item.reminderMinuteOfDay),
+          );
 
     return Material(
       color: theme.colorScheme.surface,

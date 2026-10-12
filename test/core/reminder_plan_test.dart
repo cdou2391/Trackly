@@ -13,6 +13,7 @@ RecurringItem item({
   bool reminders = true,
   ItemStatus status = ItemStatus.active,
   DateTime? trialEnd,
+  int minuteOfDay = defaultReminderMinuteOfDay,
 }) {
   return RecurringItem(
     id: id,
@@ -28,6 +29,7 @@ RecurringItem item({
     trialEndDate: trialEnd,
     remindersEnabled: reminders,
     reminderDaysBefore: daysBefore,
+    reminderMinuteOfDay: minuteOfDay,
     createdAt: _now,
     updatedAt: _now,
   );
@@ -38,6 +40,84 @@ List<(ReminderType, DateTime)> plan(RecurringItem i, {DateTime? now}) => [
 ];
 
 void main() {
+  group('reminder time of day', () {
+    const evening = 18 * 60 + 30; // 18:30
+
+    test('the default is 9:00', () {
+      expect(defaultReminderMinuteOfDay, 540);
+    });
+
+    test('both reminders are delivered at the chosen time', () {
+      expect(plan(item(due: DateTime(2026, 10, 20), minuteOfDay: evening)), [
+        (ReminderType.dueSoon, DateTime(2026, 10, 17, 18, 30)),
+        (ReminderType.dueToday, DateTime(2026, 10, 20, 18, 30)),
+      ]);
+    });
+
+    test('same day uses the chosen time too', () {
+      expect(
+        plan(
+          item(
+            due: DateTime(2026, 10, 20),
+            daysBefore: 0,
+            minuteOfDay: 7 * 60 + 5,
+          ),
+        ),
+        [(ReminderType.dueToday, DateTime(2026, 10, 20, 7, 5))],
+      );
+    });
+
+    test('midnight and one minute to midnight', () {
+      expect(
+        plan(item(due: DateTime(2026, 10, 20), daysBefore: 0, minuteOfDay: 0)),
+        [(ReminderType.dueToday, DateTime(2026, 10, 20))],
+      );
+      expect(
+        plan(
+          item(
+            due: DateTime(2026, 10, 20),
+            daysBefore: 0,
+            minuteOfDay: 23 * 60 + 59,
+          ),
+        ),
+        [(ReminderType.dueToday, DateTime(2026, 10, 20, 23, 59))],
+      );
+    });
+
+    test('a later time today is still ahead when the default has passed', () {
+      // Noon on the due day: 9:00 is gone, 18:30 is not.
+      final due = DateTime(2026, 10, 9);
+      expect(plan(item(due: due, daysBefore: 0)), isEmpty);
+      expect(plan(item(due: due, daysBefore: 0, minuteOfDay: evening)), [
+        (ReminderType.dueToday, DateTime(2026, 10, 9, 18, 30)),
+      ]);
+    });
+
+    test('a trial reminder follows the time as well', () {
+      final r = plan(
+        item(
+          due: DateTime(2026, 10, 20),
+          trialEnd: DateTime(2026, 10, 20),
+          minuteOfDay: evening,
+        ),
+      );
+      expect(r.first, (
+        ReminderType.trialEnding,
+        DateTime(2026, 10, 17, 18, 30),
+      ));
+    });
+
+    test('the notification id does not depend on the time', () {
+      // So changing the time replaces the scheduled reminder, not duplicates it.
+      final nine = planReminders(item(due: DateTime(2026, 10, 20)), now: _now);
+      final later = planReminders(
+        item(due: DateTime(2026, 10, 20), minuteOfDay: evening),
+        now: _now,
+      );
+      expect(later.map((r) => r.id), nine.map((r) => r.id));
+    });
+  });
+
   group('planReminders', () {
     test('plans "due soon" N days ahead and "due today", at 9:00', () {
       expect(plan(item(due: DateTime(2026, 10, 20))), [

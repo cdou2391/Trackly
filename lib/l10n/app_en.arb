@@ -89,6 +89,11 @@
   "addSectionReminder": "Reminder",
   "addRemindMe": "Remind me",
   "reminderSameDay": "Same day",
+  "addRemindAt": "Remind me at",
+  "reminderWhenAt": "{when} at {time}",
+  "@reminderWhenAt": {
+    "placeholders": { "when": { "type": "String" }, "time": { "type": "String" } }
+  },
   "reminderDaysBefore": "{count, plural, =1{1 day before} other{{count} days before}}",
   "@reminderDaysBefore": { "placeholders": { "count": { "type": "int" } } },
   "addMoreDetails": "More details",

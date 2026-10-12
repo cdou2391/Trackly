@@ -34,6 +34,7 @@ class NewSubscription {
     this.logoKey,
     this.remindersEnabled = true,
     this.reminderDaysBefore = 3,
+    this.reminderMinuteOfDay = defaultReminderMinuteOfDay,
     this.isTrial = false,
     this.trialEndDate,
     this.notes,
@@ -53,6 +54,9 @@ class NewSubscription {
   final String? logoKey;
   final bool remindersEnabled;
   final int reminderDaysBefore;
+
+  /// Local time of day for the reminders, as minutes after midnight.
+  final int reminderMinuteOfDay;
   final bool isTrial;
   final DateTime? trialEndDate;
   final String? notes;
@@ -100,6 +104,7 @@ RecurringItem buildRecurringItem(
     trialEndDate: trialEnd == null ? null : dateOnly(trialEnd),
     remindersEnabled: input.remindersEnabled,
     reminderDaysBefore: input.reminderDaysBefore,
+    reminderMinuteOfDay: input.reminderMinuteOfDay,
     categoryId: input.categoryId ?? service?.categoryId,
     notes: (notes == null || notes.isEmpty) ? null : notes,
     logoKey: input.logoKey ?? service?.key,
@@ -144,6 +149,8 @@ class SubscriptionCreator {
       'is_trial': item.isTrial,
       'entry_method': entryMethod.analyticsValue,
       'reminder_days_before': item.reminderDaysBefore,
+      // Only the hour: enough to see when people want reminders.
+      'reminder_hour': item.reminderMinuteOfDay ~/ 60,
       'category': ?item.categoryId,
     };
 

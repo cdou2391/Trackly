@@ -490,6 +490,18 @@ abstract class AppLocalizations {
   /// **'Same day'**
   String get reminderSameDay;
 
+  /// No description provided for @addRemindAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me at'**
+  String get addRemindAt;
+
+  /// No description provided for @reminderWhenAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} at {time}'**
+  String reminderWhenAt(String when, String time);
+
   /// No description provided for @reminderDaysBefore.
   ///
   /// In en, this message translates to:
