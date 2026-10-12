@@ -35,6 +35,9 @@ Future<void> _loadFonts(WidgetTester tester) async {
   _fontsLoaded = true;
 }
 
+/// Loads the bundled fonts, for tests that build a screen without [pumpTrackly].
+Future<void> loadTracklyFonts(WidgetTester tester) => _loadFonts(tester);
+
 /// Like `testWidgets`, but tears the app and database down inside the test.
 ///
 /// Flutter checks for pending timers before `addTearDown` callbacks run, and

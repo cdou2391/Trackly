@@ -1,6 +1,11 @@
 {
   "@@locale": "en",
   "appName": "Trackly",
+  "appTagline": "Know what’s charging next.",
+  "splashLoading": "Loading Trackly",
+  "splashErrorTitle": "Couldn’t start Trackly",
+  "splashErrorBody": "Something went wrong while opening the app. Please try again.",
+  "splashRetry": "Try again",
   "homeSubtitle": "Subscriptions & Bills",
   "navHome": "Home",
   "navInsights": "Insights",

@@ -13,6 +13,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'Trackly';
 
   @override
+  String get appTagline => 'Know what’s charging next.';
+
+  @override
+  String get splashLoading => 'Loading Trackly';
+
+  @override
+  String get splashErrorTitle => 'Couldn’t start Trackly';
+
+  @override
+  String get splashErrorBody =>
+      'Something went wrong while opening the app. Please try again.';
+
+  @override
+  String get splashRetry => 'Try again';
+
+  @override
   String get homeSubtitle => 'Subscriptions & Bills';
 
   @override

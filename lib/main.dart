@@ -18,6 +18,7 @@ import 'core/notifications/local_notification_service.dart';
 import 'core/notifications/notification_prefs.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_text.dart';
+import 'core/startup/boot_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +39,19 @@ Future<void> _runApp() async {
   final errorReporter = AppConfig.sentryEnabled
       ? const SentryErrorReporter()
       : const NoopErrorReporter();
+
+  // The splash is on screen at once, while the start-up work below runs.
+  runApp(
+    BootGate(
+      bootstrap: () => _bootstrap(errorReporter),
+      onError: (error, stackTrace) =>
+          unawaited(errorReporter.captureException(error, stackTrace)),
+    ),
+  );
+}
+
+/// Starts the services and returns the app to show once they are ready.
+Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
   final analytics = await _initAnalytics(errorReporter);
 
   final notifications = await _initNotifications(errorReporter);
@@ -45,18 +59,16 @@ Future<void> _runApp() async {
 
   unawaited(analytics.logEvent(AnalyticsEvents.appOpened));
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        errorReporterProvider.overrideWithValue(errorReporter),
-        analyticsProvider.overrideWithValue(analytics),
-        notificationServiceProvider.overrideWithValue(notifications),
-        notificationPrefsProvider.overrideWithValue(
-          SharedNotificationPrefs(prefs),
-        ),
-      ],
-      child: const TracklyApp(),
-    ),
+  return ProviderScope(
+    overrides: [
+      errorReporterProvider.overrideWithValue(errorReporter),
+      analyticsProvider.overrideWithValue(analytics),
+      notificationServiceProvider.overrideWithValue(notifications),
+      notificationPrefsProvider.overrideWithValue(
+        SharedNotificationPrefs(prefs),
+      ),
+    ],
+    child: const TracklyApp(),
   );
 }
 
