@@ -242,5 +242,13 @@
   "deleteAllDialogBody": "This removes every subscription, bill and trial, their payment history and your settings, and cancels all reminders. This can’t be undone.",
   "deleteAllConfirm": "Delete everything",
   "snackHistoryCleared": "Payment history cleared",
-  "snackAllDeleted": "All data deleted"
+  "snackAllDeleted": "All data deleted",
+  "searchHint": "Search your subscriptions",
+  "searchClear": "Clear search",
+  "searchPrompt": "Search by name, category or note.",
+  "searchNoItems": "Nothing to search yet. Add a subscription first.",
+  "searchNoMatches": "No matches for “{query}”",
+  "@searchNoMatches": { "placeholders": { "query": { "type": "String" } } },
+  "searchResultCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@searchResultCount": { "placeholders": { "count": { "type": "int" } } }
 }

@@ -1173,6 +1173,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All data deleted'**
   String get snackAllDeleted;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search your subscriptions'**
+  String get searchHint;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @searchPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, category or note.'**
+  String get searchPrompt;
+
+  /// No description provided for @searchNoItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to search yet. Add a subscription first.'**
+  String get searchNoItems;
+
+  /// No description provided for @searchNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for “{query}”'**
+  String searchNoMatches(String query);
+
+  /// No description provided for @searchResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String searchResultCount(int count);
 }
 
 class _AppLocalizationsDelegate

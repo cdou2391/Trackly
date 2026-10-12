@@ -3096,3 +3096,14 @@ Opened from the Home gear and from **More > Settings** (`/settings`, a sub-page 
 ## Not done
 
 Language choice (English only), a "Reminders off" master switch (turn them off per item), export, and a lock screen. Planned: CSV export and Categories under More.
+
+# 93. Search (as built)
+
+- The search icon on Home opens a **search screen** (`/search`, a sub-page with a back button). The field is focused on open. Search runs on the phone as you type; there is no server and nothing is stored.
+- It looks at every item, whatever its status: active, trial, paused and cancelled (cancelled ones show their Cancelled chip).
+- **What matches:** the name, the category name and the notes. Every word of the query must appear somewhere in those (any order), so "family spotify" finds Spotify with the note "Family plan". Case and common Latin accents are ignored ("cafe" finds "Café").
+- **Order:** names that start with the query, then names that contain it, then matches only in the category or notes. Inside each group, live items come before paused and cancelled ones, soonest due first, then by name.
+- **States:** nothing added yet ("Nothing to search yet"), an empty query (a prompt), no matches (`No matches for "<query>"`), and results with a count ("3 results", announced to screen readers). Clear empties the field. Tapping a result opens the item; Back returns to the same search.
+- The query is plain text, not a pattern, so characters like `+` or `(` search literally.
+- Analytics: `search_opened` and `search_result_opened`, with no parameters. The query text is never logged (see the analytics rule on user text).
+- **Not done:** matching on amount or currency, search history, filters inside search, and fuzzy matching of typos.

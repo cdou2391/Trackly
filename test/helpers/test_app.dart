@@ -78,6 +78,7 @@ RecurringItem testItem(
   DateTime? trialEnd,
   String? logoKey,
   String? categoryId,
+  String? notes,
   int reminderMinuteOfDay = defaultReminderMinuteOfDay,
   ItemStatus status = ItemStatus.active,
 }) {
@@ -97,6 +98,7 @@ RecurringItem testItem(
     trialEndDate: trialEnd,
     logoKey: logoKey,
     categoryId: categoryId,
+    notes: notes,
     reminderMinuteOfDay: reminderMinuteOfDay,
     createdAt: testNow,
     updatedAt: testNow,

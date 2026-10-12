@@ -6,6 +6,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/insights/presentation/insights_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/payments/presentation/history_screen.dart';
+import '../../features/search/presentation/search_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/subscriptions/application/items_filter.dart';
 import '../../features/subscriptions/presentation/item_detail_screen.dart';
@@ -30,6 +31,7 @@ abstract final class AppRoutes {
   static const subscriptions = '/subscriptions';
   static const history = '/history';
   static const settings = '/settings';
+  static const search = '/search';
 
   static String itemPath(String id) => '/item/$id';
   static String subscriptionsPath([String? filter]) =>
@@ -99,6 +101,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.history,
             builder: (context, state) => const HistoryScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.search,
+            builder: (context, state) => const SearchScreen(),
           ),
           GoRoute(
             path: AppRoutes.settings,
