@@ -3052,3 +3052,13 @@ The purpose is to ship a polished, useful recurring-payment tracker, gather real
 ## Testing
 
 Pure logic (`occurrencesInRange`, `buildCalendarMonth`, `buildInsightsSummary`) has unit tests including month-end clamping, leap years, weekly and custom schedules, trials, paused items and multiple currencies. Screen tests cover the summary figures, day selection, month stepping, overflow on a 320 dp screen with 1.6x text, and the analytics events.
+
+# 90. Launch splash (as built)
+
+- The app shows a **splash** while it starts: the logo large and centred, the name "Trackly" in the serif title face, the tagline and a small three-dot loader. `BootGate` (in `lib/core/startup/`) puts it on screen immediately and swaps in the app when start-up (analytics, notifications, preferences) finishes.
+- It stays for **at least one second** (`BootGate.defaultMinimumDisplay`) so a fast start does not flash the logo and vanish, and for as long as start-up takes if that is longer. It cross-fades into the app.
+- If start-up fails, the splash shows "Couldn't start Trackly" with **Try again** instead of spinning forever; the error is reported through the error reporter.
+- The logo is `assets/illustrations/trackly_logo.svg`, traced from the Android launcher artwork (a navy T with a folded gold ribbon) as three gradient-filled shapes, so it scales to any size and works on any background. The tagline, **"Know what's charging next."**, is `appTagline` in `app_en.arb`.
+- With the system "remove animations" setting on, the logo and text appear at once and the loader is still.
+- The splash uses the light theme, like the rest of the app until theme choice exists (§87). The very first frame, before Flutter starts, is still the native launch screen (plain white).
+- **Not done:** the iOS app icon is still Flutter's default; only the Android icon was redesigned.

@@ -100,6 +100,36 @@ abstract class AppLocalizations {
   /// **'Trackly'**
   String get appName;
 
+  /// No description provided for @appTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Know what’s charging next.'**
+  String get appTagline;
+
+  /// No description provided for @splashLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Trackly'**
+  String get splashLoading;
+
+  /// No description provided for @splashErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t start Trackly'**
+  String get splashErrorTitle;
+
+  /// No description provided for @splashErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while opening the app. Please try again.'**
+  String get splashErrorBody;
+
+  /// No description provided for @splashRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get splashRetry;
+
   /// No description provided for @homeSubtitle.
   ///
   /// In en, this message translates to:
