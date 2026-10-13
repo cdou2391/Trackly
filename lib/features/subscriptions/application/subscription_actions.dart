@@ -10,6 +10,7 @@ import '../../home/application/home_providers.dart';
 import '../../payments/domain/payment.dart';
 import '../domain/recurring_enums.dart';
 import '../domain/recurring_item.dart';
+import 'item_analytics.dart';
 
 /// What a payment action changed, so it can be undone.
 class PaymentOutcome {
@@ -147,10 +148,21 @@ class SubscriptionActions {
     _log(AnalyticsEvents.subscriptionDeleted, item);
   }
 
-  /// Saves an edited item. The caller builds [edited] from the original.
-  Future<void> update(RecurringItem edited) async {
+  /// Saves an edited item. The caller builds [edited] from the original, and
+  /// passes that original as [previous] so a reminder being switched on or
+  /// off can be told apart from other edits.
+  Future<void> update(RecurringItem edited, {RecurringItem? previous}) async {
     await _save(edited);
     _log(AnalyticsEvents.subscriptionUpdated, edited);
+    if (previous != null &&
+        previous.remindersEnabled != edited.remindersEnabled) {
+      _log(
+        edited.remindersEnabled
+            ? AnalyticsEvents.reminderEnabled
+            : AnalyticsEvents.reminderDisabled,
+        edited,
+      );
+    }
   }
 
   Future<void> _save(RecurringItem item) {
@@ -171,15 +183,7 @@ class SubscriptionActions {
   void _log(String event, RecurringItem item) {
     _ref
         .read(analyticsProvider)
-        .logEvent(
-          event,
-          parameters: {
-            'item_type': item.type.name,
-            'frequency': item.frequency.name,
-            'currency': item.currencyCode,
-            'is_trial': item.isTrial,
-          },
-        );
+        .logEvent(event, parameters: itemAnalyticsParameters(item));
   }
 
   RecurringItem _copy(

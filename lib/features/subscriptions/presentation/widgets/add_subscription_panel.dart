@@ -251,7 +251,9 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
         ),
         now: ref.read(nowProvider)(),
       );
-      await ref.read(subscriptionActionsProvider).update(edited);
+      await ref
+          .read(subscriptionActionsProvider)
+          .update(edited, previous: original);
 
       messenger.showReplacing(SnackBar(content: Text(l10n.editSaved)));
       closePanel();

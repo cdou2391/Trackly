@@ -38,7 +38,8 @@ class QuickAddCard extends ConsumerStatefulWidget {
   ConsumerState<QuickAddCard> createState() => _QuickAddCardState();
 }
 
-class _QuickAddCardState extends ConsumerState<QuickAddCard> {
+class _QuickAddCardState extends ConsumerState<QuickAddCard>
+    with WidgetsBindingObserver {
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
 
@@ -46,13 +47,47 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
   BillingFrequency _frequency = BillingFrequency.monthly;
   DateTime? _startDate;
 
+  /// Typing has begun and the form has not been saved since.
   bool _started = false;
+
+  /// Left half-filled was already counted for this attempt.
+  bool _abandonLogged = false;
   bool _saving = false;
   String? _savedMessage;
   bool _saveFailed = false;
 
+  late AnalyticsService _analytics;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Kept so it can still be used while this widget is being torn down.
+    _analytics = ref.read(analyticsProvider);
+  }
+
+  /// A form left half-filled when the app goes to the background or the
+  /// screen is closed counts as abandoned, once per attempt.
+  void _logAbandoned() {
+    if (!_started || _abandonLogged) return;
+    _abandonLogged = true;
+    _analytics.logEvent(AnalyticsEvents.quickAddAbandoned);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _logAbandoned();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _logAbandoned();
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -165,6 +200,7 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard> {
         _startDate = null;
         _frequency = BillingFrequency.monthly;
         _started = false;
+        _abandonLogged = false;
       });
       unawaited(offerReminders(navigator, container, item));
     } catch (_) {
