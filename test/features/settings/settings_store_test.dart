@@ -71,4 +71,18 @@ void main() {
     await store.clear();
     expect(store.currency, isNull);
   });
+
+  test(
+    'counted trial ends survive a restart and are kept by clear()',
+    () async {
+      final store = await shared();
+      expect(store.reportedTrialEnds, isEmpty);
+
+      await store.setReportedTrialEnds({'b', 'a'});
+      await store.clear();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(SharedSettingsStore(prefs).reportedTrialEnds, {'a', 'b'});
+    },
+  );
 }

@@ -29,6 +29,12 @@ abstract class SettingsStore {
   /// Whether the person agreed to send error reports. Null until asked.
   bool? get errorReportsEnabled;
 
+  /// Ids of the trials whose end has already been counted in analytics, so
+  /// each is counted once.
+  Set<String> get reportedTrialEnds;
+
+  Future<void> setReportedTrialEnds(Set<String> ids);
+
   Future<void> setCurrency(String code);
   Future<void> setThemeMode(ThemeMode mode);
   Future<void> setReminderDays(int days);
@@ -51,6 +57,13 @@ class InMemorySettingsStore implements SettingsStore {
   int? _reminderMinute;
   bool? _usageStats;
   bool? _errorReports;
+  Set<String> _reportedTrialEnds = const {};
+
+  @override
+  Set<String> get reportedTrialEnds => _reportedTrialEnds;
+  @override
+  Future<void> setReportedTrialEnds(Set<String> ids) async =>
+      _reportedTrialEnds = {...ids};
 
   @override
   String? get currency => _currency;
@@ -100,6 +113,7 @@ class SharedSettingsStore implements SettingsStore {
   static const _reminderMinuteKey = 'default_reminder_minute';
   static const _usageStatsKey = 'privacy_usage_stats';
   static const _errorReportsKey = 'privacy_error_reports';
+  static const _reportedTrialEndsKey = 'reported_trial_ends';
 
   final SharedPreferences _prefs;
 
@@ -135,6 +149,15 @@ class SharedSettingsStore implements SettingsStore {
 
   @override
   bool? get errorReportsEnabled => _prefs.getBool(_errorReportsKey);
+
+  @override
+  Set<String> get reportedTrialEnds =>
+      (_prefs.getStringList(_reportedTrialEndsKey) ?? const []).toSet();
+
+  @override
+  Future<void> setReportedTrialEnds(Set<String> ids) async {
+    await _prefs.setStringList(_reportedTrialEndsKey, ids.toList()..sort());
+  }
 
   @override
   Future<void> setCurrency(String code) async {

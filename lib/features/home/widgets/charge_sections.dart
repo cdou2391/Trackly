@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/analytics/analytics_events.dart';
+import '../../../core/analytics/analytics_service.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
@@ -10,6 +12,7 @@ import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../subscriptions/application/add_panel_controller.dart';
+import '../../subscriptions/application/item_analytics.dart';
 import '../../subscriptions/domain/recurring_item.dart';
 import '../../subscriptions/presentation/labels.dart';
 import '../application/home_summary.dart';
@@ -43,29 +46,43 @@ class UpcomingSection extends StatelessWidget {
   }
 }
 
-class _UpcomingRow extends StatelessWidget {
+/// Logs that a row on Home was opened, then opens the item.
+void _openItem(
+  BuildContext context,
+  WidgetRef ref,
+  RecurringItem item,
+  String event,
+) {
+  ref
+      .read(analyticsProvider)
+      .logEvent(event, parameters: itemAnalyticsParameters(item));
+  context.push(AppRoutes.itemPath(item.id));
+}
+
+class _UpcomingRow extends ConsumerWidget {
   const _UpcomingRow({required this.item, required this.now});
 
   final RecurringItem item;
   final DateTime now;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SubscriptionRow(
       item: item,
       chips: itemChips(context, item, now),
-      onTap: () => context.push(AppRoutes.itemPath(item.id)),
+      onTap: () =>
+          _openItem(context, ref, item, AnalyticsEvents.upcomingItemOpened),
     );
   }
 }
 
-class RecentPaymentsSection extends StatelessWidget {
+class RecentPaymentsSection extends ConsumerWidget {
   const RecentPaymentsSection({required this.summary, super.key});
 
   final HomeSummary summary;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (summary.recentPayments.isEmpty) return const SizedBox.shrink();
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
@@ -80,7 +97,12 @@ class RecentPaymentsSection extends StatelessWidget {
             SubscriptionRow(
               item: recent.item,
               amount: recent.payment.amount,
-              onTap: () => context.push(AppRoutes.itemPath(recent.item.id)),
+              onTap: () => _openItem(
+                context,
+                ref,
+                recent.item,
+                AnalyticsEvents.recentPaymentOpened,
+              ),
               chips: [
                 StatusChip(
                   label: l10n.paidOn(

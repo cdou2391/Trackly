@@ -410,6 +410,72 @@ void main() {
     });
   });
 
+  group('reminders switched in an edit', () {
+    RecurringItem withReminders(RecurringItem base, bool enabled) {
+      return RecurringItem(
+        id: base.id,
+        name: base.name,
+        type: base.type,
+        amount: base.amount,
+        currencyCode: base.currencyCode,
+        frequency: base.frequency,
+        startDate: base.startDate,
+        nextDueDate: base.nextDueDate,
+        remindersEnabled: enabled,
+        createdAt: base.createdAt,
+        updatedAt: now,
+      );
+    }
+
+    /// Edits an item that had reminders [before], returning the events logged.
+    Future<List<String>> edit({
+      required bool before,
+      required bool after,
+      bool withPrevious = true,
+    }) async {
+      final original = withReminders(item(), before);
+      await db.recurringItemsDao.insertItem(original);
+      analytics.events.clear();
+      await actions().update(
+        withReminders(original, after),
+        previous: withPrevious ? original : null,
+      );
+      return [for (final e in analytics.events) e.$1];
+    }
+
+    test('turning them off is counted', () async {
+      expect(await edit(before: true, after: false), [
+        AnalyticsEvents.subscriptionUpdated,
+        AnalyticsEvents.reminderDisabled,
+      ]);
+    });
+
+    test('turning them on is counted, with facts only', () async {
+      expect(await edit(before: false, after: true), [
+        AnalyticsEvents.subscriptionUpdated,
+        AnalyticsEvents.reminderEnabled,
+      ]);
+      expect(analytics.events.last.$2, {
+        'item_type': 'subscription',
+        'frequency': 'monthly',
+        'currency': 'USD',
+        'is_trial': false,
+      });
+    });
+
+    test('leaving them on or off is not counted', () async {
+      expect(await edit(before: true, after: true), [
+        AnalyticsEvents.subscriptionUpdated,
+      ]);
+    });
+
+    test('without the original, only the edit is counted', () async {
+      expect(await edit(before: true, after: false, withPrevious: false), [
+        AnalyticsEvents.subscriptionUpdated,
+      ]);
+    });
+  });
+
   test('a database failure is reported and rethrown', () async {
     await db.recurringItemsDao.insertItem(item());
     final bad = RecurringItem(

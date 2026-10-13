@@ -32,10 +32,18 @@ class _AppFrameState extends ConsumerState<AppFrame> {
   /// origin highlighted instead of lighting up nothing.
   int _tab = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // Home is what the app opens on, so it is counted without a tab tap.
+    if (AppRoutes.tabIndexOf(widget.location) == 0) _logTabOpened(0);
+  }
+
   /// Tab screens stay alive once visited, so "opened" is logged when the
   /// tab is chosen rather than when the screen is built.
   void _logTabOpened(int index) {
     final event = switch (index) {
+      0 => AnalyticsEvents.homeOpened,
       1 => AnalyticsEvents.insightsOpened,
       2 => AnalyticsEvents.calendarOpened,
       _ => null,

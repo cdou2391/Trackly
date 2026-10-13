@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/analytics/trial_end_reporter.dart';
 import 'core/navigation/app_router.dart';
 import 'core/notifications/reminder_sync.dart';
 import 'core/notifications/reminder_taps.dart';
@@ -22,6 +23,7 @@ class TracklyApp extends ConsumerWidget {
     ref.watch(catalogBackfillProvider);
     // Keep scheduled reminders in step with the data, and open tapped ones.
     ref.watch(reminderSyncProvider);
+    ref.watch(trialEndReporterProvider);
     ref.watch(reminderTapsProvider);
 
     return MaterialApp.router(

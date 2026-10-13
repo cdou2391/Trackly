@@ -3259,3 +3259,27 @@ After importing: reminders are scheduled by the usual reconciliation (they watch
 - Updating existing subscriptions from a file (import only adds).
 - Importing settings (they are not in the CSV files) and JSON backup.
 
+
+---
+
+# 98. Analytics completion (as built)
+
+All event names in `AnalyticsEvents` are now sent. Before this, eight were defined but never logged, so the funnels and the reminder and Quick Add analysis in Phase 8 could not be answered. Events are still sent only after the person agreed (§96) and carry structured facts only: never a name, a note or typed text.
+
+| Event | Sent when | Parameters |
+| --- | --- | --- |
+| `home_opened` | The app opens on Home, and each time the Home tab is chosen | none |
+| `history_opened` | Payment history opens | none |
+| `upcoming_item_opened` | A row in Home's Upcoming list is tapped | `item_type`, `frequency`, `currency`, `is_trial` |
+| `recent_payment_opened` | A row in Home's Recent payments is tapped | same |
+| `reminder_enabled` / `reminder_disabled` | An edit switches an item's reminders on or off (not when they stay as they were) | same |
+| `quick_add_abandoned` | The Quick Add form was started and never saved, when the app goes to the background or the form is closed; once per attempt | none |
+| `trial_ended` | The first time the app sees a trial's end date is before today | same |
+
+Notes:
+
+- The shared parameter set is `itemAnalyticsParameters` (`subscriptions/application/item_analytics.dart`), also used by the pause, resume, cancel, delete and update events.
+- `SubscriptionActions.update` takes the original item as `previous` to tell a reminder switch from other edits.
+- Tabs stay alive once visited, so Quick Add is not disposed when the person moves to another tab. "Abandoned" therefore counts leaving the app with a started form, plus the form being closed. A form that is abandoned and then continued keeps its single `quick_add_started`.
+- A trial ends while the app is closed, so `TrialEndReporter` (`core/analytics/trial_end_reporter.dart`) checks at launch, on return to the app and when items change. The ids already counted are kept on the device (`reported_trial_ends`, not cleared by Settings reset) and forgotten when the trial is deleted or its end date moves later, so each ending is counted once. Trials that ended before this version are counted once on the first launch after the update.
+- If the person has not agreed to usage statistics, these calls do nothing, but a trial end is still marked as counted so it is not sent if they agree later.
