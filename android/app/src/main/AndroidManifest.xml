@@ -54,6 +54,16 @@
             android:value="2" />
         <!-- Analytics is for product usage only: never collect the advertising
              ID or use it for ad personalization. -->
+        <!-- Nothing is collected until the person agrees. The app switches
+             collection on (and off again) at run time from their choice. -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <!-- Sentry is started from Dart only after the person agrees; never
+             automatically at launch. -->
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
         <meta-data
             android:name="google_analytics_adid_collection_enabled"
             android:value="false" />

@@ -26,30 +26,49 @@ import 'features/settings/application/settings_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
 
-  if (AppConfig.sentryEnabled) {
-    await SentryFlutter.init((options) {
-      options.dsn = AppConfig.sentryDsn;
-      options.environment = AppConfig.sentryEnvironment;
-      // Privacy: Trackly keeps user data on-device.
-      options.sendDefaultPii = false;
-      // Database errors can quote what the user typed; strip it before sending.
-      options.beforeSend = scrubSentryEvent;
-    }, appRunner: _runApp);
+  // Nothing is reported until the person agrees, on the first-run screen or in
+  // Settings, so Sentry is not even started without that choice.
+  final reportErrors =
+      AppConfig.sentryEnabled &&
+      SharedSettingsStore(prefs).errorReportsEnabled == true;
+
+  if (reportErrors) {
+    await SentryFlutter.init(
+      _configureSentry,
+      appRunner: () => _runApp(prefs, errorReportsRunning: true),
+    );
   } else {
-    await _runApp();
+    await _runApp(prefs, errorReportsRunning: false);
   }
 }
 
-Future<void> _runApp() async {
+void _configureSentry(SentryFlutterOptions options) {
+  options.dsn = AppConfig.sentryDsn;
+  options.environment = AppConfig.sentryEnvironment;
+  // Privacy: Trackly keeps user data on-device.
+  options.sendDefaultPii = false;
+  // Database errors can quote what the user typed; strip it before sending.
+  options.beforeSend = scrubSentryEvent;
+}
+
+Future<void> _runApp(
+  SharedPreferences prefs, {
+  required bool errorReportsRunning,
+}) async {
   final errorReporter = AppConfig.sentryEnabled
-      ? const SentryErrorReporter()
+      ? SentryErrorReporter(
+          // Used when the person agrees to error reports during this session.
+          start: () => SentryFlutter.init(_configureSentry),
+          running: errorReportsRunning,
+        )
       : const NoopErrorReporter();
 
   // The splash is on screen at once, while the start-up work below runs.
   runApp(
     BootGate(
-      bootstrap: () => _bootstrap(errorReporter),
+      bootstrap: () => _bootstrap(errorReporter, prefs),
       onError: (error, stackTrace) =>
           unawaited(errorReporter.captureException(error, stackTrace)),
     ),
@@ -57,12 +76,19 @@ Future<void> _runApp() async {
 }
 
 /// Starts the services and returns the app to show once they are ready.
-Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
-  final analytics = await _initAnalytics(errorReporter);
+Future<Widget> _bootstrap(
+  ErrorReporter errorReporter,
+  SharedPreferences prefs,
+) async {
+  final settings = SharedSettingsStore(prefs);
+  final analytics = await _initAnalytics(
+    errorReporter,
+    allowed: settings.usageStatsEnabled == true,
+  );
 
   final notifications = await _initNotifications(errorReporter);
-  final prefs = await SharedPreferences.getInstance();
 
+  // Only counted if the person has agreed; until then this does nothing.
   unawaited(analytics.logEvent(AnalyticsEvents.appOpened));
 
   return ProviderScope(
@@ -73,7 +99,7 @@ Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
       notificationPrefsProvider.overrideWithValue(
         SharedNotificationPrefs(prefs),
       ),
-      settingsStoreProvider.overrideWithValue(SharedSettingsStore(prefs)),
+      settingsStoreProvider.overrideWithValue(settings),
       dataSharerProvider.overrideWithValue(const SharePlusDataSharer()),
     ],
     child: const TracklyApp(),
@@ -83,13 +109,25 @@ Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
 /// Firebase is only used when explicitly enabled and never in debug builds,
 /// to avoid polluting production data. Any init failure (for example missing
 /// Firebase config files) falls back to a no-op so the app still starts.
-Future<AnalyticsService> _initAnalytics(ErrorReporter errorReporter) async {
+///
+/// The manifest keeps Firebase from collecting anything until [allowed] has
+/// been switched on here, so a person who has not chosen yet (or said no) is
+/// not counted.
+Future<AnalyticsService> _initAnalytics(
+  ErrorReporter errorReporter, {
+  required bool allowed,
+}) async {
   if (!AppConfig.firebaseAnalyticsEnabled || kDebugMode) {
     return const NoopAnalyticsService();
   }
   try {
     await Firebase.initializeApp();
-    return FirebaseAnalyticsService(FirebaseAnalytics.instance);
+    final service = FirebaseAnalyticsService(
+      FirebaseAnalytics.instance,
+      enabled: allowed,
+    );
+    await service.setCollectionEnabled(allowed);
+    return service;
   } catch (error, stackTrace) {
     await errorReporter.captureException(error, stackTrace);
     return const NoopAnalyticsService();

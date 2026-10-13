@@ -3151,7 +3151,7 @@ Import from CSV (restoring a backup), exporting a single subscription, choosing 
 
 ## The policy and Play forms
 
-- The policy text is in `docs/privacy/trackly-privacy-policy.md` with a ready-to-upload `.html` copy. Two retention figures are bracketed (`[14 months]` for Firebase, `[90 days]` for Sentry) and must be confirmed against the real project settings before publishing; the date is the date of writing.
+- The policy text is in `docs/privacy/trackly-privacy-policy.md` with a ready-to-upload `.html` copy. Retention is stated as 14 months (Firebase) and 90 days (Sentry), confirmed by the owner; if the project settings change, change the policy with them. The date is the date of writing. `tool/build_policy_html.py` rebuilds the HTML copy from the Markdown.
 - `docs/play_data_safety.md` lists the facts the answers rest on and suggested Data safety answers. They are suggestions to verify against Google's current forms.
 - The policy must stay true to the code. When analytics events, Sentry settings, permissions or the export change, review the policy in the same change.
 
@@ -3163,5 +3163,37 @@ Import from CSV (restoring a backup), exporting a single subscription, choosing 
 
 ## Not done
 
-- **An in-app switch to turn analytics and crash reports off.** They are always on in a build that has them configured. Recommended before distribution in regions that expect consent; the policy and Data safety answers would then say the data is optional.
 - **Categories** management (view, add, rename) under More.
+
+# 96. Privacy choice (as built)
+
+Usage statistics (Firebase Analytics) and error reports (Sentry) are **opt-in**: nothing is collected or sent until the person says yes.
+
+## First launch
+
+- Before the app is shown, a **"Help improve Trackly"** screen explains what Trackly never sends (subscriptions, payments, notes stay on the phone), what it can send if allowed (usage statistics; error reports), and links to the privacy policy. Two equal buttons: **Share anonymous data** and **Don't share** (same size and style; saying no costs one tap and the app works the same).
+- The screen is a gate in `TracklyApp`'s builder, shown until both choices are recorded. Someone who updates from a build without this screen is asked on their first launch of the new version. It is never shown again once answered.
+
+## Settings > Privacy
+
+Two switches, **Usage statistics** and **Error reports**, changeable at any time. A change in Settings settles the other answer as "no" if it was never given, so the first-run screen cannot return.
+
+## What each choice does
+
+| | Off (or not yet asked) | On |
+| --- | --- | --- |
+| **Usage statistics** | The manifest sets `firebase_analytics_collection_enabled=false`, so Firebase collects nothing at launch. `FirebaseAnalyticsService` also drops events in Dart. Switching off after being on calls `resetAnalyticsData()`, which forgets the installation identifier. | `setAnalyticsCollectionEnabled(true)` at once. |
+| **Error reports** | Sentry is **not started** (`io.sentry.auto-init=false` in the manifest; no `SentryFlutter.init` at launch), so not even its native crash handler runs. Turning it off in a session calls `Sentry.close()`. | Started at launch if previously allowed, or at once when switched on (`SentryErrorReporter.setEnabled`). |
+
+The choices are stored in `shared_preferences` (`privacy_usage_stats`, `privacy_error_reports`; null means not asked). **Delete all data does not clear them**: someone who said no must not become "undecided" and be asked again, or have analytics resume.
+
+## Rules
+
+- A new service that sends anything off the phone needs its own choice (or an existing one) and must be off until it is given. The policy and `docs/play_data_safety.md` change in the same commit.
+- The first-run screen's text, the Settings text, the policy and the Play answers must say the same thing.
+
+## Not done
+
+- A "reset my choice" action (the switches cover changing it), and region-specific behavior: the same opt-in applies everywhere.
+- Consent for the optional CSV export is not needed: the person shares the files themselves.
+

@@ -714,6 +714,63 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get privacyChoiceTitle => 'Help improve Trackly';
+
+  @override
+  String get privacyChoiceIntro =>
+      'Your subscriptions, payments and notes stay on your phone. Trackly never receives them.';
+
+  @override
+  String get privacyChoiceAsk => 'If you allow it, Trackly also sends:';
+
+  @override
+  String get privacyChoiceUsageTitle => 'Usage statistics';
+
+  @override
+  String get privacyChoiceUsageBody =>
+      'Which features are used, such as adding a subscription. Never names, amounts or notes.';
+
+  @override
+  String get privacyChoiceErrorsTitle => 'Error reports';
+
+  @override
+  String get privacyChoiceErrorsBody =>
+      'Technical details when something goes wrong, so it can be fixed. Never your subscriptions.';
+
+  @override
+  String get privacyChoiceNothing =>
+      'Nothing is sent unless you allow it. You can change this at any time in Settings.';
+
+  @override
+  String get privacyChoiceRead => 'Read the privacy policy';
+
+  @override
+  String get privacyChoiceAllow => 'Share anonymous data';
+
+  @override
+  String get privacyChoiceDecline => 'Don’t share';
+
+  @override
+  String get settingsSectionPrivacy => 'Privacy';
+
+  @override
+  String get settingsUsageStats => 'Usage statistics';
+
+  @override
+  String get settingsUsageStatsHint =>
+      'Which features are used. Never names, amounts or notes.';
+
+  @override
+  String get settingsErrorReports => 'Error reports';
+
+  @override
+  String get settingsErrorReportsHint =>
+      'Technical details when something breaks.';
+
+  @override
+  String get settingsPrivacyNote => 'Nothing is sent while these are off.';
+
+  @override
   String get settingsExport => 'Export data (CSV)';
 
   @override
