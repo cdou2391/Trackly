@@ -1383,6 +1383,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t export your data. Try again.'**
   String get exportFailed;
+
+  /// No description provided for @settingsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import data (CSV)'**
+  String get settingsImport;
+
+  /// No description provided for @settingsImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a Trackly export, or add subscriptions from a spreadsheet'**
+  String get settingsImportHint;
+
+  /// No description provided for @importReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before importing'**
+  String get importReviewTitle;
+
+  /// No description provided for @importNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to import.'**
+  String get importNothing;
+
+  /// No description provided for @importNewSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new subscription or bill} other{{count} new subscriptions and bills}}'**
+  String importNewSubscriptions(int count);
+
+  /// No description provided for @importNewPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new payment} other{{count} new payments}}'**
+  String importNewPayments(int count);
+
+  /// No description provided for @importDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row is already in Trackly and is left out} other{{count} rows are already in Trackly and are left out}}'**
+  String importDuplicates(int count);
+
+  /// No description provided for @importProblemRows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row has a problem and will be skipped} other{{count} rows have problems and will be skipped}}'**
+  String importProblemRows(int count);
+
+  /// No description provided for @importFilesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Files that can’t be read'**
+  String get importFilesHeader;
+
+  /// No description provided for @importProblemsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Problems'**
+  String get importProblemsHeader;
+
+  /// No description provided for @importNotesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get importNotesHeader;
+
+  /// No description provided for @importMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{…and 1 more} other{…and {count} more}}'**
+  String importMore(int count);
+
+  /// No description provided for @importConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importConfirm;
+
+  /// No description provided for @importConfirmSkipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Import, skipping the problem rows'**
+  String get importConfirmSkipping;
+
+  /// No description provided for @importCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get importCancel;
+
+  /// No description provided for @importClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get importClose;
+
+  /// No description provided for @importLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}'**
+  String importLocation(String file, int line);
+
+  /// No description provided for @snackImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {items, plural, =1{1 subscription} other{{items} subscriptions}} and {payments, plural, =1{1 payment} other{{payments} payments}}'**
+  String snackImported(int items, int payments);
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t import. Nothing was changed.'**
+  String get importFailed;
+
+  /// No description provided for @importIssueNotUtf8.
+  ///
+  /// In en, this message translates to:
+  /// **'This file isn’t UTF-8 text. In your spreadsheet, save it as “CSV UTF-8”.'**
+  String get importIssueNotUtf8;
+
+  /// No description provided for @importIssueUnclosedQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'A quote that opens on line {line} never closes.'**
+  String importIssueUnclosedQuote(int line);
+
+  /// No description provided for @importIssueStrayQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'There is a stray quote on line {line}.'**
+  String importIssueStrayQuote(int line);
+
+  /// No description provided for @importIssueTooManyRows.
+  ///
+  /// In en, this message translates to:
+  /// **'The file has too many rows.'**
+  String get importIssueTooManyRows;
+
+  /// No description provided for @importIssueFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is too large to import.'**
+  String get importIssueFileTooLarge;
+
+  /// No description provided for @importIssueNotTrackly.
+  ///
+  /// In en, this message translates to:
+  /// **'This doesn’t look like a Trackly file. It needs a first row naming the columns, such as name, amount, currency, frequency and next_due_date.'**
+  String get importIssueNotTrackly;
+
+  /// No description provided for @importIssueMissingColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'The column “{column}” is missing.'**
+  String importIssueMissingColumn(String column);
+
+  /// No description provided for @importIssueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'“{column}” is empty.'**
+  String importIssueRequired(String column);
+
+  /// No description provided for @importIssueBadAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” isn’t a valid amount in “{column}”. Use digits and a decimal point, like 15.49.'**
+  String importIssueBadAmount(String value, String column);
+
+  /// No description provided for @importIssueBadDate.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” isn’t a valid date in “{column}”. Use year-month-day, like 2026-10-31.'**
+  String importIssueBadDate(String value, String column);
+
+  /// No description provided for @importIssueBadChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” isn’t allowed in “{column}”.'**
+  String importIssueBadChoice(String value, String column);
+
+  /// No description provided for @importIssueBadNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” isn’t a valid number in “{column}”.'**
+  String importIssueBadNumber(String value, String column);
+
+  /// No description provided for @importIssueBadTime.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” isn’t a valid time. Use hours and minutes, like 09:00.'**
+  String importIssueBadTime(String value);
+
+  /// No description provided for @importIssueBadId.
+  ///
+  /// In en, this message translates to:
+  /// **'“{value}” can’t be used as an id. Use letters, digits, - and _, up to 64 characters.'**
+  String importIssueBadId(String value);
+
+  /// No description provided for @importIssueTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'“{column}” is too long.'**
+  String importIssueTooLong(String column);
+
+  /// No description provided for @importIssueTooManyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'This row has more values than there are columns. A name that contains a comma needs quotes around it.'**
+  String get importIssueTooManyFields;
+
+  /// No description provided for @importIssueDuplicateId.
+  ///
+  /// In en, this message translates to:
+  /// **'The same id is used on line {otherLine}.'**
+  String importIssueDuplicateId(int otherLine);
+
+  /// No description provided for @importIssueTrialNeedsEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'A free trial needs a trial_end_date.'**
+  String get importIssueTrialNeedsEnd;
+
+  /// No description provided for @importIssueUnknownSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscription matches “{value}”. Import the subscriptions file too.'**
+  String importIssueUnknownSubscription(String value);
+
+  /// No description provided for @importIssueAmbiguousSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'More than one subscription is named “{value}”. Add the subscription_id column.'**
+  String importIssueAmbiguousSubscription(String value);
+
+  /// No description provided for @importIssueUnknownCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'The category “{value}” doesn’t exist, so it was left empty.'**
+  String importIssueUnknownCategory(String value);
+
+  /// No description provided for @importIssueNoPaidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No paid date, so the due date was used.'**
+  String get importIssueNoPaidDate;
 }
 
 class _AppLocalizationsDelegate

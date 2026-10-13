@@ -258,9 +258,13 @@ void main() {
     });
 
     test('has no collisions across thousands of items', () {
+      // A fixed set of ids, so the result never changes between runs. With
+      // random ids, 12,000 values in a 31-bit space collide by chance in about
+      // 3% of runs (the birthday effect), which says nothing about the hash.
       final seen = <int, String>{};
       for (var i = 0; i < 4000; i++) {
-        final itemId = const Uuid().v4();
+        final itemId =
+            'item-$i-${const Uuid().v5(Namespace.url.value, 'trackly-$i')}';
         for (final type in ReminderType.values) {
           final id = notificationIdFor(itemId, type);
           final clash = seen[id];

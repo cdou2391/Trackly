@@ -45,6 +45,7 @@ const subscriptionsCsvHeader = [
   'category',
   'notes',
   'added_on',
+  'id',
 ];
 
 const paymentsCsvHeader = [
@@ -54,6 +55,8 @@ const paymentsCsvHeader = [
   'status',
   'amount',
   'currency',
+  'subscription_id',
+  'id',
 ];
 
 /// UTF-8 byte order mark, so Excel reads accents and non-Latin names right.
@@ -129,6 +132,7 @@ List<ExportFile> buildExportFiles({
         csvText(categoryNames[item.categoryId] ?? ''),
         csvText(item.notes ?? ''),
         _date(item.createdAt),
+        item.id,
       ],
   ]);
 
@@ -147,6 +151,8 @@ List<ExportFile> buildExportFiles({
           _status(payment.status),
           _amount(payment.amount),
           payment.currencyCode,
+          payment.recurringItemId,
+          payment.id,
         ],
   ]);
 

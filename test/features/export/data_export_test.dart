@@ -100,11 +100,12 @@ void main() {
       text(files[0]),
       'name,type,status,amount,currency,frequency,every,start_date,'
       'next_due_date,free_trial,trial_end_date,reminders,'
-      'reminder_days_before,reminder_time,category,notes,added_on\r\n',
+      'reminder_days_before,reminder_time,category,notes,added_on,id\r\n',
     );
     expect(
       text(files[1]),
-      'subscription,due_date,paid_date,status,amount,currency\r\n',
+      'subscription,due_date,paid_date,status,amount,currency,'
+      'subscription_id,id\r\n',
     );
   });
 
@@ -125,7 +126,7 @@ void main() {
           categories: {'ent': 'Entertainment'},
         ),
         'Netflix,subscription,active,15.50,USD,monthly,1,2026-01-05,'
-        '2026-10-20,no,,yes,3,18:05,Entertainment,Family plan,2026-02-03',
+        '2026-10-20,no,,yes,3,18:05,Entertainment,Family plan,2026-02-03,Netflix',
       );
     });
 
@@ -253,9 +254,9 @@ void main() {
         )[1],
       ).split('\r\n');
 
-      expect(csv[1], 'Netflix,2026-08-20,2026-08-20,paid,10.00,USD');
-      expect(csv[2], 'Spotify,2026-09-20,2026-09-21,paid,7.00,USD');
-      expect(csv[3], 'Netflix,2026-10-01,,skipped,10.00,USD');
+      expect(csv[1], 'Netflix,2026-08-20,2026-08-20,paid,10.00,USD,Netflix,p1');
+      expect(csv[2], 'Spotify,2026-09-20,2026-09-21,paid,7.00,USD,Spotify,p2');
+      expect(csv[3], 'Netflix,2026-10-01,,skipped,10.00,USD,Netflix,p3');
       expect(csv[4], '');
     });
 

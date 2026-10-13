@@ -240,6 +240,8 @@ void main() {
       );
       await _openSettings(tester);
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -5000));
+      await settle(tester);
       await tester.tap(find.text('Delete all data'));
       await settle(tester);
       await tester.tap(find.text('Delete everything'));

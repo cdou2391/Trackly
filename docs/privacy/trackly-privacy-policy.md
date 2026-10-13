@@ -46,6 +46,10 @@ See [Sentry's privacy policy](https://sentry.io/privacy/). Reports are kept for 
 
 **Settings > Export data (CSV)** creates two files from the data on your phone and opens Android's share sheet. You choose where they go (for example email or Google Drive). Trackly does not send them anywhere itself. Once you share a file, the app you share it with is responsible for it.
 
+## Importing data
+
+**Settings > Import data (CSV)** lets you choose CSV files on your phone and add their contents to Trackly. Trackly reads only the files you choose, on your phone, and shows you what it would add before it adds anything. Nothing is uploaded or sent anywhere.
+
 ## What we do not do
 
 - We do not sell your information.

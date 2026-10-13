@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +15,7 @@ import 'package:trackly/core/notifications/notification_service.dart';
 import 'package:trackly/features/about/application/app_info.dart';
 import 'package:trackly/features/export/application/data_export.dart';
 import 'package:trackly/features/home/application/home_providers.dart';
+import 'package:trackly/features/import/application/data_import.dart';
 import 'package:trackly/features/settings/application/settings_providers.dart';
 import 'package:trackly/features/settings/application/settings_store.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
@@ -142,6 +145,29 @@ class FakeDataSharer implements DataSharer {
   }
 }
 
+/// Hands the app the files a test says the person picked.
+class FakeCsvPicker implements CsvPicker {
+  FakeCsvPicker([this.files = const []]);
+
+  List<PickedCsv> files;
+
+  /// Set to make picking fail, as if the file chooser could not open.
+  Object? failWith;
+  int picks = 0;
+
+  @override
+  Future<List<PickedCsv>> pick() async {
+    picks++;
+    final error = failWith;
+    if (error != null) throw error;
+    return files;
+  }
+}
+
+/// A file as the person's phone would hand it over.
+PickedCsv csvFile(String name, String text) =>
+    PickedCsv(name: name, bytes: Uint8List.fromList(utf8.encode(text)));
+
 /// A fixed theme for tests.
 class _FixedThemeMode extends ThemeModeController {
   _FixedThemeMode(this._mode);
@@ -169,6 +195,7 @@ Future<AppDatabase> pumpTrackly(
   bool showPrivacyChoice = false,
   LinkOpener? linkOpener,
   DataSharer? dataSharer,
+  CsvPicker? csvPicker,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -208,6 +235,7 @@ Future<AppDatabase> pumpTrackly(
           (ref) async => const AppInfo(version: '1.0.0', build: '8'),
         ),
         dataSharerProvider.overrideWithValue(dataSharer ?? FakeDataSharer()),
+        csvPickerProvider.overrideWithValue(csvPicker ?? FakeCsvPicker()),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),
         settingsStoreProvider.overrideWithValue(store),

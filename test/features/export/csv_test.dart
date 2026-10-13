@@ -41,6 +41,65 @@ void main() {
     });
   });
 
+  group('csvTextRestore', () {
+    test('removes the guard the export added', () {
+      expect(csvTextRestore("'=SUM(A1)"), '=SUM(A1)');
+      expect(csvTextRestore("'+1"), '+1');
+      expect(csvTextRestore("'-Gym"), '-Gym');
+      expect(csvTextRestore("'@home"), '@home');
+      expect(csvTextRestore("'\tcell"), '\tcell');
+    });
+
+    test('leaves the person\'s own apostrophes alone', () {
+      expect(csvTextRestore("'tis"), "'tis");
+      expect(csvTextRestore("it's"), "it's");
+      expect(csvTextRestore("'"), "'");
+      expect(csvTextRestore("''"), "''");
+      expect(csvTextRestore("'1Password"), "'1Password");
+      expect(csvTextRestore(''), '');
+    });
+
+    test('is the exact inverse of csvText for every kind of text', () {
+      const samples = [
+        '',
+        'Netflix',
+        '=1+1',
+        "'=1+1",
+        "''=1+1",
+        "'''=1+1",
+        "'",
+        "''",
+        "'tis",
+        "'-5",
+        "'@x",
+        '+44 20 7946 0000',
+        '-Gym',
+        '@home',
+        '\tindented',
+        "\r'=weird",
+        "it's",
+        "a'=b",
+        '=',
+        "'=",
+        'Café =x',
+        '音楽',
+      ];
+      for (final text in samples) {
+        expect(
+          csvTextRestore(csvText(text)),
+          text,
+          reason: 'round trip of ${text.codeUnits}',
+        );
+      }
+    });
+
+    test('text that cannot run as a formula is written unchanged', () {
+      for (final text in ["'tis", "it's", "'", "''", "'1", 'a=b']) {
+        expect(csvText(text), text);
+      }
+    });
+  });
+
   group('buildCsv', () {
     test('writes the header and rows with CRLF line ends', () {
       final csv = buildCsv(
