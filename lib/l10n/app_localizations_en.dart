@@ -687,4 +687,21 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsExport => 'Export data (CSV)';
+
+  @override
+  String get settingsExportHint =>
+      'Subscriptions and payment history, for Excel or Sheets';
+
+  @override
+  String get exportShareTitle => 'Trackly export';
+
+  @override
+  String get exportNothing =>
+      'Nothing to export yet. Add a subscription first.';
+
+  @override
+  String get exportFailed => 'Couldn’t export your data. Try again.';
 }

@@ -8,6 +8,7 @@ import 'package:trackly/core/analytics/analytics_service.dart';
 import 'package:trackly/core/database/app_database.dart';
 import 'package:trackly/core/notifications/notification_prefs.dart';
 import 'package:trackly/core/notifications/notification_service.dart';
+import 'package:trackly/features/export/application/data_export.dart';
 import 'package:trackly/features/home/application/home_providers.dart';
 import 'package:trackly/features/settings/application/settings_providers.dart';
 import 'package:trackly/features/settings/application/settings_store.dart';
@@ -105,6 +106,24 @@ RecurringItem testItem(
   );
 }
 
+/// Records what would have gone to the share sheet.
+class FakeDataSharer implements DataSharer {
+  final shared = <List<ExportFile>>[];
+
+  /// Set to make the next share fail, as if the share sheet could not open.
+  Object? failWith;
+
+  @override
+  Future<void> shareFiles(
+    List<ExportFile> files, {
+    required String title,
+  }) async {
+    final error = failWith;
+    if (error != null) throw error;
+    shared.add(files);
+  }
+}
+
 /// A fixed theme for tests.
 class _FixedThemeMode extends ThemeModeController {
   _FixedThemeMode(this._mode);
@@ -128,6 +147,7 @@ Future<AppDatabase> pumpTrackly(
   NotificationPrefs? notificationPrefs,
   AnalyticsService? analytics,
   SettingsStore? settings,
+  DataSharer? dataSharer,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -150,6 +170,7 @@ Future<AppDatabase> pumpTrackly(
         nowProvider.overrideWithValue(() => testNow),
         if (analytics != null) analyticsProvider.overrideWithValue(analytics),
         notificationServiceProvider.overrideWithValue(notifications),
+        dataSharerProvider.overrideWithValue(dataSharer ?? FakeDataSharer()),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),
         // With a real store the theme comes from it, as in the app.

@@ -250,5 +250,10 @@
   "searchNoMatches": "No matches for “{query}”",
   "@searchNoMatches": { "placeholders": { "query": { "type": "String" } } },
   "searchResultCount": "{count, plural, =1{1 result} other{{count} results}}",
-  "@searchResultCount": { "placeholders": { "count": { "type": "int" } } }
+  "@searchResultCount": { "placeholders": { "count": { "type": "int" } } },
+  "settingsExport": "Export data (CSV)",
+  "settingsExportHint": "Subscriptions and payment history, for Excel or Sheets",
+  "exportShareTitle": "Trackly export",
+  "exportNothing": "Nothing to export yet. Add a subscription first.",
+  "exportFailed": "Couldn’t export your data. Try again."
 }
