@@ -786,4 +786,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportFailed => 'Couldn’t export your data. Try again.';
+
+  @override
+  String get settingsImport => 'Import data (CSV)';
+
+  @override
+  String get settingsImportHint =>
+      'Restore a Trackly export, or add subscriptions from a spreadsheet';
+
+  @override
+  String get importReviewTitle => 'Review before importing';
+
+  @override
+  String get importNothing => 'Nothing to import.';
+
+  @override
+  String importNewSubscriptions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new subscriptions and bills',
+      one: '1 new subscription or bill',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewPayments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new payments',
+      one: '1 new payment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importDuplicates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows are already in Trackly and are left out',
+      one: '1 row is already in Trackly and is left out',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importProblemRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows have problems and will be skipped',
+      one: '1 row has a problem and will be skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importFilesHeader => 'Files that can’t be read';
+
+  @override
+  String get importProblemsHeader => 'Problems';
+
+  @override
+  String get importNotesHeader => 'Notes';
+
+  @override
+  String importMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '…and $count more',
+      one: '…and 1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirm => 'Import';
+
+  @override
+  String get importConfirmSkipping => 'Import, skipping the problem rows';
+
+  @override
+  String get importCancel => 'Cancel';
+
+  @override
+  String get importClose => 'Close';
+
+  @override
+  String importLocation(String file, int line) {
+    return '$file, line $line';
+  }
+
+  @override
+  String snackImported(int items, int payments) {
+    String _temp0 = intl.Intl.pluralLogic(
+      items,
+      locale: localeName,
+      other: '$items subscriptions',
+      one: '1 subscription',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      payments,
+      locale: localeName,
+      other: '$payments payments',
+      one: '1 payment',
+    );
+    return 'Imported $_temp0 and $_temp1';
+  }
+
+  @override
+  String get importFailed => 'Couldn’t import. Nothing was changed.';
+
+  @override
+  String get importIssueNotUtf8 =>
+      'This file isn’t UTF-8 text. In your spreadsheet, save it as “CSV UTF-8”.';
+
+  @override
+  String importIssueUnclosedQuote(int line) {
+    return 'A quote that opens on line $line never closes.';
+  }
+
+  @override
+  String importIssueStrayQuote(int line) {
+    return 'There is a stray quote on line $line.';
+  }
+
+  @override
+  String get importIssueTooManyRows => 'The file has too many rows.';
+
+  @override
+  String get importIssueFileTooLarge => 'The file is too large to import.';
+
+  @override
+  String get importIssueNotTrackly =>
+      'This doesn’t look like a Trackly file. It needs a first row naming the columns, such as name, amount, currency, frequency and next_due_date.';
+
+  @override
+  String importIssueMissingColumn(String column) {
+    return 'The column “$column” is missing.';
+  }
+
+  @override
+  String importIssueRequired(String column) {
+    return '“$column” is empty.';
+  }
+
+  @override
+  String importIssueBadAmount(String value, String column) {
+    return '“$value” isn’t a valid amount in “$column”. Use digits and a decimal point, like 15.49.';
+  }
+
+  @override
+  String importIssueBadDate(String value, String column) {
+    return '“$value” isn’t a valid date in “$column”. Use year-month-day, like 2026-10-31.';
+  }
+
+  @override
+  String importIssueBadChoice(String value, String column) {
+    return '“$value” isn’t allowed in “$column”.';
+  }
+
+  @override
+  String importIssueBadNumber(String value, String column) {
+    return '“$value” isn’t a valid number in “$column”.';
+  }
+
+  @override
+  String importIssueBadTime(String value) {
+    return '“$value” isn’t a valid time. Use hours and minutes, like 09:00.';
+  }
+
+  @override
+  String importIssueBadId(String value) {
+    return '“$value” can’t be used as an id. Use letters, digits, - and _, up to 64 characters.';
+  }
+
+  @override
+  String importIssueTooLong(String column) {
+    return '“$column” is too long.';
+  }
+
+  @override
+  String get importIssueTooManyFields =>
+      'This row has more values than there are columns. A name that contains a comma needs quotes around it.';
+
+  @override
+  String importIssueDuplicateId(int otherLine) {
+    return 'The same id is used on line $otherLine.';
+  }
+
+  @override
+  String get importIssueTrialNeedsEnd => 'A free trial needs a trial_end_date.';
+
+  @override
+  String importIssueUnknownSubscription(String value) {
+    return 'No subscription matches “$value”. Import the subscriptions file too.';
+  }
+
+  @override
+  String importIssueAmbiguousSubscription(String value) {
+    return 'More than one subscription is named “$value”. Add the subscription_id column.';
+  }
+
+  @override
+  String importIssueUnknownCategory(String value) {
+    return 'The category “$value” doesn’t exist, so it was left empty.';
+  }
+
+  @override
+  String get importIssueNoPaidDate => 'No paid date, so the due date was used.';
 }

@@ -18,6 +18,8 @@ import '../../../shared/widgets/snack.dart';
 import '../../../shared/widgets/sub_page_header.dart';
 import '../../export/application/data_export.dart';
 import '../../home/application/home_providers.dart';
+import '../../import/application/data_import.dart';
+import '../../import/presentation/import_preview_sheet.dart';
 import '../../subscriptions/presentation/labels.dart';
 import '../../privacy/application/privacy_choices.dart';
 import '../application/data_reset.dart';
@@ -381,6 +383,13 @@ class _DataSection extends ConsumerWidget {
         ),
         const Divider(height: TracklySpacing.lg),
         _DataAction(
+          icon: Icons.file_open_outlined,
+          label: l10n.settingsImport,
+          hint: l10n.settingsImportHint,
+          onTap: () => _import(context, ref),
+        ),
+        const Divider(height: TracklySpacing.lg),
+        _DataAction(
           icon: Icons.history_toggle_off_rounded,
           label: l10n.settingsClearHistory,
           hint: l10n.settingsClearHistoryHint,
@@ -432,6 +441,33 @@ class _DataSection extends ConsumerWidget {
       }
     } catch (_) {
       messenger.showReplacing(SnackBar(content: Text(l10n.exportFailed)));
+    }
+  }
+
+  /// Reads files the person picks, shows what they would add, and adds it only
+  /// after a go-ahead. Nothing already in Trackly is changed or replaced.
+  Future<void> _import(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final importer = ref.read(dataImporterProvider);
+    final analytics = ref.read(analyticsProvider);
+
+    try {
+      final plan = await importer.prepare();
+      if (plan == null || !context.mounted) return;
+
+      final confirmed = await showImportPreview(context, plan);
+      if (confirmed != true) return;
+
+      final result = await importer.apply(plan);
+      unawaited(analytics.logEvent(AnalyticsEvents.dataImported));
+      messenger.showReplacing(
+        SnackBar(
+          content: Text(l10n.snackImported(result.items, result.payments)),
+        ),
+      );
+    } catch (_) {
+      messenger.showReplacing(SnackBar(content: Text(l10n.importFailed)));
     }
   }
 

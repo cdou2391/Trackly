@@ -3114,15 +3114,15 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 
 | File | Contents |
 | --- | --- |
-| `trackly-subscriptions-YYYY-MM-DD.csv` | One row per subscription, bill or trial: `name, type, status, amount, currency, frequency, every, start_date, next_due_date, free_trial, trial_end_date, reminders, reminder_days_before, reminder_time, category, notes, added_on`. Soonest due first. |
-| `trackly-payments-YYYY-MM-DD.csv` | One row per recorded payment or skip: `subscription, due_date, paid_date, status, amount, currency`. Oldest first, named by subscription. |
+| `trackly-subscriptions-YYYY-MM-DD.csv` | One row per subscription, bill or trial: `name, type, status, amount, currency, frequency, every, start_date, next_due_date, free_trial, trial_end_date, reminders, reminder_days_before, reminder_time, category, notes, added_on, id`. Soonest due first. |
+| `trackly-payments-YYYY-MM-DD.csv` | One row per recorded payment or skip: `subscription, due_date, paid_date, status, amount, currency, subscription_id, id`. Oldest first, named by subscription. `subscription_id` is what ties a payment to its subscription on import; the name alone is ambiguous when two subscriptions share one. |
 
 ## Format
 
 - UTF-8 with a byte order mark (so Excel shows accents and non-Latin names correctly), comma separated, CRLF line ends, fields quoted per RFC 4180 when they hold a comma, quote or line break.
 - Dates are `YYYY-MM-DD` and the reminder time is `HH:MM` (24 hour), so they sort and parse the same in every language. Amounts are plain numbers with a point and two decimals (`15.50`); the currency is a separate column and nothing is converted.
 - `frequency` is `weekly`, `monthly`, `quarterly`, `semi_annual`, `yearly` or `custom_days`; `every` is the repeat count (for `custom_days`, the number of days). `status` is `active`, `paused` or `cancelled`; a trial is an active item with `free_trial = yes` and a `trial_end_date`.
-- The column names are a contract: a change to them is a format change, so add columns at the end and say so here.
+- The column names are a contract: a change to them is a format change, so add columns at the end and say so here. The `id`, `subscription_id` and payment `id` columns were added (at the end) for import (section 97); the first CSV export (`preview.7`) did not have them.
 
 ## Safety
 
@@ -3138,7 +3138,7 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 
 ## Not done
 
-Import from CSV (restoring a backup), exporting a single subscription, choosing columns or a date range, an Excel (`.xlsx`) file, and a scheduled automatic backup.
+Exporting a single subscription, choosing columns or a date range, an Excel (`.xlsx`) file, and a scheduled automatic backup.
 
 # 95. Privacy policy, About and data hygiene (as built)
 
@@ -3196,4 +3196,66 @@ The choices are stored in `shared_preferences` (`privacy_usage_stats`, `privacy_
 
 - A "reset my choice" action (the switches cover changing it), and region-specific behavior: the same opt-in applies everywhere.
 - Consent for the optional CSV export is not needed: the person shares the files themselves.
+
+# 97. CSV import (as built)
+
+**Settings > Your data > Import data (CSV)** picks one or more files with the system file chooser (no storage permission needed; Trackly sees only the files chosen), shows what they would add, and adds it only after the person confirms. It reads Trackly's own export (restore) and any spreadsheet saved with the same columns.
+
+## What it never does
+
+- **Never changes or replaces anything already in Trackly.** A row that Trackly already has is left out and counted, so importing the same file twice changes nothing.
+- **Never sends the file anywhere.** It is read and parsed on the phone.
+- **Never writes anything before the person says Import.** The review is built from a plan; nothing is written until confirmed.
+- **All or nothing for what it does write:** items and payments go in one database transaction.
+
+## Files and columns
+
+Two kinds of file are told apart by their header row (column names are not case sensitive; extra and missing optional columns are fine):
+
+| File | Required columns | Optional columns |
+| --- | --- | --- |
+| Subscriptions | `name, amount, currency, frequency, next_due_date` | `type, status, every, start_date, free_trial, trial_end_date, reminders, reminder_days_before, reminder_time, category, notes, added_on, id` |
+| Payments | `due_date, status, amount` and `subscription_id` **or** `subscription` | `paid_date, currency, id` |
+
+Defaults for missing optional values: type `subscription`, status `active`, every `1`, start date = next due date, free trial `no`, reminders `yes`, 3 days before, 09:00, no category, no notes, added today.
+
+## Rules for values
+
+| Value | Accepted |
+| --- | --- |
+| Dates | `YYYY-MM-DD` that really exist (no `2026-02-30`), year 1900-2200 |
+| Amounts | digits with a decimal point (`15.49`), 0 to 1,000,000,000. A comma is a decimal separator **only** in a semicolon-separated file (`15,49`); signs, symbols, thousands separators and exponents are refused |
+| Currency | three letters, upper-cased |
+| `frequency` | `weekly, monthly, quarterly, semi_annual, yearly, custom_days` (also `semi-annual`, `semiannual`, `annual`, `custom`); `every` is 1-3650 |
+| `type` / `status` | `subscription, bill` / `active, paused, cancelled` (payments: `paid, skipped, upcoming`) |
+| yes/no | `yes, no, true, false, 1, 0, y, n` |
+| `reminder_time` | `HH:MM`; `reminder_days_before` 0-30 |
+| `id`, `subscription_id` | letters, digits, `-` and `_`, up to 64 characters; generated when absent |
+| Text | name up to 120 characters, notes up to 2,000 |
+| Category | matched by name, ignoring case; unknown is left empty and noted (the row still imports) |
+
+## Matching and duplicates
+
+- **Subscriptions with an `id`** that Trackly has: left out. The same `id` twice in one import: the second is a problem.
+- **Subscriptions without an `id`:** the same name (ignoring case and spaces), amount, currency, frequency, `every` and next due date as one Trackly has, or one earlier in the import: left out.
+- **Payments** attach by `subscription_id` when the row has one, else by name; a name shared by two subscriptions is **refused as ambiguous, never guessed** (add `subscription_id`). They can attach to subscriptions already in Trackly or in the files imported together, in either file order. A payment is left out when its `id` exists or an identical one (same subscription, due date, status, amount, currency) does.
+
+## Reading the files
+
+- UTF-8 (with or without a byte order mark) and UTF-16 with a byte order mark. Anything else (a Windows-1252 "CSV" from Excel with accents) is **refused with advice to save as "CSV UTF-8"**, because guessing garbles names.
+- Comma, semicolon or tab separated (the one the header line uses most). RFC 4180 quoting, line breaks inside quotes, CRLF/LF/CR.
+- Limits: 5 MB per file and 50,000 rows. A quote that never closes or a stray quote refuses the file and names the line.
+- The spreadsheet-formula guard written by the export (a leading apostrophe) is removed exactly: `csvTextRestore(csvText(x)) == x` for every text, tested.
+
+## The review
+
+A bottom sheet lists: new subscriptions and bills, new payments, rows already in Trackly, rows with problems (each with `file, line N` and a sentence in the person's language, first six then "...and N more"), files that cannot be read, and notes (rows imported with something adjusted). **Import** (or **Import, skipping the problem rows**) and **Cancel**; when nothing can be imported only **Close**.
+
+After importing: reminders are scheduled by the usual reconciliation (they watch the items), catalog logos are matched by name, and analytics logs `data_imported` with no parameters.
+
+## Not done
+
+- Importing from another app's export, column mapping, and guessing formats: files must use the columns above.
+- Updating existing subscriptions from a file (import only adds).
+- Importing settings (they are not in the CSV files) and JSON backup.
 
