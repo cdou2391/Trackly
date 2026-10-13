@@ -13,15 +13,18 @@ class RecurringItemsDao extends DatabaseAccessor<AppDatabase>
     with _$RecurringItemsDaoMixin {
   RecurringItemsDao(super.db);
 
-  /// All items, soonest due date first.
-  Stream<List<RecurringItem>> watchAll() {
-    final query = select(recurringItems)
-      ..orderBy([
-        (t) => OrderingTerm.asc(t.nextDueDate),
-        (t) => OrderingTerm.asc(t.name),
-      ]);
-    return query.watch();
+  SimpleSelectStatement<$RecurringItemsTable, RecurringItem> _allQuery() {
+    return select(recurringItems)..orderBy([
+      (t) => OrderingTerm.asc(t.nextDueDate),
+      (t) => OrderingTerm.asc(t.name),
+    ]);
   }
+
+  /// All items, soonest due date first.
+  Stream<List<RecurringItem>> watchAll() => _allQuery().watch();
+
+  /// The same list, read once.
+  Future<List<RecurringItem>> getAll() => _allQuery().get();
 
   Stream<RecurringItem?> watchById(String id) {
     return (select(

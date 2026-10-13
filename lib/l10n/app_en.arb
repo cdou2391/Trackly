@@ -259,5 +259,10 @@
   "aboutLicenses": "Open source licenses",
   "privacyPolicy": "Privacy policy",
   "linkOpenFailed": "Couldn’t open {address}. Try again.",
-  "@linkOpenFailed": { "placeholders": { "address": { "type": "String" } } }
+  "@linkOpenFailed": { "placeholders": { "address": { "type": "String" } } },
+  "settingsExport": "Export data (CSV)",
+  "settingsExportHint": "Subscriptions and payment history, for Excel or Sheets",
+  "exportShareTitle": "Trackly export",
+  "exportNothing": "Nothing to export yet. Add a subscription first.",
+  "exportFailed": "Couldn’t export your data. Try again."
 }

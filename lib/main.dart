@@ -20,6 +20,8 @@ import 'core/notifications/notification_prefs.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_text.dart';
 import 'core/startup/boot_gate.dart';
+import 'features/export/application/data_export.dart';
+import 'features/export/application/share_plus_data_sharer.dart';
 import 'features/settings/application/settings_store.dart';
 
 Future<void> main() async {
@@ -72,6 +74,7 @@ Future<Widget> _bootstrap(ErrorReporter errorReporter) async {
         SharedNotificationPrefs(prefs),
       ),
       settingsStoreProvider.overrideWithValue(SharedSettingsStore(prefs)),
+      dataSharerProvider.overrideWithValue(const SharePlusDataSharer()),
     ],
     child: const TracklyApp(),
   );
