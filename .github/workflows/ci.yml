@@ -82,6 +82,14 @@ jobs:
       - name: Check the reminder icon survived the release build
         run: tool/apk_has_resource.sh build/app/outputs/flutter-apk/app-release.apk drawable/ic_stat_notify
 
+      - name: Check the APK does not request the advertising ID
+        run: |
+          tool/apk_lacks_permission.sh build/app/outputs/flutter-apk/app-release.apk \
+            com.google.android.gms.permission.AD_ID \
+            android.permission.ACCESS_ADSERVICES_AD_ID \
+            android.permission.ACCESS_ADSERVICES_ATTRIBUTION \
+            android.permission.ACCESS_ADSERVICES_TOPICS
+
       - name: Check it fell back to the debug key
         run: |
           tool/apk_cert.sh build/app/outputs/flutter-apk/app-release.apk > cert.txt

@@ -48,6 +48,8 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.3.0
   flutter_timezone: ^5.1.1
+  url_launcher: ^6.3.3
+  package_info_plus: ^10.2.2
   share_plus: ^13.3.1
 
 dev_dependencies:
@@ -63,6 +65,7 @@ dev_dependencies:
   drift_dev: ^2.35.1
   build_runner: ^2.16.2
   mocktail: ^1.0.5
+  sqlite3: ^3.5.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

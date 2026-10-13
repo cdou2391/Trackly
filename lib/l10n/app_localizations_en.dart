@@ -689,6 +689,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aboutTitle => 'About';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get aboutMadeBy => 'Made by CoreCrest';
+
+  @override
+  String get aboutContact => 'Contact support';
+
+  @override
+  String get aboutLicenses => 'Open source licenses';
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String linkOpenFailed(String address) {
+    return 'Couldn’t open $address. Try again.';
+  }
+
+  @override
   String get settingsExport => 'Export data (CSV)';
 
   @override

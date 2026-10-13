@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/app.dart';
 import 'package:trackly/core/analytics/analytics_service.dart';
+import 'package:trackly/core/config/link_opener.dart';
 import 'package:trackly/core/database/app_database.dart';
 import 'package:trackly/core/notifications/notification_prefs.dart';
 import 'package:trackly/core/notifications/notification_service.dart';
+import 'package:trackly/features/about/application/app_info.dart';
 import 'package:trackly/features/export/application/data_export.dart';
 import 'package:trackly/features/home/application/home_providers.dart';
 import 'package:trackly/features/settings/application/settings_providers.dart';
@@ -106,6 +108,21 @@ RecurringItem testItem(
   );
 }
 
+/// Records the addresses the app asked to open, instead of opening them.
+class FakeLinkOpener implements LinkOpener {
+  final opened = <Uri>[];
+
+  /// Set to false to behave as if no app can open the address.
+  bool canOpen = true;
+
+  @override
+  Future<bool> open(Uri uri) async {
+    if (!canOpen) return false;
+    opened.add(uri);
+    return true;
+  }
+}
+
 /// Records what would have gone to the share sheet.
 class FakeDataSharer implements DataSharer {
   final shared = <List<ExportFile>>[];
@@ -147,6 +164,7 @@ Future<AppDatabase> pumpTrackly(
   NotificationPrefs? notificationPrefs,
   AnalyticsService? analytics,
   SettingsStore? settings,
+  LinkOpener? linkOpener,
   DataSharer? dataSharer,
 }) async {
   await _loadFonts(tester);
@@ -170,6 +188,10 @@ Future<AppDatabase> pumpTrackly(
         nowProvider.overrideWithValue(() => testNow),
         if (analytics != null) analyticsProvider.overrideWithValue(analytics),
         notificationServiceProvider.overrideWithValue(notifications),
+        linkOpenerProvider.overrideWithValue(linkOpener ?? FakeLinkOpener()),
+        appInfoProvider.overrideWith(
+          (ref) async => const AppInfo(version: '1.0.0', build: '8'),
+        ),
         dataSharerProvider.overrideWithValue(dataSharer ?? FakeDataSharer()),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),

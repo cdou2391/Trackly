@@ -14,6 +14,7 @@ import 'core/analytics/analytics_service.dart';
 import 'core/analytics/firebase_analytics_service.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_reporter.dart';
+import 'core/error/error_scrubber.dart';
 import 'core/notifications/local_notification_service.dart';
 import 'core/notifications/notification_prefs.dart';
 import 'core/notifications/notification_service.dart';
@@ -32,6 +33,8 @@ Future<void> main() async {
       options.environment = AppConfig.sentryEnvironment;
       // Privacy: Trackly keeps user data on-device.
       options.sendDefaultPii = false;
+      // Database errors can quote what the user typed; strip it before sending.
+      options.beforeSend = scrubSentryEvent;
     }, appRunner: _runApp);
   } else {
     await _runApp();
