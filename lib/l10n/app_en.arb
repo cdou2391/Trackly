@@ -250,5 +250,14 @@
   "searchNoMatches": "No matches for “{query}”",
   "@searchNoMatches": { "placeholders": { "query": { "type": "String" } } },
   "searchResultCount": "{count, plural, =1{1 result} other{{count} results}}",
-  "@searchResultCount": { "placeholders": { "count": { "type": "int" } } }
+  "@searchResultCount": { "placeholders": { "count": { "type": "int" } } },
+  "aboutTitle": "About",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": { "placeholders": { "version": { "type": "String" } } },
+  "aboutMadeBy": "Made by CoreCrest",
+  "aboutContact": "Contact support",
+  "aboutLicenses": "Open source licenses",
+  "privacyPolicy": "Privacy policy",
+  "linkOpenFailed": "Couldn’t open {address}. Try again.",
+  "@linkOpenFailed": { "placeholders": { "address": { "type": "String" } } }
 }

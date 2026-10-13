@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
+import '../../../core/config/app_links.dart';
 import '../../../l10n/l10n.dart';
+import '../../../shared/widgets/open_link.dart';
 import '../../../shared/widgets/screen_header.dart';
 
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
     return SafeArea(
@@ -49,6 +52,20 @@ class MoreScreen extends StatelessWidget {
                       label: l10n.settingsTitle,
                       onTap: () => context.push(AppRoutes.settings),
                     ),
+                    const SizedBox(height: TracklySpacing.sm),
+                    _MoreTile(
+                      icon: Icons.info_outline_rounded,
+                      label: l10n.aboutTitle,
+                      onTap: () => context.push(AppRoutes.about),
+                    ),
+                    const SizedBox(height: TracklySpacing.sm),
+                    _MoreTile(
+                      icon: Icons.privacy_tip_outlined,
+                      label: l10n.privacyPolicy,
+                      external: true,
+                      onTap: () =>
+                          openLink(context, ref, AppLinks.privacyPolicyUri),
+                    ),
                   ],
                 ),
               ),
@@ -65,11 +82,15 @@ class _MoreTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.external = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+
+  /// Opens the browser rather than a screen in Trackly.
+  final bool external;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +122,9 @@ class _MoreTile extends StatelessWidget {
                   child: Text(label, style: theme.textTheme.titleMedium),
                 ),
                 Icon(
-                  Icons.chevron_right_rounded,
+                  external
+                      ? Icons.open_in_new_rounded
+                      : Icons.chevron_right_rounded,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ],

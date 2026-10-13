@@ -3107,3 +3107,29 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 - The query is plain text, not a pattern, so characters like `+` or `(` search literally.
 - Analytics: `search_opened` and `search_result_opened`, with no parameters. The query text is never logged (see the analytics rule on user text).
 - **Not done:** matching on amount or currency, search history, filters inside search, and fuzzy matching of typos.
+
+# 95. Privacy policy, About and data hygiene (as built)
+
+## In the app
+
+- **More > Privacy policy** and **More > About > Privacy policy** open Trackly's own policy page in the browser (`AppLinks.privacyPolicy` in `lib/core/config/app_links.dart`: `https://corecrest.tech/trackly/privacy-policy`). It is separate from the CoreCrest website's policy, because it must describe what the app collects (usage metrics and crash reports). If no app can open it, a message shows the address.
+- **About** shows the logo, name, tagline, the installed version and build (`1.0.0 (8)`, read with `package_info_plus`), "Made by CoreCrest", and rows for the privacy policy, **Contact support** (a mail draft to `info@corecrest.tech`, subject "Trackly support") and **Open source licenses** (Flutter's license page).
+- Links go through `LinkOpener` (`url_launcher`, external application), a seam that tests replace. The manifest declares the `https` and `mailto` intents under `<queries>` so they resolve on Android 11+.
+- **The policy address is permanent once published**: it is built into every installed app and given to Google Play. Change it in one place, and keep the old page alive.
+
+## The policy and Play forms
+
+- The policy text is in `docs/privacy/trackly-privacy-policy.md` with a ready-to-upload `.html` copy. Two retention figures are bracketed (`[14 months]` for Firebase, `[90 days]` for Sentry) and must be confirmed against the real project settings before publishing; the date is the date of writing.
+- `docs/play_data_safety.md` lists the facts the answers rest on and suggested Data safety answers. They are suggestions to verify against Google's current forms.
+- The policy must stay true to the code. When analytics events, Sentry settings, permissions or the export change, review the policy in the same change.
+
+## Data hygiene that the policy relies on
+
+- **No advertising ID.** Firebase Analytics adds the advertising ID permissions on its own. The manifest removes `AD_ID`, `ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_ATTRIBUTION` and `ACCESS_ADSERVICES_TOPICS` (`tools:node="remove"`) and turns off ad ID collection and ad personalization for Analytics. CI and the release workflow run `tool/apk_lacks_permission.sh`, which fails if the built APK requests any of them.
+- **No user text in error reports.** A failed SQLite statement quotes its parameters (what the user typed). `scrubSentryEvent` (`lib/core/error/error_scrubber.dart`, set as Sentry's `beforeSend`) replaces everything from `, parameters:` onward in every exception and message, and drops message parameters. The statement itself stays because it only holds placeholders. A test runs a real `SqliteException` through it.
+- Sentry runs with `sendDefaultPii = false`. Analytics events carry only item type, billing frequency, currency code, a trial flag, theme and counts (§80 rule: never names, notes or amounts).
+
+## Not done
+
+- **An in-app switch to turn analytics and crash reports off.** They are always on in a build that has them configured. Recommended before distribution in regions that expect consent; the policy and Data safety answers would then say the data is optional.
+- **Categories** management (view, add, rename) under More.
