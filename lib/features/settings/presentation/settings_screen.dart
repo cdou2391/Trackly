@@ -17,6 +17,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/snack.dart';
 import '../../../shared/widgets/sub_page_header.dart';
 import '../../subscriptions/presentation/labels.dart';
+import '../../privacy/application/privacy_choices.dart';
 import '../application/data_reset.dart';
 import '../application/settings_providers.dart';
 import '../application/settings_store.dart';
@@ -89,6 +90,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       SectionHeader(title: l10n.settingsSectionNotifications),
                       const SizedBox(height: TracklySpacing.sm),
                       const _Card(child: _NotificationsSection()),
+                      const SizedBox(height: TracklySpacing.lg),
+                      SectionHeader(title: l10n.settingsSectionPrivacy),
+                      const SizedBox(height: TracklySpacing.sm),
+                      const _Card(child: _PrivacySection()),
                       const SizedBox(height: TracklySpacing.lg),
                       SectionHeader(title: l10n.settingsSectionData),
                       const SizedBox(height: TracklySpacing.sm),
@@ -314,6 +319,44 @@ class _NotificationsSectionState extends ConsumerState<_NotificationsSection> {
         ],
         const SizedBox(height: TracklySpacing.md),
         Text(l10n.settingsReminderDelay, style: theme.textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
+class _PrivacySection extends ConsumerWidget {
+  const _PrivacySection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final choices = ref.watch(privacyChoicesProvider);
+    final controller = ref.read(privacyChoicesProvider.notifier);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SwitchListTile(
+          key: const Key('settings-usage-stats'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.settingsUsageStats),
+          subtitle: Text(l10n.settingsUsageStatsHint),
+          value: choices.usageStatsOn,
+          onChanged: controller.setUsageStats,
+        ),
+        SwitchListTile(
+          key: const Key('settings-error-reports'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.settingsErrorReports),
+          subtitle: Text(l10n.settingsErrorReportsHint),
+          value: choices.errorReportsOn,
+          onChanged: controller.setErrorReports,
+        ),
+        const SizedBox(height: TracklySpacing.xs),
+        Text(
+          l10n.settingsPrivacyNote,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ],
     );
   }

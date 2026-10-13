@@ -22,12 +22,25 @@ abstract class SettingsStore {
   int? get reminderDays;
   int? get reminderMinuteOfDay;
 
+  /// Whether the person agreed to send anonymous usage statistics. Null until
+  /// they have been asked: nothing is sent until then.
+  bool? get usageStatsEnabled;
+
+  /// Whether the person agreed to send error reports. Null until asked.
+  bool? get errorReportsEnabled;
+
   Future<void> setCurrency(String code);
   Future<void> setThemeMode(ThemeMode mode);
   Future<void> setReminderDays(int days);
   Future<void> setReminderMinuteOfDay(int minute);
+  Future<void> setUsageStatsEnabled(bool enabled);
+  Future<void> setErrorReportsEnabled(bool enabled);
 
-  /// Forgets every choice, so each setting is back to its default.
+  /// Forgets the display and reminder choices, so each is back to its default.
+  ///
+  /// The two privacy choices are kept: someone who said no to sending data
+  /// must not be treated as undecided (and asked again) after clearing their
+  /// subscriptions.
   Future<void> clear();
 }
 
@@ -36,6 +49,8 @@ class InMemorySettingsStore implements SettingsStore {
   ThemeMode? _themeMode;
   int? _reminderDays;
   int? _reminderMinute;
+  bool? _usageStats;
+  bool? _errorReports;
 
   @override
   String? get currency => _currency;
@@ -45,6 +60,10 @@ class InMemorySettingsStore implements SettingsStore {
   int? get reminderDays => _reminderDays;
   @override
   int? get reminderMinuteOfDay => _reminderMinute;
+  @override
+  bool? get usageStatsEnabled => _usageStats;
+  @override
+  bool? get errorReportsEnabled => _errorReports;
 
   @override
   Future<void> setCurrency(String code) async => _currency = code;
@@ -55,6 +74,13 @@ class InMemorySettingsStore implements SettingsStore {
   @override
   Future<void> setReminderMinuteOfDay(int minute) async =>
       _reminderMinute = minute;
+
+  @override
+  Future<void> setUsageStatsEnabled(bool enabled) async =>
+      _usageStats = enabled;
+  @override
+  Future<void> setErrorReportsEnabled(bool enabled) async =>
+      _errorReports = enabled;
 
   @override
   Future<void> clear() async {
@@ -72,6 +98,8 @@ class SharedSettingsStore implements SettingsStore {
   static const _themeKey = 'theme_mode';
   static const _reminderDaysKey = 'default_reminder_days';
   static const _reminderMinuteKey = 'default_reminder_minute';
+  static const _usageStatsKey = 'privacy_usage_stats';
+  static const _errorReportsKey = 'privacy_error_reports';
 
   final SharedPreferences _prefs;
 
@@ -103,6 +131,12 @@ class SharedSettingsStore implements SettingsStore {
   }
 
   @override
+  bool? get usageStatsEnabled => _prefs.getBool(_usageStatsKey);
+
+  @override
+  bool? get errorReportsEnabled => _prefs.getBool(_errorReportsKey);
+
+  @override
   Future<void> setCurrency(String code) async {
     await _prefs.setString(_currencyKey, code);
   }
@@ -123,7 +157,18 @@ class SharedSettingsStore implements SettingsStore {
   }
 
   @override
+  Future<void> setUsageStatsEnabled(bool enabled) async {
+    await _prefs.setBool(_usageStatsKey, enabled);
+  }
+
+  @override
+  Future<void> setErrorReportsEnabled(bool enabled) async {
+    await _prefs.setBool(_errorReportsKey, enabled);
+  }
+
+  @override
   Future<void> clear() async {
+    // The privacy choices are deliberately not cleared (see SettingsStore).
     for (final key in [
       _currencyKey,
       _themeKey,

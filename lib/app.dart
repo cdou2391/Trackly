@@ -7,6 +7,8 @@ import 'core/navigation/app_router.dart';
 import 'core/notifications/reminder_sync.dart';
 import 'core/notifications/reminder_taps.dart';
 import 'core/theme/app_theme.dart';
+import 'features/privacy/application/privacy_choices.dart';
+import 'features/privacy/presentation/privacy_choice_screen.dart';
 import 'features/settings/application/settings_providers.dart';
 import 'features/subscriptions/application/catalog_backfill.dart';
 import 'l10n/app_localizations.dart';
@@ -37,6 +39,12 @@ class TracklyApp extends ConsumerWidget {
       themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(appRouterProvider),
       builder: (context, child) {
+        // The first launch asks what may be sent before showing the app.
+        final decided = ref.watch(
+          privacyChoicesProvider.select((choices) => choices.decided),
+        );
+        if (!decided) return const PrivacyChoiceScreen();
+
         // Status and navigation bar icons must contrast with the page.
         final dark = Theme.of(context).brightness == Brightness.dark;
         return AnnotatedRegion<SystemUiOverlayStyle>(

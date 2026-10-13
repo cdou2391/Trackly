@@ -18,6 +18,9 @@ class _RecordingAnalytics implements AnalyticsService {
   Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
     events.add((name, parameters));
   }
+
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
 }
 
 Future<void> _openFromMore(WidgetTester tester) async {

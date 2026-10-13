@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/app.dart';
 import 'package:trackly/core/analytics/analytics_service.dart';
 import 'package:trackly/core/config/link_opener.dart';
+import 'package:trackly/core/error/error_reporter.dart';
 import 'package:trackly/core/database/app_database.dart';
 import 'package:trackly/core/notifications/notification_prefs.dart';
 import 'package:trackly/core/notifications/notification_service.dart';
@@ -145,6 +146,8 @@ Future<AppDatabase> pumpTrackly(
   NotificationPrefs? notificationPrefs,
   AnalyticsService? analytics,
   SettingsStore? settings,
+  ErrorReporter? errorReporter,
+  bool showPrivacyChoice = false,
   LinkOpener? linkOpener,
 }) async {
   await _loadFonts(tester);
@@ -153,6 +156,18 @@ Future<AppDatabase> pumpTrackly(
   tester.platformDispatcher.textScaleFactorTestValue = textScale;
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+  // Most tests are about something else, so the first-run privacy screen is
+  // skipped (as for a returning user who said no) unless asked for.
+  final store = settings ?? InMemorySettingsStore();
+  if (!showPrivacyChoice) {
+    if (store.usageStatsEnabled == null) {
+      await store.setUsageStatsEnabled(false);
+    }
+    if (store.errorReportsEnabled == null) {
+      await store.setErrorReportsEnabled(false);
+    }
+  }
 
   final db = AppDatabase(NativeDatabase.memory());
   await tester.runAsync(() async {
@@ -174,10 +189,11 @@ Future<AppDatabase> pumpTrackly(
         ),
         if (notificationPrefs != null)
           notificationPrefsProvider.overrideWithValue(notificationPrefs),
-        // With a real store the theme comes from it, as in the app.
-        if (settings != null)
-          settingsStoreProvider.overrideWithValue(settings)
-        else
+        settingsStoreProvider.overrideWithValue(store),
+        if (errorReporter != null)
+          errorReporterProvider.overrideWithValue(errorReporter),
+        // With a store passed in, the theme comes from it, as in the app.
+        if (settings == null)
           themeModeProvider.overrideWith(() => _FixedThemeMode(themeMode)),
       ],
       child: const TracklyApp(),

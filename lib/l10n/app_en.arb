@@ -259,5 +259,22 @@
   "aboutLicenses": "Open source licenses",
   "privacyPolicy": "Privacy policy",
   "linkOpenFailed": "Couldn’t open {address}. Try again.",
-  "@linkOpenFailed": { "placeholders": { "address": { "type": "String" } } }
+  "@linkOpenFailed": { "placeholders": { "address": { "type": "String" } } },
+  "privacyChoiceTitle": "Help improve Trackly",
+  "privacyChoiceIntro": "Your subscriptions, payments and notes stay on your phone. Trackly never receives them.",
+  "privacyChoiceAsk": "If you allow it, Trackly also sends:",
+  "privacyChoiceUsageTitle": "Usage statistics",
+  "privacyChoiceUsageBody": "Which features are used, such as adding a subscription. Never names, amounts or notes.",
+  "privacyChoiceErrorsTitle": "Error reports",
+  "privacyChoiceErrorsBody": "Technical details when something goes wrong, so it can be fixed. Never your subscriptions.",
+  "privacyChoiceNothing": "Nothing is sent unless you allow it. You can change this at any time in Settings.",
+  "privacyChoiceRead": "Read the privacy policy",
+  "privacyChoiceAllow": "Share anonymous data",
+  "privacyChoiceDecline": "Don’t share",
+  "settingsSectionPrivacy": "Privacy",
+  "settingsUsageStats": "Usage statistics",
+  "settingsUsageStatsHint": "Which features are used. Never names, amounts or notes.",
+  "settingsErrorReports": "Error reports",
+  "settingsErrorReportsHint": "Technical details when something breaks.",
+  "settingsPrivacyNote": "Nothing is sent while these are off."
 }

@@ -1251,6 +1251,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t open {address}. Try again.'**
   String linkOpenFailed(String address);
+
+  /// No description provided for @privacyChoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help improve Trackly'**
+  String get privacyChoiceTitle;
+
+  /// No description provided for @privacyChoiceIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscriptions, payments and notes stay on your phone. Trackly never receives them.'**
+  String get privacyChoiceIntro;
+
+  /// No description provided for @privacyChoiceAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'If you allow it, Trackly also sends:'**
+  String get privacyChoiceAsk;
+
+  /// No description provided for @privacyChoiceUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage statistics'**
+  String get privacyChoiceUsageTitle;
+
+  /// No description provided for @privacyChoiceUsageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Which features are used, such as adding a subscription. Never names, amounts or notes.'**
+  String get privacyChoiceUsageBody;
+
+  /// No description provided for @privacyChoiceErrorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reports'**
+  String get privacyChoiceErrorsTitle;
+
+  /// No description provided for @privacyChoiceErrorsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details when something goes wrong, so it can be fixed. Never your subscriptions.'**
+  String get privacyChoiceErrorsBody;
+
+  /// No description provided for @privacyChoiceNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent unless you allow it. You can change this at any time in Settings.'**
+  String get privacyChoiceNothing;
+
+  /// No description provided for @privacyChoiceRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy policy'**
+  String get privacyChoiceRead;
+
+  /// No description provided for @privacyChoiceAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Share anonymous data'**
+  String get privacyChoiceAllow;
+
+  /// No description provided for @privacyChoiceDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t share'**
+  String get privacyChoiceDecline;
+
+  /// No description provided for @settingsSectionPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsSectionPrivacy;
+
+  /// No description provided for @settingsUsageStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage statistics'**
+  String get settingsUsageStats;
+
+  /// No description provided for @settingsUsageStatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Which features are used. Never names, amounts or notes.'**
+  String get settingsUsageStatsHint;
+
+  /// No description provided for @settingsErrorReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reports'**
+  String get settingsErrorReports;
+
+  /// No description provided for @settingsErrorReportsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details when something breaks.'**
+  String get settingsErrorReportsHint;
+
+  /// No description provided for @settingsPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent while these are off.'**
+  String get settingsPrivacyNote;
 }
 
 class _AppLocalizationsDelegate

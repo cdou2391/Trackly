@@ -25,6 +25,9 @@ class _RecordingReporter implements ErrorReporter {
 
   @override
   void addBreadcrumb(String message, {String? category}) {}
+
+  @override
+  Future<void> setEnabled(bool enabled) async {}
 }
 
 /// [item] with some fields changed.

@@ -18,6 +18,9 @@ class _Analytics implements AnalyticsService {
   Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
     events.add((name, parameters));
   }
+
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
 }
 
 class _Errors implements ErrorReporter {
@@ -30,6 +33,9 @@ class _Errors implements ErrorReporter {
 
   @override
   void addBreadcrumb(String message, {String? category}) {}
+
+  @override
+  Future<void> setEnabled(bool enabled) async {}
 }
 
 RecurringItem item({
