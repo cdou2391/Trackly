@@ -228,14 +228,22 @@ class _AmountCard extends ConsumerWidget {
         item.trialEndDate != null &&
         !dateOnly(now).isAfter(dateOnly(item.trialEndDate!));
 
+    final early = item.reminderDaysBefore > 0;
     final reminder = !item.remindersEnabled
         ? l10n.reminderOff
         : l10n.reminderWhenAt(
-            item.reminderDaysBefore == 0
-                ? l10n.reminderSameDay
-                : l10n.reminderDaysBefore(item.reminderDaysBefore),
+            early
+                ? l10n.reminderDaysBefore(item.reminderDaysBefore)
+                : l10n.reminderSameDay,
             reminderTimeLabel(context, item.reminderMinuteOfDay),
           );
+    // Before the due date there are two reminders: the day itself is at 9:00.
+    final reminderText = item.remindersEnabled && early
+        ? l10n.reminderAndOnDay(
+            reminder,
+            reminderTimeLabel(context, defaultReminderMinuteOfDay),
+          )
+        : reminder;
 
     return Material(
       color: theme.colorScheme.surface,
@@ -292,7 +300,7 @@ class _AmountCard extends ConsumerWidget {
             _InfoRow(
               icon: Icons.notifications_none_rounded,
               label: l10n.reminderLabel,
-              value: reminder,
+              value: reminderText,
             ),
             _InfoRow(
               icon: Icons.receipt_long_outlined,

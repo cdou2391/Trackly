@@ -55,7 +55,10 @@ void main() {
       expect(find.text('Next charge'), findsOneWidget);
       expect(find.text('Oct 15, 2026'), findsOneWidget);
       expect(find.text('Reminder'), findsOneWidget);
-      expect(find.text('3 days before at 9:00 AM'), findsOneWidget);
+      expect(
+        find.text('3 days before at 9:00 AM, and on the day at 9:00 AM'),
+        findsOneWidget,
+      );
       expect(find.text('Subscription'), findsOneWidget);
       expect(find.text('Mark as paid'), findsOneWidget);
       expect(find.text('Skip this charge'), findsOneWidget);
@@ -81,7 +84,10 @@ void main() {
       await tester.tap(find.text('Netflix'));
       await settle(tester);
 
-      expect(find.text('3 days before at 6:30 PM'), findsOneWidget);
+      expect(
+        find.text('3 days before at 6:30 PM, and on the day at 9:00 AM'),
+        findsOneWidget,
+      );
     });
 
     tracklyTest('back returns to Home', (tester) async {
@@ -392,7 +398,10 @@ void main() {
       );
       await settle(tester);
 
-      expect(find.text('3 days before at 7:15 AM'), findsOneWidget);
+      expect(
+        find.text('3 days before at 7:15 AM, and on the day at 9:00 AM'),
+        findsOneWidget,
+      );
       final stored = (await tester.runAsync(
         () => db.recurringItemsDao.getById('Netflix'),
       ))!;
