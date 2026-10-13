@@ -276,5 +276,10 @@
   "settingsUsageStatsHint": "Which features are used. Never names, amounts or notes.",
   "settingsErrorReports": "Error reports",
   "settingsErrorReportsHint": "Technical details when something breaks.",
-  "settingsPrivacyNote": "Nothing is sent while these are off."
+  "settingsPrivacyNote": "Nothing is sent while these are off.",
+  "settingsExport": "Export data (CSV)",
+  "settingsExportHint": "Subscriptions and payment history, for Excel or Sheets",
+  "exportShareTitle": "Trackly export",
+  "exportNothing": "Nothing to export yet. Add a subscription first.",
+  "exportFailed": "Couldn’t export your data. Try again."
 }

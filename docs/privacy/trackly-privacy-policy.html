@@ -18,7 +18,7 @@
 <h1>Trackly Privacy Policy</h1>
 <p><strong>Last updated:</strong> 13 October 2026</p>
 <p>Trackly is a subscription, bill and free-trial tracker for Android, made by CoreCrest ("we", "us"). This policy explains what Trackly does with information. It applies to the Trackly app only; the CoreCrest website has its own policy.</p>
-<p><strong>In short:</strong> the subscriptions, bills, payments and notes you enter stay on your phone. We do not have your data and you do not need an account. We use Google Firebase Analytics to count how the app is used and Sentry to find crashes. We do not show ads, sell data or use the advertising ID.</p>
+<p><strong>In short:</strong> the subscriptions, bills, payments and notes you enter stay on your phone. We do not have your data and you do not need an account. If you allow it, we use Google Firebase Analytics to count how the app is used and Sentry to find crashes. Trackly asks you the first time you open it, nothing is sent until you say yes, and you can change your answer at any time in Settings. We do not show ads, sell data or use the advertising ID.</p>
 <h2>What stays on your phone</h2>
 <p>Everything you enter is stored only on your device:</p>
 <ul>
@@ -30,7 +30,7 @@
 <h2>Reminders</h2>
 <p>Trackly schedules reminder notifications on your phone. They are created and shown by your device, not by a server. Trackly asks for permission to show notifications, and you can refuse or turn it off in your phone's settings. Trackly also asks Android to start its reminders again after you restart your phone, so they keep working.</p>
 <h2>Usage statistics (Firebase Analytics)</h2>
-<p>Trackly uses <strong>Google Firebase Analytics</strong> to learn which features are used, so we can improve the app. It records short events such as:</p>
+<p>If you allow it, Trackly uses <strong>Google Firebase Analytics</strong> to learn which features are used, so we can improve the app. Until you allow it, nothing is collected. It records short events such as:</p>
 <ul>
 <li>the app being opened, and the Calendar, Insights and search screens being opened;</li>
 <li>a subscription, bill or trial being added, changed, paused, resumed, cancelled or deleted, a payment being recorded or skipped, and a reminder being opened;</li>
@@ -39,10 +39,10 @@
 <p>An event may carry a few general details: the type of item (subscription or bill), how often it bills (for example monthly), its currency code (for example USD), whether it is a free trial, the theme you chose, and counts such as how many reminders were scheduled.</p>
 <p><strong>Events never include</strong> the names of your subscriptions, amounts, notes, dates, or what you type in search.</p>
 <p>Firebase Analytics also collects, as part of how it works, a random identifier for this installation of the app (not your name, email or phone number), basic device and app details (such as phone model, Android version, app version and language), and an approximate region worked out from your network connection. We do not use or collect the Android advertising ID, and Trackly does not use analytics for advertising or ad personalization.</p>
-<p>Google processes this data for us. See <a href="https://policies.google.com/privacy">Google's privacy policy</a> and <a href="https://firebase.google.com/support/privacy">how Firebase handles data</a>. Analytics event data is kept for [14 months].</p>
+<p>Google processes this data for us. See <a href="https://policies.google.com/privacy">Google's privacy policy</a> and <a href="https://firebase.google.com/support/privacy">how Firebase handles data</a>. Analytics event data is kept for 14 months. If you switch usage statistics off, collection stops and Trackly asks Firebase to forget this installation's identifier.</p>
 <h2>Crash and error reports (Sentry)</h2>
-<p>When Trackly hits a technical problem, it can send an error report to <strong>Sentry</strong> so we can fix it. A report contains the technical details of the error (where in the code it happened), the app version, the phone model, Android version and language, and a short list of recent technical steps. We have turned off the collection of personal information in Sentry, so reports do not include your IP address, name or email. We do not intentionally put your subscription names, amounts or notes into reports.</p>
-<p>See <a href="https://sentry.io/privacy/">Sentry's privacy policy</a>. Reports are kept for [90 days].</p>
+<p>If you allow it, when Trackly hits a technical problem it sends an error report to <strong>Sentry</strong> so we can fix it. Until you allow it, Trackly does not even start Sentry. A report contains the technical details of the error (where in the code it happened), the app version, the phone model, Android version and language, and a short list of recent technical steps. We have turned off the collection of personal information in Sentry, so reports do not include your IP address, name or email. We do not intentionally put your subscription names, amounts or notes into reports.</p>
+<p>See <a href="https://sentry.io/privacy/">Sentry's privacy policy</a>. Reports are kept for 90 days. If you switch error reports off, Trackly stops sending them straight away.</p>
 <h2>Exporting your data</h2>
 <p><strong>Settings &gt; Export data (CSV)</strong> creates two files from the data on your phone and opens Android's share sheet. You choose where they go (for example email or Google Drive). Trackly does not send them anywhere itself. Once you share a file, the app you share it with is responsible for it.</p>
 <h2>What we do not do</h2>
@@ -53,10 +53,11 @@
 <li>We do not collect your location, contacts, photos, microphone or camera.</li>
 </ul>
 <h2>Permissions</h2>
-<p>Trackly asks Android for: <strong>notifications</strong> (to show reminders), <strong>internet access</strong> (to send the usage statistics and error reports above), the ability to <strong>restart reminders after your phone restarts</strong>, and the standard permissions for notification sound and vibration.</p>
+<p>Trackly asks Android for: <strong>notifications</strong> (to show reminders), <strong>internet access</strong> (to send the usage statistics and error reports above, only if you allow them), the ability to <strong>restart reminders after your phone restarts</strong>, and the standard permissions for notification sound and vibration.</p>
 <h2>Your choices and rights</h2>
 <ul>
 <li>Your subscription data is on your phone, so you control it: edit, export or delete it in the app at any time.</li>
+<li>The first time you open Trackly it asks whether to share usage statistics and error reports. Saying no costs nothing and the app works the same. You can change either choice at any time in <strong>Settings &gt; Privacy</strong>.</li>
 <li>You can refuse notification permission, or turn it off in your phone's settings.</li>
 <li>We cannot look up usage or crash data by your name, because we do not know who you are. Uninstalling Trackly resets the random installation identifier.</li>
 <li>Depending on where you live, you may have rights over personal information, such as access, correction, deletion and objection. To ask about anything in this policy, or to ask us to delete data we may hold, write to <strong>info@corecrest.tech</strong>.</li>
@@ -68,7 +69,8 @@
 <h2>Changes to this policy</h2>
 <p>If we change what Trackly collects, we will update this page and its date, and in the app where the change matters.</p>
 <h2>Contact</h2>
-<p>CoreCrest Email: <strong>info@corecrest.tech</strong></p>
+<p>CoreCrest<br>
+Email: <strong>info@corecrest.tech</strong></p>
 </main>
 </body>
 </html>

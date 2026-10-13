@@ -8,8 +8,8 @@ Notes for completing the Play Console forms for Trackly. **Verify every answer a
 | --- | --- |
 | Account | None. No sign-in. |
 | User-entered data | Subscriptions, bills, payments, notes and settings stay in a database on the phone. Never sent to a server. |
-| Usage analytics | Firebase Analytics (Google). Events with item type, frequency, currency code, trial flag, theme, counts. No names, amounts, notes or search text. Random per-install identifier; approximate region from network. |
-| Crash reports | Sentry. Technical error details, app version, device model, OS version, language. `sendDefaultPii = false` (no IP, name or email). Database error text is scrubbed of the values being written (`lib/core/error/error_scrubber.dart`). |
+| Usage analytics | Firebase Analytics (Google), **only if the person agrees** (first-run screen, or Settings > Privacy). Events with item type, frequency, currency code, trial flag, theme, counts. No names, amounts, notes or search text. Random per-install identifier; approximate region from network. Retention 14 months. |
+| Crash reports | Sentry, **only if the person agrees**; Sentry is not started otherwise. Technical error details, app version, device model, OS version, language. `sendDefaultPii = false` (no IP, name or email). Database error text is scrubbed of the values being written (`lib/core/error/error_scrubber.dart`). Retention 90 days. |
 | Advertising | None. The advertising ID permissions are removed from the manifest, ad ID collection and ad personalization are disabled for Analytics, and the build fails if the APK requests them (`tool/apk_lacks_permission.sh`). |
 | Permissions | Notifications, internet, restart reminders after boot, vibration. |
 | Export | The user creates CSV files and shares them wherever they choose. |
@@ -36,7 +36,7 @@ Google's own guide for what to declare for Firebase is the reference: <https://f
 | Financial info | **Not collected** | Subscription amounts never leave the phone. The only financial-adjacent value sent is a currency code. |
 | Personal info, contacts, photos, files, messages, audio, health | **Not collected** | |
 | Shared with third parties? | **No**, if Google and Sentry are declared as service providers acting on our behalf | Play exempts transfers to service providers. Confirm against the current definition. |
-| Collected data optional? | Analytics and crash reports cannot currently be switched off in the app | See "Open point" below. |
+| Is data collection optional for users? | **Yes**: asked on first launch (nothing is sent before the answer), changeable at any time in Settings > Privacy | See `lib/features/privacy/` and technical doc section 96. |
 
 ## Other forms
 
@@ -45,7 +45,3 @@ Google's own guide for what to declare for Firebase is the reference: <https://f
 - **Content rating, target audience:** target adults; not designed for children.
 - **Financial features declaration:** Trackly tracks the user's own subscriptions. It does not process payments, give loans or advice. Answer accordingly.
 - **Account deletion:** not applicable, there are no accounts.
-
-## Open point: an in-app switch for analytics and crash reports
-
-Today they are always on in the Play build, and the privacy policy says so. For users in the EU and similar regions, regulators generally expect a choice before analytics runs. The robust fix is a **Settings switch** ("Share anonymous usage data and error reports") that turns off Firebase collection and Sentry sending, defaulting to the choice you decide with legal advice. That is a small, separate change; the policy and this form would then say the data is optional.

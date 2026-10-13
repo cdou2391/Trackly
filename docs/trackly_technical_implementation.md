@@ -3080,12 +3080,12 @@ Opened from the Home gear and from **More > Settings** (`/settings`, a sub-page 
 | **For new subscriptions** | Default **currency**, and default **reminder** timing (Same day / 1 / 3 / 7 days before, and the time of day). Used by Quick Add and by the add form for a new item. Existing items are never changed. The default currency is also the one empty totals show on Home, Calendar and Insights. |
 | **Appearance** | **System / Light / Dark**. Light until the user chooses (§87). Applies at once. |
 | **Notifications** | Shows whether the phone lets Trackly notify. **Turn on** asks for the permission (and schedules the reminders if granted). If the user refuses, the screen says to allow it in the phone's settings; Android will not ask again. The status refreshes when the user returns from the phone's settings. States that a reminder can arrive a few minutes late (Android delays inexact alarms). |
-| **Your data** | **Clear payment history** (payments and skips; subscriptions and their next dates stay) and **Delete all data** (every item, its history, every scheduled reminder and every setting). Both ask for confirmation, with the consequence in the text, and cannot be undone. |
+| **Your data** | **Export data (CSV)** (see §94), **Clear payment history** (payments and skips; subscriptions and their next dates stay) and **Delete all data** (every item, its history, every scheduled reminder and every setting). Both ask for confirmation, with the consequence in the text, and cannot be undone. |
 
 ## Storage
 
 - Choices are kept in `shared_preferences` behind `SettingsStore` (keys `default_currency`, `theme_mode`, `default_reminder_days`, `default_reminder_minute`). A missing or unusable value reads as "not chosen" and the default applies. A write that fails is reported through the error reporter and does not break the screen: the choice is already applied in memory.
-- Settings are not in the database, so they are not part of any export of subscription data.
+- Settings are not in the database, so they are not part of the CSV export.
 - **Delete all data** removes items and payments in one transaction, clears the settings, then cancels all notifications. If cancelling fails the data is still gone, the failure is reported, and the next launch reconciles reminders anyway.
 - It does not delete data held outside the phone (there is none in v1: the app is local-first with no account) or Android's own record of the permission.
 
@@ -3095,7 +3095,7 @@ Opened from the Home gear and from **More > Settings** (`/settings`, a sub-page 
 
 ## Not done
 
-Language choice (English only), a "Reminders off" master switch (turn them off per item), export, and a lock screen. Planned: CSV export and Categories under More.
+Language choice (English only), a "Reminders off" master switch (turn them off per item), and a lock screen. Planned: Categories under More.
 
 # 93. Search (as built)
 
@@ -3108,6 +3108,38 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 - Analytics: `search_opened` and `search_result_opened`, with no parameters. The query text is never logged (see the analytics rule on user text).
 - **Not done:** matching on amount or currency, search history, filters inside search, and fuzzy matching of typos.
 
+# 94. CSV export (as built)
+
+**Settings > Your data > Export data (CSV)** opens the Android share sheet with two files, so the user can save them to Drive, email them to themselves or open them in Excel or Sheets. It is the user's way to take their data out of a phone-only app and to keep a backup they can read.
+
+| File | Contents |
+| --- | --- |
+| `trackly-subscriptions-YYYY-MM-DD.csv` | One row per subscription, bill or trial: `name, type, status, amount, currency, frequency, every, start_date, next_due_date, free_trial, trial_end_date, reminders, reminder_days_before, reminder_time, category, notes, added_on`. Soonest due first. |
+| `trackly-payments-YYYY-MM-DD.csv` | One row per recorded payment or skip: `subscription, due_date, paid_date, status, amount, currency`. Oldest first, named by subscription. |
+
+## Format
+
+- UTF-8 with a byte order mark (so Excel shows accents and non-Latin names correctly), comma separated, CRLF line ends, fields quoted per RFC 4180 when they hold a comma, quote or line break.
+- Dates are `YYYY-MM-DD` and the reminder time is `HH:MM` (24 hour), so they sort and parse the same in every language. Amounts are plain numbers with a point and two decimals (`15.50`); the currency is a separate column and nothing is converted.
+- `frequency` is `weekly`, `monthly`, `quarterly`, `semi_annual`, `yearly` or `custom_days`; `every` is the repeat count (for `custom_days`, the number of days). `status` is `active`, `paused` or `cancelled`; a trial is an active item with `free_trial = yes` and a `trial_end_date`.
+- The column names are a contract: a change to them is a format change, so add columns at the end and say so here.
+
+## Safety
+
+- **Spreadsheet formulas:** text the user typed (name, category, notes) that starts with `=`, `+`, `-`, `@`, a tab or a carriage return would run as a formula when the file is opened, so it is written with a leading apostrophe, which spreadsheets show as plain text. Numbers and dates are never altered.
+- The export contains the user's complete financial list in plain text. Trackly builds the files in memory and hands them to the share sheet (`share_plus`); it writes no file of its own, and share_plus keeps the temporary copy the receiving app needs in the app's private cache. Android clears that cache when space is needed, and "Clear data" or uninstall removes it. Anything the user sends the file to is theirs to protect.
+- Nothing is sent by the app itself: the user picks where the file goes.
+
+## Behavior
+
+- With nothing added yet it says so ("Nothing to export yet") and does not open the share sheet. If the share sheet cannot open it says "Couldn't export your data".
+- Exporting changes no data and needs no confirmation.
+- Analytics: `data_exported`, with no parameters (no counts or text).
+
+## Not done
+
+Import from CSV (restoring a backup), exporting a single subscription, choosing columns or a date range, an Excel (`.xlsx`) file, and a scheduled automatic backup.
+
 # 95. Privacy policy, About and data hygiene (as built)
 
 ## In the app
@@ -3119,7 +3151,7 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 
 ## The policy and Play forms
 
-- The policy text is in `docs/privacy/trackly-privacy-policy.md` with a ready-to-upload `.html` copy. Two retention figures are bracketed (`[14 months]` for Firebase, `[90 days]` for Sentry) and must be confirmed against the real project settings before publishing; the date is the date of writing.
+- The policy text is in `docs/privacy/trackly-privacy-policy.md` with a ready-to-upload `.html` copy. Retention is stated as 14 months (Firebase) and 90 days (Sentry), confirmed by the owner; if the project settings change, change the policy with them. The date is the date of writing. `tool/build_policy_html.py` rebuilds the HTML copy from the Markdown.
 - `docs/play_data_safety.md` lists the facts the answers rest on and suggested Data safety answers. They are suggestions to verify against Google's current forms.
 - The policy must stay true to the code. When analytics events, Sentry settings, permissions or the export change, review the policy in the same change.
 
@@ -3131,5 +3163,37 @@ Language choice (English only), a "Reminders off" master switch (turn them off p
 
 ## Not done
 
-- **An in-app switch to turn analytics and crash reports off.** They are always on in a build that has them configured. Recommended before distribution in regions that expect consent; the policy and Data safety answers would then say the data is optional.
 - **Categories** management (view, add, rename) under More.
+
+# 96. Privacy choice (as built)
+
+Usage statistics (Firebase Analytics) and error reports (Sentry) are **opt-in**: nothing is collected or sent until the person says yes.
+
+## First launch
+
+- Before the app is shown, a **"Help improve Trackly"** screen explains what Trackly never sends (subscriptions, payments, notes stay on the phone), what it can send if allowed (usage statistics; error reports), and links to the privacy policy. Two equal buttons: **Share anonymous data** and **Don't share** (same size and style; saying no costs one tap and the app works the same).
+- The screen is a gate in `TracklyApp`'s builder, shown until both choices are recorded. Someone who updates from a build without this screen is asked on their first launch of the new version. It is never shown again once answered.
+
+## Settings > Privacy
+
+Two switches, **Usage statistics** and **Error reports**, changeable at any time. A change in Settings settles the other answer as "no" if it was never given, so the first-run screen cannot return.
+
+## What each choice does
+
+| | Off (or not yet asked) | On |
+| --- | --- | --- |
+| **Usage statistics** | The manifest sets `firebase_analytics_collection_enabled=false`, so Firebase collects nothing at launch. `FirebaseAnalyticsService` also drops events in Dart. Switching off after being on calls `resetAnalyticsData()`, which forgets the installation identifier. | `setAnalyticsCollectionEnabled(true)` at once. |
+| **Error reports** | Sentry is **not started** (`io.sentry.auto-init=false` in the manifest; no `SentryFlutter.init` at launch), so not even its native crash handler runs. Turning it off in a session calls `Sentry.close()`. | Started at launch if previously allowed, or at once when switched on (`SentryErrorReporter.setEnabled`). |
+
+The choices are stored in `shared_preferences` (`privacy_usage_stats`, `privacy_error_reports`; null means not asked). **Delete all data does not clear them**: someone who said no must not become "undecided" and be asked again, or have analytics resume.
+
+## Rules
+
+- A new service that sends anything off the phone needs its own choice (or an existing one) and must be off until it is given. The policy and `docs/play_data_safety.md` change in the same commit.
+- The first-run screen's text, the Settings text, the policy and the Play answers must say the same thing.
+
+## Not done
+
+- A "reset my choice" action (the switches cover changing it), and region-specific behavior: the same opt-in applies everywhere.
+- Consent for the optional CSV export is not needed: the person shares the files themselves.
+

@@ -45,6 +45,7 @@ abstract final class AnalyticsEvents {
       'notification_permission_granted';
   static const notificationPermissionDenied = 'notification_permission_denied';
 
+  static const dataExported = 'data_exported';
   static const currencyChanged = 'currency_changed';
   static const themeChanged = 'theme_changed';
 }

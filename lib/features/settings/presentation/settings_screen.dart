@@ -16,6 +16,8 @@ import '../../../shared/widgets/picker_field.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/snack.dart';
 import '../../../shared/widgets/sub_page_header.dart';
+import '../../export/application/data_export.dart';
+import '../../home/application/home_providers.dart';
 import '../../subscriptions/presentation/labels.dart';
 import '../../privacy/application/privacy_choices.dart';
 import '../application/data_reset.dart';
@@ -372,6 +374,13 @@ class _DataSection extends ConsumerWidget {
     return Column(
       children: [
         _DataAction(
+          icon: Icons.ios_share_rounded,
+          label: l10n.settingsExport,
+          hint: l10n.settingsExportHint,
+          onTap: () => _export(context, ref),
+        ),
+        const Divider(height: TracklySpacing.lg),
+        _DataAction(
           icon: Icons.history_toggle_off_rounded,
           label: l10n.settingsClearHistory,
           hint: l10n.settingsClearHistoryHint,
@@ -403,6 +412,27 @@ class _DataSection extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// Shares every subscription and payment as CSV files. Nothing is deleted,
+  /// so there is no confirmation; the share sheet is the last step.
+  Future<void> _export(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final exporter = ref.read(dataExporterProvider);
+    final analytics = ref.read(analyticsProvider);
+    final now = ref.read(nowProvider)();
+
+    try {
+      final shared = await exporter.run(now: now, title: l10n.exportShareTitle);
+      if (shared) {
+        unawaited(analytics.logEvent(AnalyticsEvents.dataExported));
+      } else {
+        messenger.showReplacing(SnackBar(content: Text(l10n.exportNothing)));
+      }
+    } catch (_) {
+      messenger.showReplacing(SnackBar(content: Text(l10n.exportFailed)));
+    }
   }
 
   Future<void> _run(
