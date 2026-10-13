@@ -1209,6 +1209,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 result} other{{count} results}}'**
   String searchResultCount(int count);
+
+  /// No description provided for @settingsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data (CSV)'**
+  String get settingsExport;
+
+  /// No description provided for @settingsExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions and payment history, for Excel or Sheets'**
+  String get settingsExportHint;
+
+  /// No description provided for @exportShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackly export'**
+  String get exportShareTitle;
+
+  /// No description provided for @exportNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to export yet. Add a subscription first.'**
+  String get exportNothing;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t export your data. Try again.'**
+  String get exportFailed;
 }
 
 class _AppLocalizationsDelegate

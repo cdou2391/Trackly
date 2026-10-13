@@ -16,6 +16,12 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
     )..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).watch();
   }
 
+  Future<List<Category>> getAll() {
+    return (select(
+      categories,
+    )..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).get();
+  }
+
   Future<Category?> getById(String id) {
     return (select(
       categories,

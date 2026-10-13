@@ -36,13 +36,16 @@ class PaymentsDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Every payment and skip across all items, newest due date first.
-  Stream<List<Payment>> watchAll() {
-    final query = select(payments)
-      ..orderBy([
-        (t) => OrderingTerm.desc(t.dueDate),
-        (t) => OrderingTerm.desc(t.createdAt),
-      ]);
-    return query.watch();
+  Stream<List<Payment>> watchAll() => _allQuery().watch();
+
+  /// The same list, read once.
+  Future<List<Payment>> getAll() => _allQuery().get();
+
+  SimpleSelectStatement<$PaymentsTable, Payment> _allQuery() {
+    return select(payments)..orderBy([
+      (t) => OrderingTerm.desc(t.dueDate),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ]);
   }
 
   Future<int> deletePayment(String id) {
