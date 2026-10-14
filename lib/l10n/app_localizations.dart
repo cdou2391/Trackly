@@ -496,11 +496,17 @@ abstract class AppLocalizations {
   /// **'Remind me at'**
   String get addRemindAt;
 
-  /// No description provided for @reminderAndOnDay.
+  /// No description provided for @reminderOnTheDay.
   ///
   /// In en, this message translates to:
-  /// **'{reminder}, and on the day at {time}'**
-  String reminderAndOnDay(String reminder, String time);
+  /// **'On the day'**
+  String get reminderOnTheDay;
+
+  /// No description provided for @reminderNumbered.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder {number}'**
+  String reminderNumbered(int number);
 
   /// No description provided for @reminderWhenAt.
   ///

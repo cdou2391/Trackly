@@ -54,11 +54,10 @@ void main() {
       expect(find.text(r'$15.49  Monthly', findRichText: true), findsOneWidget);
       expect(find.text('Next charge'), findsOneWidget);
       expect(find.text('Oct 15, 2026'), findsOneWidget);
-      expect(find.text('Reminder'), findsOneWidget);
-      expect(
-        find.text('3 days before at 9:00 AM, and on the day at 9:00 AM'),
-        findsOneWidget,
-      );
+      expect(find.text('Reminder 1'), findsOneWidget);
+      expect(find.text('3 days before at 9:00 AM'), findsOneWidget);
+      expect(find.text('Reminder 2'), findsOneWidget);
+      expect(find.text('On the day at 9:00 AM'), findsOneWidget);
       expect(find.text('Subscription'), findsOneWidget);
       expect(find.text('Mark as paid'), findsOneWidget);
       expect(find.text('Skip this charge'), findsOneWidget);
@@ -84,10 +83,43 @@ void main() {
       await tester.tap(find.text('Netflix'));
       await settle(tester);
 
-      expect(
-        find.text('3 days before at 6:30 PM, and on the day at 9:00 AM'),
-        findsOneWidget,
+      // The early reminder keeps the chosen time, the day itself is at 9:00.
+      expect(find.text('3 days before at 6:30 PM'), findsOneWidget);
+      expect(find.text('On the day at 9:00 AM'), findsOneWidget);
+    });
+
+    tracklyTest('same day is one reminder, off is none', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: _size,
+        items: [
+          testItem(
+            'Netflix',
+            due: DateTime(2026, 10, 15),
+            reminderDaysBefore: 0,
+            reminderMinuteOfDay: 18 * 60 + 30,
+          ),
+          testItem(
+            'Spotify',
+            due: DateTime(2026, 10, 16),
+            remindersEnabled: false,
+          ),
+        ],
       );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+      expect(find.text('Reminder'), findsOneWidget);
+      expect(find.text('Same day at 6:30 PM'), findsOneWidget);
+      expect(find.text('Reminder 1'), findsNothing);
+      expect(find.text('On the day at 9:00 AM'), findsNothing);
+
+      await tester.tap(find.byTooltip('Back'));
+      await settle(tester);
+      await tester.tap(find.text('Spotify'));
+      await settle(tester);
+      expect(find.text('Reminder'), findsOneWidget);
+      expect(find.text('Off'), findsOneWidget);
+      expect(find.text('Reminder 1'), findsNothing);
     });
 
     tracklyTest('back returns to Home', (tester) async {
@@ -398,10 +430,7 @@ void main() {
       );
       await settle(tester);
 
-      expect(
-        find.text('3 days before at 7:15 AM, and on the day at 9:00 AM'),
-        findsOneWidget,
-      );
+      expect(find.text('3 days before at 7:15 AM'), findsOneWidget);
       final stored = (await tester.runAsync(
         () => db.recurringItemsDao.getById('Netflix'),
       ))!;

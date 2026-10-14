@@ -3298,6 +3298,6 @@ Every active item with reminders on gets a reminder on the day it is due, at **0
 
 - Before this, the due-day reminder followed the item's time, so an item set to 6:30 PM was only reminded in the evening. `planReminders` now uses `defaultReminderMinuteOfDay` (09:00) for the due-day reminder whenever the chosen reminder is on an earlier day.
 - Notification ids do not depend on the time, so the existing reconciliation (§ReminderSync) moves already-scheduled due-day reminders of existing items from their old time to 09:00 on the next launch. No migration, no new notification type, no new permission. Reminders whose time has passed are still left out.
-- The item screen shows both, for example "3 days before at 6:30 PM, and on the day at 9:00 AM". "Same day" and "Off" read as before.
+- The item screen shows them as two rows, **Reminder 1** "3 days before at 6:30 PM" and **Reminder 2** "On the day at 9:00 AM". "Same day" and "Off" are a single **Reminder** row, as before.
 - Not changed: paused, cancelled and overdue items have no reminders; free trials say "trial ends in N days" for the early one and "due today" for the day itself.
 - Not done: making the due-day reminder independent of the Reminders switch. If wanted, the switch would need to be renamed to control only the early reminder.
