@@ -496,6 +496,12 @@ abstract class AppLocalizations {
   /// **'Remind me at'**
   String get addRemindAt;
 
+  /// No description provided for @suggestionBillTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get suggestionBillTag;
+
   /// No description provided for @reminderOnTheDay.
   ///
   /// In en, this message translates to:

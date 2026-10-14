@@ -164,7 +164,7 @@ void main() {
       expect(clip.borderRadius, BorderRadius.circular(44 * 0.3));
     });
 
-    tracklyTest('logo, letter and category icons all share one corner radius', (
+    tracklyTest('logo, mark and category icons all share one corner radius', (
       tester,
     ) async {
       await pumpTrackly(
@@ -206,7 +206,7 @@ void main() {
           )
           .borderRadius;
 
-      expect(tileRadius('Hulu'), logoRadius); // letter tile
+      expect(tileRadius('Hulu'), logoRadius); // Trackly mark tile
       expect(tileRadius('Gym'), logoRadius); // category icon
     });
 
@@ -289,10 +289,32 @@ void main() {
       }
     });
 
-    tracklyTest('a catalog service without a logo shows its letter', (
+    tracklyTest('a catalog service without a logo shows the Trackly mark', (
       tester,
     ) async {
       await pumpTrackly(tester, items: [testItem('Hulu', logoKey: 'hulu')]);
+      final svg = tester.widget<SvgPicture>(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+      );
+      expect(
+        (svg.bytesLoader as SvgAssetLoader).assetName,
+        'assets/illustrations/trackly_logo.svg',
+      );
+      // Drawn in one muted color, not the full-color artwork.
+      expect(svg.colorFilter, isNotNull);
+      expect(
+        find.descendant(of: find.byType(ServiceIcon), matching: find.text('H')),
+        findsNothing,
+      );
+    });
+
+    tracklyTest('a generic bill shows its category icon, not the mark', (
+      tester,
+    ) async {
+      await pumpTrackly(tester, items: [testItem('Rent', logoKey: 'rent')]);
       expect(
         find.descendant(
           of: find.byType(ServiceIcon),
@@ -300,14 +322,17 @@ void main() {
         ),
         findsNothing,
       );
-      expect(
-        find.descendant(of: find.byType(ServiceIcon), matching: find.text('H')),
-        findsOneWidget,
+      final icon = tester.widget<Icon>(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(Icon),
+        ),
       );
+      expect(icon.icon, categoryIconData('housing'));
     });
 
     tracklyTest('a custom item keeps its category icon', (tester) async {
-      await pumpTrackly(tester, items: [testItem('Gym membership')]);
+      await pumpTrackly(tester, items: [testItem('Pottery class')]);
       expect(
         find.descendant(
           of: find.byType(ServiceIcon),

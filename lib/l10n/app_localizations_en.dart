@@ -236,6 +236,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addRemindAt => 'Remind me at';
 
   @override
+  String get suggestionBillTag => 'Bill';
+
+  @override
   String get reminderOnTheDay => 'On the day';
 
   @override

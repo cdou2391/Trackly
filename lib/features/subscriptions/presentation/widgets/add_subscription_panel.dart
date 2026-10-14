@@ -12,6 +12,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../../shared/widgets/snack.dart';
 import '../../../../shared/widgets/form_metrics.dart';
 import '../../../../shared/widgets/picker_field.dart';
+import '../../../../shared/widgets/service_suggestions.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../settings/application/settings_providers.dart';
 import '../../../settings/application/settings_store.dart';
@@ -153,6 +154,8 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
         offset: service.name.length,
       );
       _categoryId ??= service.categoryId;
+      // "Rent" is a bill, "Netflix" a subscription.
+      _type = service.type;
     });
   }
 
@@ -434,14 +437,10 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
                         prefixIcon: const Icon(Icons.search_rounded),
                       ),
                     ),
-                    for (final service in suggestions)
-                      ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        minTileHeight: 48,
-                        title: Text(service.name),
-                        onTap: () => _selectService(service),
-                      ),
+                    ServiceSuggestions(
+                      services: suggestions,
+                      onSelected: _selectService,
+                    ),
                     const SizedBox(height: TracklySpacing.sm),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

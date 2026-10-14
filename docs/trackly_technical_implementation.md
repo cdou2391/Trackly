@@ -3301,3 +3301,39 @@ Every active item with reminders on gets a reminder on the day it is due, at **0
 - The item screen shows them as two rows, **Reminder 1** "3 days before at 6:30 PM" and **Reminder 2** "On the day at 9:00 AM". "Same day" and "Off" are a single **Reminder** row, as before.
 - Not changed: paused, cancelled and overdue items have no reminders; free trials say "trial ends in N days" for the early one and "due today" for the day itself.
 - Not done: making the due-day reminder independent of the Reminders switch. If wanted, the switch would need to be renamed to control only the early reminder.
+
+---
+
+# 100. Bigger service list and bills (as built)
+
+Quick Add and the add form suggest services from `serviceCatalog` (code, `service_catalog.dart`), not from the database. The list grew from 18 to 113 entries:
+
+| Group | Added | Examples |
+| --- | --- | --- |
+| Subscriptions | 64 | Peacock, Crunchyroll, Xbox Game Pass, DStv, Canal+, Claude Pro, GitHub, NordVPN, Duolingo, Coursera, Calm, Strava, Shopify, Uber One |
+| Bills | 31 | Rent, Mortgage, Electricity, Water, Gas, Internet, Mobile phone, Health/Car/Home insurance, School fees, Tuition, Childcare, Student loan, Credit card |
+
+- `CatalogService` gained `type` (subscription by default, bill for the new generic entries). Bills sit in the seeded categories people would look in (Electricity and Water in Utilities, Rent and Mortgage in Housing, insurance in Insurance, tuition in Education). No schema change and no new categories.
+- Picking a suggestion in the add form sets the Subscription/Bill switch to the service's type. In Quick Add, a bill suggestion is saved as a bill, whether tapped or typed in full ("water"). A custom name stays a subscription.
+- New entries have no logo (letter tile), like Hulu and Dropbox: bills are generic, and brand logos need a license check (`assets/logos/LICENSES.md`). Adding one later is a file plus a `logoAsset`.
+- Keys are permanent identifiers stored in `logo_key`. The catalog test checks that keys and names are unique, categories exist, bills carry no logo and brands stay subscriptions.
+- Existing items whose name matches a new entry exactly (ignoring case) get its key and, if they had none, its category on the next launch, through the existing catalog backfill. Their type is never changed.
+- Not done: aliases (searching "electric" works because search matches part of a name, but "power" does not find Electricity), regional providers (MTN, Airtel, WASAC, EUCL and the like), logos for the new entries, and a "recently used" list.
+
+---
+
+# 101. Suggestion list and default icon (as built)
+
+The matches shown under the name field in Quick Add and the add form were plain text. Each is now a row in a rounded card (`shared/widgets/service_suggestions.dart`, used by both places):
+
+| Part | What it shows |
+| --- | --- |
+| Icon (36 dp) | The service's logo, or the Trackly mark when there is none, or the category icon for a generic bill |
+| Title | The service name |
+| Subtitle | Its category (Entertainment, Utilities, Housing...) |
+| Tag | **Bill** on bills, nothing on subscriptions |
+
+- Rows are `ListTile`s, 56 dp tall, so the tap target and screen-reader behaviour are the standard ones.
+- **Default icon.** `ServiceIcon` (§ service icons) used a letter tile for a catalog service without a logo. It now draws the Trackly mark (`assets/illustrations/trackly_logo.svg`) in one muted color on the same tile, so it works in both themes and every icon in a list still shares one shape. This applies everywhere `ServiceIcon` is used (Home rows, lists, item screen), not only in suggestions.
+- **Generic bills** (Rent, Water, Electricity...) keep the **category icon** (home, bolt...) instead of the mark: it says more than a brand stand-in. A custom item that is not in the catalog keeps its category icon as before.
+- Not done: a bundled one-color "T" glyph drawn for small sizes (the mark is the full logo silhouette, so its detail is lost below about 28 dp), and logos for the 95 new entries.

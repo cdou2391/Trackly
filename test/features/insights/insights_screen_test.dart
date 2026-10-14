@@ -93,7 +93,7 @@ void main() {
     await pumpTrackly(
       tester,
       size: _tall,
-      items: [testItem('Rent', amount: 500)],
+      items: [testItem('Pottery class', amount: 500)],
     );
     await _openInsights(tester);
 
