@@ -3319,3 +3319,21 @@ Quick Add and the add form suggest services from `serviceCatalog` (code, `servic
 - Keys are permanent identifiers stored in `logo_key`. The catalog test checks that keys and names are unique, categories exist, bills carry no logo and brands stay subscriptions.
 - Existing items whose name matches a new entry exactly (ignoring case) get its key and, if they had none, its category on the next launch, through the existing catalog backfill. Their type is never changed.
 - Not done: aliases (searching "electric" works because search matches part of a name, but "power" does not find Electricity), regional providers (MTN, Airtel, WASAC, EUCL and the like), logos for the new entries, and a "recently used" list.
+
+---
+
+# 101. Suggestion list and default icon (as built)
+
+The matches shown under the name field in Quick Add and the add form were plain text. Each is now a row in a rounded card (`shared/widgets/service_suggestions.dart`, used by both places):
+
+| Part | What it shows |
+| --- | --- |
+| Icon (36 dp) | The service's logo, or the Trackly mark when there is none, or the category icon for a generic bill |
+| Title | The service name |
+| Subtitle | Its category (Entertainment, Utilities, Housing...) |
+| Tag | **Bill** on bills, nothing on subscriptions |
+
+- Rows are `ListTile`s, 56 dp tall, so the tap target and screen-reader behaviour are the standard ones.
+- **Default icon.** `ServiceIcon` (§ service icons) used a letter tile for a catalog service without a logo. It now draws the Trackly mark (`assets/illustrations/trackly_logo.svg`) in one muted color on the same tile, so it works in both themes and every icon in a list still shares one shape. This applies everywhere `ServiceIcon` is used (Home rows, lists, item screen), not only in suggestions.
+- **Generic bills** (Rent, Water, Electricity...) keep the **category icon** (home, bolt...) instead of the mark: it says more than a brand stand-in. A custom item that is not in the catalog keeps its category icon as before.
+- Not done: a bundled one-color "T" glyph drawn for small sizes (the mark is the full logo silhouette, so its detail is lost below about 28 dp), and logos for the 95 new entries.

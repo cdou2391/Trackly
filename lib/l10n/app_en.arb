@@ -90,6 +90,7 @@
   "addRemindMe": "Remind me",
   "reminderSameDay": "Same day",
   "addRemindAt": "Remind me at",
+  "suggestionBillTag": "Bill",
   "reminderOnTheDay": "On the day",
   "reminderNumbered": "Reminder {number}",
   "@reminderNumbered": { "placeholders": { "number": { "type": "int" } } },

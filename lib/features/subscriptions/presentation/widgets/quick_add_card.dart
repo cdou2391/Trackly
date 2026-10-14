@@ -13,6 +13,7 @@ import '../../../../core/utils/format_utils.dart';
 import '../../../../core/utils/recurrence_utils.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../shared/widgets/quick_add_fields.dart';
+import '../../../../shared/widgets/service_suggestions.dart';
 import '../../../home/application/home_providers.dart';
 import '../../../home/widgets/curves.dart';
 import '../../../settings/application/settings_providers.dart';
@@ -321,14 +322,7 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard>
         const SizedBox(height: TracklySpacing.base),
         // Row 1: the service search, full width.
         nameField,
-        for (final service in suggestions)
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            minTileHeight: 48,
-            title: Text(service.name),
-            onTap: () => _selectService(service),
-          ),
+        ServiceSuggestions(services: suggestions, onSelected: _selectService),
         const SizedBox(height: TracklySpacing.sm),
         // Row 2: amount, frequency, start date and Save.
         LayoutBuilder(
