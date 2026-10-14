@@ -3306,7 +3306,7 @@ Every active item with reminders on gets a reminder on the day it is due, at **0
 
 # 100. Bigger service list and bills (as built)
 
-Quick Add and the add form suggest services from `serviceCatalog` (code, `service_catalog.dart`), not from the database. The list grew from 26 to 121 entries:
+Quick Add and the add form suggest services from `serviceCatalog` (code, `service_catalog.dart`), not from the database. The list grew from 18 to 113 entries:
 
 | Group | Added | Examples |
 | --- | --- | --- |
