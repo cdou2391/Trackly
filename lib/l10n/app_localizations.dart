@@ -991,7 +991,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightsChargesAhead.
   ///
   /// In en, this message translates to:
-  /// **'Charges ahead'**
+  /// **'Upcoming'**
   String get insightsChargesAhead;
 
   /// No description provided for @insightsChargesAheadSemantics.
