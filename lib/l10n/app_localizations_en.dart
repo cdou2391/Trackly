@@ -545,7 +545,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsPerYear => 'Per year';
 
   @override
-  String get insightsChargesAhead => 'Charges ahead';
+  String get insightsChargesAhead => 'Upcoming';
 
   @override
   String insightsChargesAheadSemantics(int count) {

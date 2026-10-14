@@ -5,8 +5,9 @@ import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/theme/trackly_type.dart';
 import '../../../l10n/l10n.dart';
 
-/// One of the Active / Trial / Cancelled cards: a tinted icon circle, the
-/// count, the label and a chevron.
+/// One of the Active / Trial / Cancelled cards on Home, and the count cards on
+/// Insights: a tinted icon circle, the count, the label and, when the card can
+/// be tapped, a chevron.
 ///
 /// With room (about 118 dp and up, normal text size) the icon sits beside the
 /// count; otherwise it stacks above it so the label never gets squeezed.
@@ -17,6 +18,8 @@ class SummaryCard extends StatelessWidget {
     required this.count,
     required this.label,
     this.onTap,
+    this.showChevron = true,
+    this.semanticsLabel,
     super.key,
   });
 
@@ -26,9 +29,19 @@ class SummaryCard extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
+  /// The small arrow that says the card opens something. Off for cards that
+  /// only inform.
+  final bool showChevron;
+
+  /// Read by screen readers instead of "label, count".
+  final String? semanticsLabel;
+
   /// Card width needed for the icon, "Cancelled", and the chevron side by side.
   static const _sideBySideWidth = 118.0;
   static const _padding = EdgeInsets.symmetric(horizontal: 10, vertical: 12);
+
+  /// Room the chevron takes beside the text.
+  static const _chevronWidth = 16.0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +68,8 @@ class SummaryCard extends StatelessWidget {
     );
 
     return Semantics(
-      label: context.l10n.statusCount(label, count),
+      container: true,
+      label: semanticsLabel ?? context.l10n.statusCount(label, count),
       button: onTap != null,
       onTap: onTap,
       excludeSemantics: true,
@@ -74,10 +88,12 @@ class SummaryCard extends StatelessWidget {
               builder: (context, constraints) {
                 final textScale =
                     MediaQuery.textScalerOf(context).scale(13) / 13;
+                final needed =
+                    _sideBySideWidth -
+                    _padding.horizontal -
+                    (showChevron ? 0 : _chevronWidth);
                 final fits =
-                    constraints.maxWidth >=
-                        _sideBySideWidth - _padding.horizontal &&
-                    textScale <= 1.15;
+                    constraints.maxWidth >= needed && textScale <= 1.15;
                 if (fits) {
                   return Row(
                     children: [
@@ -97,7 +113,7 @@ class SummaryCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      chevron,
+                      if (showChevron) chevron,
                     ],
                   );
                 }
@@ -109,7 +125,7 @@ class SummaryCard extends StatelessWidget {
                       children: [
                         _IconCircle(icon: icon, tone: tone, size: 36),
                         const Spacer(),
-                        chevron,
+                        if (showChevron) chevron,
                       ],
                     ),
                     const SizedBox(height: TracklySpacing.sm),

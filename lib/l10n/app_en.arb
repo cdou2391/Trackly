@@ -209,7 +209,7 @@
 
   "insightsPerMonth": "Per month",
   "insightsPerYear": "Per year",
-  "insightsChargesAhead": "Charges ahead",
+  "insightsChargesAhead": "Upcoming",
   "insightsChargesAheadSemantics": "{count, plural, =1{1 charge} other{{count} charges}} in the next month",
   "@insightsChargesAheadSemantics": { "placeholders": { "count": { "type": "int" } } },
   "insightsByCategory": "By category",

@@ -178,6 +178,31 @@ void main() {
     semantics.dispose();
   });
 
+  tracklyTest('the count cards put the figure beside the icon, like Home', (
+    tester,
+  ) async {
+    await pumpTrackly(
+      tester,
+      size: const Size(390, 1800),
+      items: [testItem('Netflix', due: DateTime(2026, 10, 12))],
+    );
+    await _openInsights(tester);
+
+    expect(find.text('Upcoming'), findsOneWidget);
+    expect(find.text('Charges ahead'), findsNothing);
+    for (final (icon, label) in [
+      (Icons.check_circle_outline_rounded, 'Active'),
+      (Icons.hourglass_bottom_rounded, 'Trial'),
+      (Icons.event_rounded, 'Upcoming'),
+    ]) {
+      final iconBox = tester.getRect(find.byIcon(icon));
+      final labelBox = tester.getRect(find.text(label));
+      expect(labelBox.left, greaterThan(iconBox.right), reason: label);
+    }
+    // No chevron: these cards do not open anything.
+    expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
+  });
+
   tracklyTest('opening Insights and Calendar is logged', (tester) async {
     final analytics = _RecordingAnalytics();
     await pumpTrackly(tester, size: _tall, analytics: analytics);

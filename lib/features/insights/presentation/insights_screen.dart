@@ -14,6 +14,7 @@ import '../../../shared/widgets/currency_amounts.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/service_icon.dart';
+import '../../home/widgets/summary_card.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../subscriptions/domain/recurring_enums.dart';
 import '../application/insights_providers.dart';
@@ -240,6 +241,8 @@ class _TotalsCard extends ConsumerWidget {
   }
 }
 
+/// Active, Trial and Upcoming, laid out like the cards on Home: the icon
+/// beside the figure. They only inform, so there is no chevron.
 class _Counts extends StatelessWidget {
   const _Counts({required this.summary});
 
@@ -250,102 +253,41 @@ class _Counts extends StatelessWidget {
     final l10n = context.l10n;
     final tokens = context.tokens;
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _CountCard(
+    return Row(
+      children: [
+        Expanded(
+          child: SummaryCard(
             icon: Icons.check_circle_outline_rounded,
             tone: tokens.summaryActive,
             count: summary.activeCount,
             label: l10n.statusActive,
+            showChevron: false,
           ),
-          const SizedBox(width: TracklySpacing.sm),
-          _CountCard(
+        ),
+        const SizedBox(width: TracklySpacing.sm),
+        Expanded(
+          child: SummaryCard(
             icon: Icons.hourglass_bottom_rounded,
             tone: tokens.summaryTrial,
             count: summary.trialCount,
             label: l10n.statusTrial,
+            showChevron: false,
           ),
-          const SizedBox(width: TracklySpacing.sm),
-          _CountCard(
+        ),
+        const SizedBox(width: TracklySpacing.sm),
+        Expanded(
+          child: SummaryCard(
             icon: Icons.event_rounded,
             tone: tokens.neutral,
             count: summary.upcomingCount,
             label: l10n.insightsChargesAhead,
+            showChevron: false,
             semanticsLabel: l10n.insightsChargesAheadSemantics(
               summary.upcomingCount,
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CountCard extends StatelessWidget {
-  const _CountCard({
-    required this.icon,
-    required this.tone,
-    required this.count,
-    required this.label,
-    this.semanticsLabel,
-  });
-
-  final IconData icon;
-  final ToneColors tone;
-  final int count;
-  final String label;
-  final String? semanticsLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Expanded(
-      child: Semantics(
-        container: true,
-        label: semanticsLabel ?? context.l10n.statusCount(label, count),
-        excludeSemantics: true,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: context.tokens.cardBorder),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: tone.bg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 18, color: tone.fg),
-                ),
-                const SizedBox(height: TracklySpacing.sm),
-                Text(
-                  '$count',
-                  style: sans(
-                    24,
-                    weight: 700,
-                    color: theme.colorScheme.onSurface,
-                    height: 1.1,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: sans(12.5, color: theme.colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
         ),
-      ),
+      ],
     );
   }
 }

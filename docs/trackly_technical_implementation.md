@@ -3040,8 +3040,8 @@ The purpose is to ship a polished, useful recurring-payment tracker, gather real
 ## Insights
 
 - Per-month and per-year cost per currency (the same figures as the Home hero).
-- Counts: **Active** (active and not in a trial; paused items are *not* counted here, unlike the Home Active card), **Trial**, and **Charges ahead**.
-- **Charges ahead** counts every charge from today to one calendar month ahead (the Home Upcoming window, inclusive at both ends), uncapped. It includes a weekly item's repeats, a trial's first charge and one overdue charge per item, so a monthly item due today counts twice (today and exactly one month ahead).
+- Counts: **Active** (active and not in a trial; paused items are *not* counted here, unlike the Home Active card), **Trial**, and **Upcoming**. They use the same card as Home (`SummaryCard`): the icon circle beside the figure and its label, without the chevron since they do not open anything (§104).
+- **Upcoming** (called "Charges ahead" before §104) counts every charge from today to one calendar month ahead (the Home Upcoming window, inclusive at both ends), uncapped. It includes a weekly item's repeats, a trial's first charge and one overdue charge per item, so a monthly item due today counts twice (today and exactly one month ahead).
 - **By category**: the monthly cost per category, largest first, with its share, one block per currency. Items without a category are grouped as Other. Only active, non-trial items are included.
 - No charts beyond a thin share bar (design guide §40).
 
@@ -3373,3 +3373,11 @@ Three additions under the existing totals, counts and category breakdown. All us
 - The category rows now say "2 items" rather than "2 subscriptions", since a category can hold bills (a house icon for Rent, not a subscription).
 - Paid this month is only as accurate as the payments the person records; an unpaid charge is never assumed paid.
 - Not done: a per-month history ("paid in each of the last 6 months"), a yearly view of paid, and the "after your trials end" figure from §73.
+
+---
+
+# 104. Insights count cards (as built)
+
+- The Active, Trial and Upcoming cards on Insights now look like the Active, Trial and Cancelled cards on Home: the tinted icon circle on the left, the figure and its label to its right, instead of stacked under the icon. They use the same widget, `SummaryCard`, which gained `showChevron` (off here, since these cards only inform) and `semanticsLabel` (so "6 charges in the next month" is still what a screen reader says).
+- The third card's label changed from "Charges ahead" to **Upcoming**, matching Home's "Upcoming charges" and short enough to sit beside the icon on a 360 dp phone. Its meaning is unchanged.
+- As on Home, the icon stacks above the figure when a card is too narrow or the text is enlarged beyond about 115%, so nothing is squeezed at large text sizes.
