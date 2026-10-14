@@ -155,7 +155,7 @@ void main() {
       }
     });
 
-    test('the requested platforms have logos; three still do not', () {
+    test('the requested platforms have logos; some still do not', () {
       expect(
         withLogo.map((s) => s.key),
         containsAll([
@@ -171,14 +171,34 @@ void main() {
           'icloud_plus',
           'chatgpt_plus',
           'adobe',
+          // Added with the bigger list.
+          'github',
+          'slack',
+          'zoom',
+          'figma',
+          'notion',
+          'dropbox',
+          'claude_pro',
+          'duolingo',
         ]),
       );
-      expect(withLogo, hasLength(12));
-      // Not in the open collections; they keep a letter tile for now.
+      expect(withLogo, hasLength(56));
+      // Not in the open collections, or unreadable at icon size; they show the
+      // Trackly mark.
       expect(
         withoutLogo.map((s) => s.key),
-        containsAll(['amazon_prime', 'disney_plus', 'hulu']),
+        containsAll(['amazon_prime', 'disney_plus', 'hulu', 'canva', 'dazn']),
       );
+    });
+
+    test('generic entries never have a logo', () {
+      final generic = serviceCatalog.where((s) => s.isGeneric);
+      expect(generic.every((s) => s.logoAsset == null), isTrue);
+      expect(
+        generic.map((s) => s.key),
+        containsAll(['rent', 'electricity', 'gym_membership', 'domain_name']),
+      );
+      expect(serviceCatalogByKey['netflix']!.isGeneric, isFalse);
     });
 
     test('black marks are exactly the logos whose only color is black', () {
@@ -195,7 +215,20 @@ void main() {
               .isEmpty)
             s.key,
       };
-      expect(flagged, {'apple_tv_plus', 'max', 'chatgpt_plus'});
+      expect(flagged, {
+        'apple_tv_plus',
+        'max',
+        'chatgpt_plus',
+        'apple_arcade',
+        'github',
+        'new_york_times',
+        'peloton',
+        'squarespace',
+        'tidal',
+        'uber_one',
+        'medium',
+        'midjourney',
+      });
       expect(flagged, onlyBlack);
     });
 
