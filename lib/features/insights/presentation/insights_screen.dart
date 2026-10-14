@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/database/tables/categories_table.dart';
 import '../../../core/error/error_reporter.dart';
+import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/theme/trackly_type.dart';
@@ -13,6 +15,7 @@ import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/service_icon.dart';
 import '../../settings/application/settings_providers.dart';
+import '../../subscriptions/domain/recurring_enums.dart';
 import '../application/insights_providers.dart';
 import '../application/insights_summary.dart';
 
@@ -81,18 +84,62 @@ class _InsightsContent extends ConsumerWidget {
             ),
             child: _Counts(summary: summary),
           ),
+          if (summary.monthProgress.isNotEmpty)
+            _Section(child: _PaidThisMonth(summary: summary)),
           if (summary.categoryBreakdown.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                TracklySpacing.base,
-                TracklySpacing.xl,
-                TracklySpacing.base,
-                0,
-              ),
-              child: _CategoryBreakdown(summary: summary),
-            ),
+            _Section(child: _CategoryBreakdown(summary: summary)),
+          if (_hasBothTypes(summary))
+            _Section(child: _TypeBreakdown(summary: summary)),
+          if (summary.biggestCosts.isNotEmpty)
+            _Section(child: _BiggestCosts(summary: summary)),
         ],
       ],
+    );
+  }
+}
+
+/// A block under the totals, with the screen's usual spacing.
+class _Section extends StatelessWidget {
+  const _Section({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        TracklySpacing.base,
+        TracklySpacing.xl,
+        TracklySpacing.base,
+        0,
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Subscriptions and bills are only worth splitting when there are both.
+bool _hasBothTypes(InsightsSummary summary) =>
+    summary.typeBreakdown.values.any((types) => types.length > 1);
+
+/// A small grey currency label, shown only when there is more than one.
+class _CurrencyLabel extends StatelessWidget {
+  const _CurrencyLabel(this.currency);
+
+  final String currency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: TracklySpacing.sm),
+      child: Text(
+        currency,
+        style: sans(
+          13,
+          weight: 600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 }
@@ -310,32 +357,32 @@ class _CategoryBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final currencies = summary.categoryBreakdown.keys.toList()..sort();
     final showCurrency = currencies.length > 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: context.l10n.insightsByCategory),
+        SectionHeader(title: l10n.insightsByCategory),
         const SizedBox(height: TracklySpacing.sm),
         for (final currency in currencies) ...[
-          if (showCurrency)
-            Padding(
-              padding: const EdgeInsets.only(bottom: TracklySpacing.sm),
-              child: Text(
-                currency,
-                style: sans(
-                  13,
-                  weight: 600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
+          if (showCurrency) _CurrencyLabel(currency),
           for (final category in summary.categoryBreakdown[currency]!)
-            _CategoryRow(
-              category: category,
-              currency: currency,
-              total: summary.monthlyTotalsByCurrency[currency] ?? 0,
+            _ShareRow(
+              icon: categoryIconData(category.categoryId),
+              name: _categoryName(category.categoryId),
+              amount: formatMoney(
+                category.monthlyAmount,
+                currency,
+                locale: locale,
+              ),
+              share: _share(
+                category.monthlyAmount,
+                summary.monthlyTotalsByCurrency[currency],
+              ),
+              detail: l10n.insightsTypeItems(category.count),
             ),
         ],
       ],
@@ -343,40 +390,85 @@ class _CategoryBreakdown extends StatelessWidget {
   }
 }
 
-class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({
-    required this.category,
-    required this.currency,
-    required this.total,
+double _share(double amount, double? total) =>
+    (total ?? 0) > 0 ? amount / total! : 0.0;
+
+/// Monthly cost of subscriptions against bills.
+class _TypeBreakdown extends StatelessWidget {
+  const _TypeBreakdown({required this.summary});
+
+  final InsightsSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final currencies = [
+      for (final entry in summary.typeBreakdown.entries)
+        if (entry.value.length > 1) entry.key,
+    ]..sort();
+    final showCurrency = currencies.length > 1;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title: l10n.insightsByType),
+        const SizedBox(height: TracklySpacing.sm),
+        for (final currency in currencies) ...[
+          if (showCurrency) _CurrencyLabel(currency),
+          for (final type in summary.typeBreakdown[currency]!)
+            _ShareRow(
+              icon: type.type == RecurringItemType.bill
+                  ? Icons.receipt_long_rounded
+                  : Icons.autorenew_rounded,
+              name: type.type == RecurringItemType.bill
+                  ? l10n.insightsTypeBills
+                  : l10n.insightsTypeSubscriptions,
+              amount: formatMoney(type.monthlyAmount, currency, locale: locale),
+              share: _share(
+                type.monthlyAmount,
+                summary.monthlyTotalsByCurrency[currency],
+              ),
+              detail: l10n.insightsTypeItems(type.count),
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+/// One row with an icon, a name, an amount, a thin share bar and a caption.
+/// Used for categories and for subscriptions against bills.
+class _ShareRow extends StatelessWidget {
+  const _ShareRow({
+    required this.icon,
+    required this.name,
+    required this.amount,
+    required this.share,
+    required this.detail,
   });
 
-  final CategoryTotal category;
-  final String currency;
-  final double total;
+  final IconData icon;
+  final String name;
+  final String amount;
+
+  /// 0 to 1 of the monthly total.
+  final double share;
+  final String detail;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final tokens = context.tokens;
-    final locale = Localizations.localeOf(context).toString();
-
-    final share = total > 0 ? category.monthlyAmount / total : 0.0;
     final percent = (share * 100).round();
-    final name = _categoryName(category.categoryId);
-    final amount = formatMoney(
-      category.monthlyAmount,
-      currency,
-      locale: locale,
-    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: TracklySpacing.md),
       child: Semantics(
         container: true,
         label:
-            '$name, $amount ${l10n.heroMonthSuffix}, '
-            '${l10n.insightsCategorySubs(category.count)}, '
+            '$name, $amount ${l10n.heroMonthSuffix}, $detail, '
             '${l10n.insightsShare(percent)}',
         excludeSemantics: true,
         child: Row(
@@ -388,11 +480,7 @@ class _CategoryRow extends StatelessWidget {
                 color: tokens.tileFill,
                 borderRadius: BorderRadius.circular(TracklyRadius.small),
               ),
-              child: Icon(
-                categoryIconData(category.categoryId),
-                size: 22,
-                color: tokens.tileInk,
-              ),
+              child: Icon(icon, size: 22, color: tokens.tileInk),
             ),
             const SizedBox(width: TracklySpacing.md),
             Expanded(
@@ -436,8 +524,7 @@ class _CategoryRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${l10n.insightsCategorySubs(category.count)} · '
-                    '${l10n.insightsShare(percent)}',
+                    '$detail · ${l10n.insightsShare(percent)}',
                     style: sans(
                       12.5,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -447,6 +534,244 @@ class _CategoryRow extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// What has been paid this month against what the month costs.
+class _PaidThisMonth extends StatelessWidget {
+  const _PaidThisMonth({required this.summary});
+
+  final InsightsSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    final locale = Localizations.localeOf(context).toString();
+    final currencies = summary.monthProgress.keys.toList()..sort();
+    final showCurrency = currencies.length > 1;
+    final nothingPaid = summary.monthProgress.values.every((p) => p.paid <= 0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title: l10n.insightsPaidThisMonth),
+        const SizedBox(height: TracklySpacing.sm),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(TracklyRadius.medium),
+            border: Border.all(color: tokens.cardBorder),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(TracklySpacing.base),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final (index, currency) in currencies.indexed) ...[
+                  if (index > 0) const SizedBox(height: TracklySpacing.base),
+                  if (showCurrency) _CurrencyLabel(currency),
+                  _ProgressLine(
+                    text: l10n.insightsPaidOf(
+                      formatMoney(
+                        summary.monthProgress[currency]!.paid,
+                        currency,
+                        locale: locale,
+                      ),
+                      formatMoney(
+                        summary.monthProgress[currency]!.total,
+                        currency,
+                        locale: locale,
+                      ),
+                    ),
+                    value:
+                        summary.monthProgress[currency]!.paid /
+                        summary.monthProgress[currency]!.total,
+                  ),
+                ],
+                if (nothingPaid) ...[
+                  const SizedBox(height: TracklySpacing.sm),
+                  Text(
+                    l10n.insightsPaidHint,
+                    style: sans(
+                      12.5,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProgressLine extends StatelessWidget {
+  const _ProgressLine({required this.text, required this.value});
+
+  final String text;
+
+  /// 0 to 1.
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+
+    return Semantics(
+      container: true,
+      label: text,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: sans(20, weight: 700, color: theme.colorScheme.onSurface),
+          ),
+          const SizedBox(height: TracklySpacing.sm),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(TracklyRadius.pill),
+            child: LinearProgressIndicator(
+              value: value.clamp(0.0, 1.0),
+              minHeight: 8,
+              color: tokens.accent,
+              backgroundColor: tokens.fieldFill,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The costliest items per month, largest first. Tapping one opens it.
+class _BiggestCosts extends StatelessWidget {
+  const _BiggestCosts({required this.summary});
+
+  final InsightsSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final theme = Theme.of(context);
+    final currencies = summary.biggestCosts.keys.toList()..sort();
+    final showCurrency = currencies.length > 1;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title: l10n.insightsBiggest),
+        const SizedBox(height: TracklySpacing.sm),
+        for (final currency in currencies) ...[
+          if (showCurrency) _CurrencyLabel(currency),
+          for (final costly in summary.biggestCosts[currency]!)
+            _CostlyRow(
+              costly: costly,
+              amount: formatMoney(
+                costly.monthlyAmount,
+                currency,
+                locale: locale,
+              ),
+              percent:
+                  (_share(
+                            costly.monthlyAmount,
+                            summary.monthlyTotalsByCurrency[currency],
+                          ) *
+                          100)
+                      .round(),
+              theme: theme,
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+class _CostlyRow extends StatelessWidget {
+  const _CostlyRow({
+    required this.costly,
+    required this.amount,
+    required this.percent,
+    required this.theme,
+  });
+
+  final CostlyItem costly;
+  final String amount;
+  final int percent;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final item = costly.item;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(TracklyRadius.small),
+      onTap: () => context.push(AppRoutes.itemPath(item.id)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Semantics(
+            container: true,
+            button: true,
+            label:
+                '${item.name}, $amount ${l10n.heroMonthSuffix}, '
+                '${l10n.insightsBiggestShare(percent)}',
+            excludeSemantics: true,
+            child: Row(
+              children: [
+                ServiceIcon(
+                  logoKey: item.logoKey,
+                  categoryId: item.categoryId,
+                  size: 40,
+                ),
+                const SizedBox(width: TracklySpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: sans(
+                          16,
+                          weight: 600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        l10n.insightsBiggestShare(percent),
+                        style: sans(
+                          12.5,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: TracklySpacing.sm),
+                Text(
+                  amount,
+                  style: sans(
+                    16,
+                    weight: 600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/analytics/analytics_events.dart';
 import 'package:trackly/core/analytics/analytics_service.dart';
+import 'package:trackly/features/payments/domain/payment.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 
 import '../../helpers/test_app.dart';
@@ -77,11 +78,12 @@ void main() {
 
     expect(find.text('By category'), findsOneWidget);
     expect(find.text('Entertainment'), findsOneWidget);
+    // Amounts also appear in Biggest costs, so the captions identify the rows.
     expect(find.text(r'$25.00'), findsOneWidget);
-    expect(find.text('2 subscriptions · 71%'), findsOneWidget);
+    expect(find.text('2 items · 71%'), findsOneWidget);
     expect(find.text('Software'), findsOneWidget);
-    expect(find.text(r'$10.00'), findsOneWidget);
-    expect(find.text('1 subscription · 29%'), findsOneWidget);
+    expect(find.text(r'$10.00'), findsWidgets);
+    expect(find.text('1 item · 29%'), findsOneWidget);
 
     // Largest first.
     final entertainment = tester.getTopLeft(find.text('Entertainment')).dy;
@@ -98,7 +100,7 @@ void main() {
     await _openInsights(tester);
 
     expect(find.text('Other'), findsOneWidget);
-    expect(find.text('1 subscription · 100%'), findsOneWidget);
+    expect(find.text('1 item · 100%'), findsOneWidget);
   });
 
   tracklyTest('each currency gets its own breakdown', (tester) async {
@@ -117,8 +119,9 @@ void main() {
     );
     await _openInsights(tester);
 
-    expect(find.text('USD'), findsOneWidget);
-    expect(find.text('RWF'), findsOneWidget);
+    // Each currency is labelled in every section that lists amounts.
+    expect(find.text('USD'), findsWidgets);
+    expect(find.text('RWF'), findsWidgets);
     expect(find.text('Entertainment'), findsOneWidget);
     expect(find.text('Utilities'), findsOneWidget);
   });
@@ -212,5 +215,155 @@ void main() {
     await _openInsights(tester);
 
     expect(tester.takeException(), isNull);
+  });
+
+  group('paid this month', () {
+    tracklyTest('shows what was paid against the month, as the Calendar does', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [
+          testItem('Netflix', amount: 15, due: DateTime(2026, 10, 20)),
+          testItem('Spotify', amount: 10, due: DateTime(2026, 11, 10)),
+        ],
+      );
+      await tester.runAsync(
+        () => db.paymentsDao.insertPayment(
+          Payment(
+            id: 'p1',
+            recurringItemId: 'Spotify',
+            amount: 10,
+            currencyCode: 'USD',
+            dueDate: DateTime(2026, 10, 5),
+            paidDate: DateTime(2026, 10, 5),
+            status: PaymentStatus.paid,
+            createdAt: testNow,
+          ),
+        ),
+      );
+      await _openInsights(tester);
+
+      expect(find.text('Paid this month'), findsOneWidget);
+      expect(find.text(r'$10.00 of $25.00'), findsOneWidget);
+      expect(find.text('Charges you mark as paid count here.'), findsNothing);
+    });
+
+    tracklyTest('with nothing paid it says how a charge counts', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [testItem('Netflix', amount: 15, due: DateTime(2026, 10, 20))],
+      );
+      await _openInsights(tester);
+
+      expect(find.text(r'$0.00 of $15.00'), findsOneWidget);
+      expect(find.text('Charges you mark as paid count here.'), findsOneWidget);
+    });
+
+    tracklyTest('is left out when nothing is due this month', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [
+          testItem(
+            'Yearly',
+            amount: 100,
+            frequency: BillingFrequency.yearly,
+            due: DateTime(2027, 3, 1),
+          ),
+        ],
+      );
+      await _openInsights(tester);
+
+      expect(find.text('Paid this month'), findsNothing);
+    });
+  });
+
+  group('subscriptions and bills', () {
+    tracklyTest('are split when there are both', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [
+          testItem('Netflix', amount: 15),
+          testItem('Rent', amount: 500, type: RecurringItemType.bill),
+        ],
+      );
+      await _openInsights(tester);
+
+      expect(find.text('Subscriptions and bills'), findsOneWidget);
+      expect(find.text('Bills'), findsOneWidget);
+      expect(find.text('Subscriptions'), findsOneWidget);
+      // Each also has a category row with the same figures: one item each.
+      expect(find.text('1 item · 97%'), findsNWidgets(2)); // Rent
+      expect(find.text('1 item · 3%'), findsNWidgets(2)); // Netflix
+      // Largest first.
+      expect(
+        tester.getTopLeft(find.text('Bills')).dy,
+        lessThan(tester.getTopLeft(find.text('Subscriptions')).dy),
+      );
+    });
+
+    tracklyTest('are not split when there is only one kind', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [testItem('Netflix'), testItem('Spotify')],
+      );
+      await _openInsights(tester);
+
+      expect(find.text('Subscriptions and bills'), findsNothing);
+    });
+  });
+
+  group('biggest costs', () {
+    tracklyTest('lists the five costliest, largest first', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 2600),
+        items: [
+          for (var i = 1; i <= 6; i++) testItem('Service $i', amount: i * 10.0),
+        ],
+      );
+      await _openInsights(tester);
+
+      expect(find.text('Biggest costs'), findsOneWidget);
+      expect(find.text('Service 6'), findsOneWidget);
+      expect(find.text('Service 2'), findsOneWidget);
+      expect(find.text('Service 1'), findsNothing); // the sixth, cut off
+      expect(
+        tester.getTopLeft(find.text('Service 6')).dy,
+        lessThan(tester.getTopLeft(find.text('Service 5')).dy),
+      );
+      expect(find.text('29% of your monthly cost'), findsOneWidget); // 60/210
+    });
+
+    tracklyTest('a single item has nothing to rank', (tester) async {
+      await pumpTrackly(tester, size: _tall, items: [testItem('Netflix')]);
+      await _openInsights(tester);
+
+      expect(find.text('Biggest costs'), findsNothing);
+    });
+
+    tracklyTest('tapping one opens it', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 2600),
+        items: [
+          testItem('Netflix', amount: 50, due: DateTime(2026, 10, 15)),
+          testItem('Spotify', amount: 10),
+        ],
+      );
+      await _openInsights(tester);
+
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      expect(find.text('Mark as paid'), findsOneWidget); // the item screen
+    });
   });
 }

@@ -3355,3 +3355,21 @@ The matches shown under the name field in Quick Add and the add form were plain 
 - Marks that are only black (Apple Arcade, GitHub, The New York Times, Peloton, Squarespace, Tidal, Uber, Medium, Midjourney) are recolored to pure black and flagged `blackMark`, so they turn white on a dark page like Apple TV+ and Max. The tests check the flag against the file's colors.
 - Same safety checks as before: no scripts, images or external links, each file under 20 kB, every file used, every file credited. The 44 files add about 64 kB to the app.
 - LinkedIn Learning uses the LinkedIn mark, Claude Pro the Claude mark, PlayStation Plus the PlayStation mark, and so on, like ChatGPT Plus uses the OpenAI mark. The CC0 license covers the files, not the brands; check each company's brand guidelines before a store release.
+
+---
+
+# 103. More on Insights (as built)
+
+Three additions under the existing totals, counts and category breakdown. All use data already on the phone; nothing new is tracked.
+
+| Section | What it shows | When it appears |
+| --- | --- | --- |
+| **Paid this month** | "$450.00 of $1,008.47" with a progress bar. The total is the Calendar's **Total this month** (paid and still-to-pay charges, skipped and trial charges left out), so the two screens agree. Paid is the recorded payments whose due date is this month. | Whenever something is due this month. With nothing paid yet it adds "Charges you mark as paid count here." |
+| **Subscriptions and bills** | Monthly cost of each kind, largest first, with item count and share, like the category rows. | Only when a currency has both kinds. One kind alone would read 100%. |
+| **Biggest costs** | The five costliest items by monthly equivalent (a yearly $240 counts as $20), each with its logo, its share of the monthly cost, and a tap to open it. | Only for a currency with at least two counted items, since a list of one ranks nothing. |
+
+- Same rule as the rest of Insights: only active items that are not in a free trial are counted in the type split and the ranking. Currencies are never merged: each section has one block per currency, labelled when there is more than one.
+- Equal costs are ordered by name. Items are ranked by `calculateMonthlyEquivalent`, as the totals are.
+- The category rows now say "2 items" rather than "2 subscriptions", since a category can hold bills (a house icon for Rent, not a subscription).
+- Paid this month is only as accurate as the payments the person records; an unpaid charge is never assumed paid.
+- Not done: a per-month history ("paid in each of the last 6 months"), a yearly view of paid, and the "after your trials end" figure from §73.
