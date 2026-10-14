@@ -87,6 +87,8 @@ RecurringItem testItem(
   String? categoryId,
   String? notes,
   int reminderMinuteOfDay = defaultReminderMinuteOfDay,
+  int reminderDaysBefore = 3,
+  bool remindersEnabled = true,
   ItemStatus status = ItemStatus.active,
 }) {
   return RecurringItem(
@@ -107,6 +109,8 @@ RecurringItem testItem(
     categoryId: categoryId,
     notes: notes,
     reminderMinuteOfDay: reminderMinuteOfDay,
+    reminderDaysBefore: reminderDaysBefore,
+    remindersEnabled: remindersEnabled,
     createdAt: testNow,
     updatedAt: testNow,
   );

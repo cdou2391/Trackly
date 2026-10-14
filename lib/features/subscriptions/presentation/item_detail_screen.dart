@@ -228,22 +228,26 @@ class _AmountCard extends ConsumerWidget {
         item.trialEndDate != null &&
         !dateOnly(now).isAfter(dateOnly(item.trialEndDate!));
 
+    // Before the due date there are two reminders (the day itself is at 9:00),
+    // each on its own row; "same day" and "off" are a single row.
     final early = item.reminderDaysBefore > 0;
-    final reminder = !item.remindersEnabled
-        ? l10n.reminderOff
-        : l10n.reminderWhenAt(
-            early
-                ? l10n.reminderDaysBefore(item.reminderDaysBefore)
-                : l10n.reminderSameDay,
-            reminderTimeLabel(context, item.reminderMinuteOfDay),
-          );
-    // Before the due date there are two reminders: the day itself is at 9:00.
-    final reminderText = item.remindersEnabled && early
-        ? l10n.reminderAndOnDay(
-            reminder,
+    final reminders = <String>[
+      if (!item.remindersEnabled)
+        l10n.reminderOff
+      else ...[
+        l10n.reminderWhenAt(
+          early
+              ? l10n.reminderDaysBefore(item.reminderDaysBefore)
+              : l10n.reminderSameDay,
+          reminderTimeLabel(context, item.reminderMinuteOfDay),
+        ),
+        if (early)
+          l10n.reminderWhenAt(
+            l10n.reminderOnTheDay,
             reminderTimeLabel(context, defaultReminderMinuteOfDay),
-          )
-        : reminder;
+          ),
+      ],
+    ];
 
     return Material(
       color: theme.colorScheme.surface,
@@ -297,11 +301,14 @@ class _AmountCard extends ConsumerWidget {
                 label: l10n.nextChargeLabel,
                 value: formatMediumDate(item.nextDueDate, locale: locale),
               ),
-            _InfoRow(
-              icon: Icons.notifications_none_rounded,
-              label: l10n.reminderLabel,
-              value: reminderText,
-            ),
+            for (final (index, reminder) in reminders.indexed)
+              _InfoRow(
+                icon: Icons.notifications_none_rounded,
+                label: reminders.length == 1
+                    ? l10n.reminderLabel
+                    : l10n.reminderNumbered(index + 1),
+                value: reminder,
+              ),
             _InfoRow(
               icon: Icons.receipt_long_outlined,
               label: l10n.typeLabel,
