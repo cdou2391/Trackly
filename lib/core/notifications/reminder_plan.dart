@@ -54,8 +54,11 @@ class PlannedReminder {
 /// The reminders [item] should have at time [now]. Pure, so it is easy to test.
 ///
 /// - Only active items with reminders turned on have any.
-/// - A "N days before" reminder is planned when N > 0, and a "due today" one
-///   always, so "same day" gives just the latter and never two on one day.
+/// - A "N days before" reminder is planned when N > 0, at the item's time.
+/// - A "due today" one is always planned. When the item's own reminder is on
+///   an earlier day it goes out at [defaultReminderMinuteOfDay] (9:00), so the
+///   day itself is never missed; when the person chose "same day" their own
+///   time is used instead, so there is one reminder and never two on one day.
 /// - While a free trial runs, the "N days before" reminder says the trial is
 ///   ending (the first charge is the day it ends).
 /// - Reminders whose time has already passed are left out.
@@ -72,26 +75,21 @@ List<PlannedReminder> planReminders(
   final days = item.reminderDaysBefore;
 
   final minuteOfDay = item.reminderMinuteOfDay;
-  DateTime at(DateTime day) => DateTime(
-    day.year,
-    day.month,
-    day.day,
-    minuteOfDay ~/ 60,
-    minuteOfDay % 60,
-  );
+  DateTime at(DateTime day, int minute) =>
+      DateTime(day.year, day.month, day.day, minute ~/ 60, minute % 60);
 
   final reminders = [
     if (days > 0)
       PlannedReminder(
         itemId: item.id,
         type: trial ? ReminderType.trialEnding : ReminderType.dueSoon,
-        when: at(DateTime(due.year, due.month, due.day - days)),
+        when: at(DateTime(due.year, due.month, due.day - days), minuteOfDay),
         daysAhead: days,
       ),
     PlannedReminder(
       itemId: item.id,
       type: ReminderType.dueToday,
-      when: at(due),
+      when: at(due, days > 0 ? defaultReminderMinuteOfDay : minuteOfDay),
       daysAhead: 0,
     ),
   ];

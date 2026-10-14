@@ -90,6 +90,8 @@
   "addRemindMe": "Remind me",
   "reminderSameDay": "Same day",
   "addRemindAt": "Remind me at",
+  "reminderAndOnDay": "{reminder}, and on the day at {time}",
+  "@reminderAndOnDay": { "placeholders": { "reminder": { "type": "String" }, "time": { "type": "String" } } },
   "reminderWhenAt": "{when} at {time}",
   "@reminderWhenAt": {
     "placeholders": { "when": { "type": "String" }, "time": { "type": "String" } }

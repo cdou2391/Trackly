@@ -3067,7 +3067,7 @@ Pure logic (`occurrencesInRange`, `buildCalendarMonth`, `buildInsightsSummary`) 
 
 - Each item has its own **reminder time**, set in the add/edit form under the day chips ("Remind me at", with the phone's 12- or 24-hour style) and shown on the item screen ("3 days before at 6:30 PM"). Before this, every reminder was fixed at 9:00.
 - It is stored as `reminder_minute_of_day` on `recurring_items`: minutes after local midnight, 0-1439 (a `CHECK` enforces the range). **Schema version 2**; the upgrade adds the column, and existing items get 540 (09:00), exactly what they had, so nothing changes until the user edits an item. The v2 schema and its test helpers are committed under `drift_schemas/` and `test/database/generated/`, with an upgrade test that starts from a v1 database containing data.
-- The planner puts both reminders (the "N days before" one and the "due today" one) at the item's time. A time that has already passed today is left out, as before. Changing the time reschedules the same notifications (their ids do not depend on the time) rather than adding duplicates.
+- *(Superseded by §99 for the "due today" reminder, which is now always at 09:00 unless the person chose "same day".)* The planner puts both reminders (the "N days before" one and the "due today" one) at the item's time. A time that has already passed today is left out, as before. Changing the time reschedules the same notifications (their ids do not depend on the time) rather than adding duplicates.
 - New items, including Quick Add, start at the default time from Settings (§92), 09:00 until the user changes it.
 - Analytics: `subscription_created` gains `reminder_hour` (0-23), nothing finer.
 
@@ -3283,3 +3283,21 @@ Notes:
 - Tabs stay alive once visited, so Quick Add is not disposed when the person moves to another tab. "Abandoned" therefore counts leaving the app with a started form, plus the form being closed. A form that is abandoned and then continued keeps its single `quick_add_started`.
 - A trial ends while the app is closed, so `TrialEndReporter` (`core/analytics/trial_end_reporter.dart`) checks at launch, on return to the app and when items change. The ids already counted are kept on the device (`reported_trial_ends`, not cleared by Settings reset) and forgotten when the trial is deleted or its end date moves later, so each ending is counted once. Trials that ended before this version are counted once on the first launch after the update.
 - If the person has not agreed to usage statistics, these calls do nothing, but a trial end is still marked as counted so it is not sent if they agree later.
+
+---
+
+# 99. Reminder on the day itself (as built)
+
+Every active item with reminders on gets a reminder on the day it is due, at **09:00**, in addition to the one the person chose.
+
+| The person chose | They get |
+| --- | --- |
+| N days before (1, 3 or 7) at time T | N days before at T, **and** the due day at 09:00 |
+| Same day at time T | One reminder, on the due day at T (it replaces the 09:00 one, never two on a day) |
+| Reminders off | None. "Off" still means off. |
+
+- Before this, the due-day reminder followed the item's time, so an item set to 6:30 PM was only reminded in the evening. `planReminders` now uses `defaultReminderMinuteOfDay` (09:00) for the due-day reminder whenever the chosen reminder is on an earlier day.
+- Notification ids do not depend on the time, so the existing reconciliation (§ReminderSync) moves already-scheduled due-day reminders of existing items from their old time to 09:00 on the next launch. No migration, no new notification type, no new permission. Reminders whose time has passed are still left out.
+- The item screen shows both, for example "3 days before at 6:30 PM, and on the day at 9:00 AM". "Same day" and "Off" read as before.
+- Not changed: paused, cancelled and overdue items have no reminders; free trials say "trial ends in N days" for the early one and "due today" for the day itself.
+- Not done: making the due-day reminder independent of the Reminders switch. If wanted, the switch would need to be renamed to control only the early reminder.

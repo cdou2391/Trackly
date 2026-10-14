@@ -38,6 +38,7 @@ RecurringItem changed(
   ItemStatus? status,
   bool? remindersEnabled,
   int? reminderMinuteOfDay,
+  int? reminderDaysBefore,
 }) {
   return RecurringItem(
     id: item.id,
@@ -50,7 +51,7 @@ RecurringItem changed(
     nextDueDate: nextDueDate ?? item.nextDueDate,
     status: status ?? item.status,
     remindersEnabled: remindersEnabled ?? item.remindersEnabled,
-    reminderDaysBefore: item.reminderDaysBefore,
+    reminderDaysBefore: reminderDaysBefore ?? item.reminderDaysBefore,
     reminderMinuteOfDay: reminderMinuteOfDay ?? item.reminderMinuteOfDay,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -103,17 +104,34 @@ void main() {
     expect(ReminderPayload.parse(soon.payload)?.itemId, 'Netflix');
   });
 
-  test('delivers at the item\'s reminder time', () async {
+  test(
+    'the early reminder is at the item\'s time, the day itself at 9:00',
+    () async {
+      await db.recurringItemsDao.insertItem(
+        testItem('Netflix', reminderMinuteOfDay: 18 * 60 + 30),
+      );
+      await sync.reconcile();
+
+      final times = service.scheduled.values.map((r) => r.when).toSet();
+      expect(times, {
+        DateTime(2026, 10, 17, 18, 30),
+        DateTime(2026, 10, 20, 9),
+      });
+    },
+  );
+
+  test('same day at a chosen time is a single reminder at that time', () async {
     await db.recurringItemsDao.insertItem(
       testItem('Netflix', reminderMinuteOfDay: 18 * 60 + 30),
     );
     await sync.reconcile();
+    final item = (await db.recurringItemsDao.getById('Netflix'))!;
+    await db.recurringItemsDao.updateItem(changed(item, reminderDaysBefore: 0));
+    await sync.reconcile();
 
-    final times = service.scheduled.values.map((r) => r.when).toSet();
-    expect(times, {
-      DateTime(2026, 10, 17, 18, 30),
+    expect(service.scheduled.values.map((r) => r.when), [
       DateTime(2026, 10, 20, 18, 30),
-    });
+    ]);
   });
 
   test(
@@ -131,10 +149,10 @@ void main() {
       await sync.reconcile();
 
       expect(service.scheduled.keys.toSet(), idsBefore);
-      expect(
-        service.scheduled.values.map((r) => r.when.hour),
-        everyElement(20),
-      );
+      final hours = {
+        for (final r in service.scheduled.values) r.payload: r.when.hour,
+      };
+      expect(hours.values.toSet(), {20, 9}); // early one moved, day itself not
     },
   );
 

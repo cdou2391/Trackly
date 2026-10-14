@@ -47,10 +47,39 @@ void main() {
       expect(defaultReminderMinuteOfDay, 540);
     });
 
-    test('both reminders are delivered at the chosen time', () {
+    test('the early reminder uses the chosen time, the day itself 9:00', () {
       expect(plan(item(due: DateTime(2026, 10, 20), minuteOfDay: evening)), [
         (ReminderType.dueSoon, DateTime(2026, 10, 17, 18, 30)),
-        (ReminderType.dueToday, DateTime(2026, 10, 20, 18, 30)),
+        (ReminderType.dueToday, DateTime(2026, 10, 20, 9)),
+      ]);
+    });
+
+    test('the day itself stays at 9:00 for every early offset', () {
+      for (final days in [1, 3, 7]) {
+        final r = plan(
+          item(due: DateTime(2026, 10, 20), daysBefore: days, minuteOfDay: 7),
+        );
+        expect(r.last, (ReminderType.dueToday, DateTime(2026, 10, 20, 9)));
+      }
+    });
+
+    test('same day replaces the 9:00 one with the chosen time', () {
+      expect(
+        plan(
+          item(
+            due: DateTime(2026, 10, 20),
+            daysBefore: 0,
+            minuteOfDay: evening,
+          ),
+        ),
+        [(ReminderType.dueToday, DateTime(2026, 10, 20, 18, 30))],
+      );
+    });
+
+    test('a 9:00 chosen time gives the same two reminders as before', () {
+      expect(plan(item(due: DateTime(2026, 10, 20))), [
+        (ReminderType.dueSoon, DateTime(2026, 10, 17, 9)),
+        (ReminderType.dueToday, DateTime(2026, 10, 20, 9)),
       ]);
     });
 
@@ -93,7 +122,7 @@ void main() {
       ]);
     });
 
-    test('a trial reminder follows the time as well', () {
+    test('a trial reminder follows the time, the day itself is 9:00', () {
       final r = plan(
         item(
           due: DateTime(2026, 10, 20),
@@ -101,10 +130,17 @@ void main() {
           minuteOfDay: evening,
         ),
       );
-      expect(r.first, (
-        ReminderType.trialEnding,
-        DateTime(2026, 10, 17, 18, 30),
-      ));
+      expect(r, [
+        (ReminderType.trialEnding, DateTime(2026, 10, 17, 18, 30)),
+        (ReminderType.dueToday, DateTime(2026, 10, 20, 9)),
+      ]);
+    });
+
+    test('with reminders off, the day itself is not reminded either', () {
+      expect(
+        plan(item(due: DateTime(2026, 10, 20), reminders: false)),
+        isEmpty,
+      );
     });
 
     test('the notification id does not depend on the time', () {
@@ -115,6 +151,7 @@ void main() {
         now: _now,
       );
       expect(later.map((r) => r.id), nine.map((r) => r.id));
+      expect(later.map((r) => r.type), nine.map((r) => r.type));
     });
   });
 
