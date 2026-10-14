@@ -307,7 +307,7 @@ void main() {
     });
 
     tracklyTest('a custom item keeps its category icon', (tester) async {
-      await pumpTrackly(tester, items: [testItem('Gym membership')]);
+      await pumpTrackly(tester, items: [testItem('Pottery class')]);
       expect(
         find.descendant(
           of: find.byType(ServiceIcon),

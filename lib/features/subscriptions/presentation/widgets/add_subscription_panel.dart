@@ -153,6 +153,8 @@ class _AddSubscriptionPanelState extends ConsumerState<AddSubscriptionPanel> {
         offset: service.name.length,
       );
       _categoryId ??= service.categoryId;
+      // "Rent" is a bill, "Netflix" a subscription.
+      _type = service.type;
     });
   }
 

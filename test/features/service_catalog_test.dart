@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/database/tables/categories_table.dart';
+import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 import 'package:trackly/features/subscriptions/domain/service_catalog.dart';
 
 void main() {
@@ -9,6 +10,58 @@ void main() {
     final keys = [for (final s in serviceCatalog) s.key];
     expect(keys.toSet(), hasLength(keys.length));
     expect(keys.every((k) => k == k.toLowerCase() && !k.contains(' ')), isTrue);
+  });
+
+  test('names are unique, so a typed name finds exactly one service', () {
+    final names = [for (final s in serviceCatalog) s.name.toLowerCase()];
+    expect(names.toSet(), hasLength(names.length));
+  });
+
+  group('bills', () {
+    final bills = serviceCatalog
+        .where((s) => s.type == RecurringItemType.bill)
+        .toList();
+
+    test('the everyday ones are there, as bills', () {
+      expect(
+        bills.map((s) => s.name),
+        containsAll([
+          'Rent',
+          'Water',
+          'Electricity',
+          'Gas',
+          'Internet',
+          'Mobile phone',
+          'Mortgage',
+          'Car insurance',
+        ]),
+      );
+    });
+
+    test('brands stay subscriptions and bills carry no logo', () {
+      expect(
+        serviceCatalogByKey['netflix']!.type,
+        RecurringItemType.subscription,
+      );
+      expect(bills.every((s) => s.logoAsset == null), isTrue);
+    });
+
+    test('each sits in the category a person would look for it in', () {
+      String category(String key) => serviceCatalogByKey[key]!.categoryId;
+      expect(category('electricity'), 'utilities');
+      expect(category('water'), 'utilities');
+      expect(category('rent'), 'housing');
+      expect(category('car_insurance'), 'insurance');
+      expect(category('tuition'), 'education');
+    });
+
+    test('search finds them by a part of the name', () {
+      expect(searchServiceCatalog('electric').map((s) => s.key), [
+        'electricity',
+      ]);
+      expect(searchServiceCatalog('rent').first.key, 'rent');
+      expect(findServiceByName('  water ')!.type, RecurringItemType.bill);
+    });
   });
 
   test('every catalog service points at a seeded category', () {
@@ -24,6 +77,7 @@ void main() {
     expect(searchServiceCatalog('prime').map((s) => s.key), ['amazon_prime']);
     expect(searchServiceCatalog('youtube').map((s) => s.key), [
       'youtube_premium',
+      'youtube_tv',
     ]);
   });
 

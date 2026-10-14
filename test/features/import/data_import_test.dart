@@ -252,7 +252,7 @@ void main() {
         ),
         item(
           'i7',
-          'Rent',
+          'Garden shed rent',
           type: RecurringItemType.bill,
           status: ItemStatus.cancelled,
         ),

@@ -181,6 +181,10 @@ class _QuickAddCardState extends ConsumerState<QuickAddCard>
                   .minuteOfDay,
               frequency: _frequency,
               startDate: _effectiveStart,
+              // "Rent" is a bill whether it was tapped or typed in full.
+              type:
+                  (service ?? findServiceByName(_nameController.text))?.type ??
+                  RecurringItemType.subscription,
               categoryId: service?.categoryId,
               logoKey: service?.key,
               entryMethod: EntryMethod.quickAdd,
