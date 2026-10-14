@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/database/tables/categories_table.dart';
 import '../../core/theme/trackly_tokens.dart';
-import '../../core/theme/trackly_type.dart';
+import '../../features/subscriptions/domain/recurring_enums.dart';
 import '../../features/subscriptions/domain/service_catalog.dart';
 
 const _categoryIcons = <String, IconData>{
@@ -31,9 +31,14 @@ IconData categoryIconData(String? categoryId) {
 /// Corner radius shared by every kind of service icon.
 double _cornerRadius(double size) => size * 0.3;
 
+/// The Trackly mark, drawn in one muted color: the stand-in for a service
+/// whose own logo is not bundled.
+const _tracklyMark = 'assets/illustrations/trackly_logo.svg';
+
 /// Service icon. Resolution order: the catalog logo (filling the whole element),
-/// then a letter tile for a catalog service without one, then the category
-/// icon, then a generic icon.
+/// then the Trackly mark for a catalog service without one, then the category
+/// icon (custom items, and generic bills like Rent or Water), then a generic
+/// icon.
 class ServiceIcon extends StatelessWidget {
   const ServiceIcon({this.logoKey, this.categoryId, this.size = 48, super.key});
 
@@ -70,13 +75,22 @@ class ServiceIcon extends StatelessWidget {
       );
     }
 
-    final Widget child = service != null
-        ? Text(
-            service.name.characters.first.toUpperCase(),
-            style: sans(size * 0.42, weight: 700, color: tokens.tileInk),
+    final isBrand =
+        service != null && service.type == RecurringItemType.subscription;
+    final Widget child = isBrand
+        ? Padding(
+            padding: EdgeInsets.all(size * 0.2),
+            child: SvgPicture.asset(
+              _tracklyMark,
+              fit: BoxFit.contain,
+              colorFilter: ColorFilter.mode(
+                tokens.tileInk.withValues(alpha: 0.5),
+                BlendMode.srcIn,
+              ),
+            ),
           )
         : Icon(
-            categoryIconData(categoryId),
+            categoryIconData(categoryId ?? service?.categoryId),
             size: size * 0.5,
             color: tokens.tileInk,
           );
