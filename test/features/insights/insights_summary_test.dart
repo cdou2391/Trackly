@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/features/insights/application/insights_summary.dart';
+import 'package:trackly/features/payments/domain/payment.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_item.dart';
 
@@ -14,12 +15,13 @@ RecurringItem item(
   ItemStatus status = ItemStatus.active,
   DateTime? trialEnd,
   String? categoryId,
+  RecurringItemType type = RecurringItemType.subscription,
 }) {
   final nextDue = due ?? DateTime(2026, 10, 20);
   return RecurringItem(
     id: id,
     name: id,
-    type: RecurringItemType.subscription,
+    type: type,
     amount: amount,
     currencyCode: currency,
     frequency: frequency,
@@ -34,8 +36,27 @@ RecurringItem item(
   );
 }
 
-InsightsSummary summarize(List<RecurringItem> items) =>
-    buildInsightsSummary(items: items, now: _now);
+InsightsSummary summarize(
+  List<RecurringItem> items, {
+  List<Payment> payments = const [],
+}) => buildInsightsSummary(items: items, payments: payments, now: _now);
+
+Payment paid(
+  String itemId,
+  DateTime due, {
+  double amount = 10,
+  String currency = 'USD',
+  PaymentStatus status = PaymentStatus.paid,
+}) => Payment(
+  id: '$itemId-${due.toIso8601String()}',
+  recurringItemId: itemId,
+  amount: amount,
+  currencyCode: currency,
+  dueDate: due,
+  paidDate: status == PaymentStatus.paid ? due : null,
+  status: status,
+  createdAt: _now,
+);
 
 void main() {
   test('empty input has no items', () {
@@ -205,6 +226,174 @@ void main() {
         item('cancelled', status: ItemStatus.cancelled),
       ]);
       expect(summary.upcomingCount, 1);
+    });
+  });
+
+  group('subscriptions and bills', () {
+    test('splits the monthly cost by type, largest first', () {
+      final summary = summarize([
+        item('Netflix', amount: 15),
+        item('Spotify', amount: 10),
+        item('Rent', amount: 500, type: RecurringItemType.bill),
+        item('Trial', trialEnd: DateTime(2026, 11, 15), amount: 99),
+        item('Paused', status: ItemStatus.paused, amount: 99),
+      ]);
+      final types = summary.typeBreakdown['USD']!;
+      expect(types.map((t) => t.type), [
+        RecurringItemType.bill,
+        RecurringItemType.subscription,
+      ]);
+      expect(types.map((t) => t.monthlyAmount), [500, 25]);
+      expect(types.map((t) => t.count), [1, 2]);
+    });
+
+    test('one type alone is a single entry', () {
+      final summary = summarize([item('a'), item('b')]);
+      expect(
+        summary.typeBreakdown['USD']!.single.type,
+        RecurringItemType.subscription,
+      );
+    });
+
+    test('currencies are never merged', () {
+      final summary = summarize([
+        item('a', amount: 10),
+        item('b', amount: 5000, currency: 'RWF', type: RecurringItemType.bill),
+      ]);
+      expect(summary.typeBreakdown.keys.toSet(), {'USD', 'RWF'});
+      expect(summary.typeBreakdown['RWF']!.single.monthlyAmount, 5000);
+    });
+  });
+
+  group('biggest costs', () {
+    test('ranks by monthly equivalent, so a yearly item counts by month', () {
+      final summary = summarize([
+        item('Small', amount: 5),
+        item('Yearly', amount: 240, frequency: BillingFrequency.yearly), // 20
+        item('Medium', amount: 15),
+      ]);
+      expect(summary.biggestCosts['USD']!.map((c) => c.item.id), [
+        'Yearly',
+        'Medium',
+        'Small',
+      ]);
+      expect(summary.biggestCosts['USD']!.first.monthlyAmount, 20);
+    });
+
+    test('keeps at most five per currency', () {
+      final summary = summarize([
+        for (var i = 1; i <= 7; i++) item('item$i', amount: i * 10),
+      ]);
+      final list = summary.biggestCosts['USD']!;
+      expect(list, hasLength(biggestCostsLimit));
+      expect(list.map((c) => c.item.id), [
+        'item7',
+        'item6',
+        'item5',
+        'item4',
+        'item3',
+      ]);
+    });
+
+    test('a tie is broken by name', () {
+      final summary = summarize([
+        item('beta', amount: 10),
+        item('Alpha', amount: 10),
+      ]);
+      expect(summary.biggestCosts['USD']!.map((c) => c.item.id), [
+        'Alpha',
+        'beta',
+      ]);
+    });
+
+    test('trials, paused and cancelled items are not ranked', () {
+      final summary = summarize([
+        item('a', amount: 10),
+        item('b', amount: 20),
+        item('trial', amount: 999, trialEnd: DateTime(2026, 11, 15)),
+        item('paused', amount: 999, status: ItemStatus.paused),
+        item('cancelled', amount: 999, status: ItemStatus.cancelled),
+      ]);
+      expect(summary.biggestCosts['USD']!.map((c) => c.item.id), ['b', 'a']);
+    });
+
+    test('a currency with one item has nothing to rank', () {
+      final summary = summarize([
+        item('a', amount: 10),
+        item('b', amount: 20),
+        item('solo', amount: 9000, currency: 'RWF'),
+      ]);
+      expect(summary.biggestCosts.keys, ['USD']);
+    });
+  });
+
+  group('paid this month', () {
+    test(
+      'compares what was paid with the month total, as the Calendar does',
+      () {
+        final summary = summarize(
+          [
+            item('Netflix', amount: 15, due: DateTime(2026, 10, 20)),
+            item('Spotify', amount: 10, due: DateTime(2026, 11, 10)),
+          ],
+          payments: [paid('Spotify', DateTime(2026, 10, 5))],
+        );
+        final progress = summary.monthProgress['USD']!;
+        expect(progress.paid, 10);
+        expect(progress.total, 25); // Netflix on the 20th + Spotify paid
+      },
+    );
+
+    test('nothing recorded is zero paid', () {
+      final summary = summarize([item('Netflix', amount: 15)]);
+      expect(summary.monthProgress['USD']!.paid, 0);
+      expect(summary.monthProgress['USD']!.total, 15);
+    });
+
+    test('a skipped charge is neither paid nor part of the total', () {
+      final summary = summarize(
+        [item('Netflix', amount: 15, due: DateTime(2026, 10, 20))],
+        payments: [
+          paid('Netflix', DateTime(2026, 10, 5), status: PaymentStatus.skipped),
+        ],
+      );
+      final progress = summary.monthProgress['USD']!;
+      expect(progress.paid, 0);
+      expect(progress.total, 15);
+    });
+
+    test('payments from other months are ignored', () {
+      final summary = summarize(
+        [item('Netflix', amount: 15, due: DateTime(2026, 10, 20))],
+        payments: [paid('Netflix', DateTime(2026, 9, 20), amount: 15)],
+      );
+      expect(summary.monthProgress['USD']!.paid, 0);
+    });
+
+    test('is empty when nothing is due this month', () {
+      final summary = summarize([
+        item(
+          'Yearly',
+          amount: 100,
+          frequency: BillingFrequency.yearly,
+          due: DateTime(2027, 3, 1),
+        ),
+      ]);
+      expect(summary.monthProgress, isEmpty);
+    });
+
+    test('currencies are never merged', () {
+      final summary = summarize(
+        [
+          item('a', amount: 10, due: DateTime(2026, 10, 20)),
+          item('b', amount: 5000, currency: 'RWF', due: DateTime(2026, 10, 21)),
+        ],
+        payments: [
+          paid('b', DateTime(2026, 10, 3), amount: 5000, currency: 'RWF'),
+        ],
+      );
+      expect(summary.monthProgress['USD']!.paid, 0);
+      expect(summary.monthProgress['RWF']!.paid, 5000);
     });
   });
 }

@@ -90,11 +90,12 @@ RecurringItem testItem(
   int reminderDaysBefore = 3,
   bool remindersEnabled = true,
   ItemStatus status = ItemStatus.active,
+  RecurringItemType type = RecurringItemType.subscription,
 }) {
   return RecurringItem(
     id: name,
     name: name,
-    type: RecurringItemType.subscription,
+    type: type,
     amount: amount,
     currencyCode: currency,
     frequency: frequency,

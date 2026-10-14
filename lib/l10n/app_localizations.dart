@@ -1006,17 +1006,65 @@ abstract class AppLocalizations {
   /// **'By category'**
   String get insightsByCategory;
 
-  /// No description provided for @insightsCategorySubs.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 subscription} other{{count} subscriptions}}'**
-  String insightsCategorySubs(int count);
-
   /// No description provided for @insightsShare.
   ///
   /// In en, this message translates to:
   /// **'{percent}%'**
   String insightsShare(int percent);
+
+  /// No description provided for @insightsPaidThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid this month'**
+  String get insightsPaidThisMonth;
+
+  /// No description provided for @insightsPaidOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} of {total}'**
+  String insightsPaidOf(String paid, String total);
+
+  /// No description provided for @insightsPaidHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Charges you mark as paid count here.'**
+  String get insightsPaidHint;
+
+  /// No description provided for @insightsByType.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions and bills'**
+  String get insightsByType;
+
+  /// No description provided for @insightsTypeSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get insightsTypeSubscriptions;
+
+  /// No description provided for @insightsTypeBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get insightsTypeBills;
+
+  /// No description provided for @insightsTypeItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String insightsTypeItems(int count);
+
+  /// No description provided for @insightsBiggest.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest costs'**
+  String get insightsBiggest;
+
+  /// No description provided for @insightsBiggestShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of your monthly cost'**
+  String insightsBiggestShare(int percent);
 
   /// No description provided for @insightsEmptyTitle.
   ///

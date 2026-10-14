@@ -562,19 +562,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsByCategory => 'By category';
 
   @override
-  String insightsCategorySubs(int count) {
+  String insightsShare(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get insightsPaidThisMonth => 'Paid this month';
+
+  @override
+  String insightsPaidOf(String paid, String total) {
+    return '$paid of $total';
+  }
+
+  @override
+  String get insightsPaidHint => 'Charges you mark as paid count here.';
+
+  @override
+  String get insightsByType => 'Subscriptions and bills';
+
+  @override
+  String get insightsTypeSubscriptions => 'Subscriptions';
+
+  @override
+  String get insightsTypeBills => 'Bills';
+
+  @override
+  String insightsTypeItems(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count subscriptions',
-      one: '1 subscription',
+      other: '$count items',
+      one: '1 item',
     );
     return '$_temp0';
   }
 
   @override
-  String insightsShare(int percent) {
-    return '$percent%';
+  String get insightsBiggest => 'Biggest costs';
+
+  @override
+  String insightsBiggestShare(int percent) {
+    return '$percent% of your monthly cost';
   }
 
   @override
