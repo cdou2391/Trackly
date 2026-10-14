@@ -311,6 +311,29 @@ void main() {
       );
     });
 
+    tracklyTest('a generic entry like Gym membership shows its category icon', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        items: [testItem('Gym membership', logoKey: 'gym_membership')],
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(SvgPicture),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ServiceIcon),
+          matching: find.byType(Icon),
+        ),
+        findsOneWidget,
+      );
+    });
+
     tracklyTest('a generic bill shows its category icon, not the mark', (
       tester,
     ) async {

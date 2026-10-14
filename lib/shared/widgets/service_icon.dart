@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/database/tables/categories_table.dart';
 import '../../core/theme/trackly_tokens.dart';
-import '../../features/subscriptions/domain/recurring_enums.dart';
 import '../../features/subscriptions/domain/service_catalog.dart';
 
 const _categoryIcons = <String, IconData>{
@@ -75,8 +74,7 @@ class ServiceIcon extends StatelessWidget {
       );
     }
 
-    final isBrand =
-        service != null && service.type == RecurringItemType.subscription;
+    final isBrand = service != null && !service.isGeneric;
     final Widget child = isBrand
         ? Padding(
             padding: EdgeInsets.all(size * 0.2),

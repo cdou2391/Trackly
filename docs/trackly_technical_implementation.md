@@ -3337,3 +3337,21 @@ The matches shown under the name field in Quick Add and the add form were plain 
 - **Default icon.** `ServiceIcon` (§ service icons) used a letter tile for a catalog service without a logo. It now draws the Trackly mark (`assets/illustrations/trackly_logo.svg`) in one muted color on the same tile, so it works in both themes and every icon in a list still shares one shape. This applies everywhere `ServiceIcon` is used (Home rows, lists, item screen), not only in suggestions.
 - **Generic bills** (Rent, Water, Electricity...) keep the **category icon** (home, bolt...) instead of the mark: it says more than a brand stand-in. A custom item that is not in the catalog keeps its category icon as before.
 - Not done: a bundled one-color "T" glyph drawn for small sizes (the mark is the full logo silhouette, so its detail is lost below about 28 dp), and logos for the 95 new entries.
+
+---
+
+# 102. Logos for the new services (as built)
+
+44 of the services added in §100 now have their own logo, found and bundled the same way as the first 12: from the two CC0 collections, **gilbarbara/logos** (full-color marks) and **Simple Icons** (single-color marks, filled with the brand color from `simple-icons.json`). Each file is `assets/logos/<key>.svg` and is credited in `assets/logos/LICENSES.md`.
+
+| Result | Count | Examples |
+| --- | --- | --- |
+| Has a logo | 56 in all (12 before) | GitHub, Slack, Zoom, Figma, Notion, Dropbox, Claude, Perplexity, Twitch, Deezer, Audible, Duolingo, Coursera, Strava, Shopify, 1Password, NordVPN, Mailchimp |
+| Brand with no usable logo | 23 | Hulu, Disney+, Amazon Prime, Canva, Xbox Game Pass, Peacock, DStv, Showmax, Apple One, Babbel, Calm |
+| Generic (no logo by design) | 34 | The 31 bills, plus Gym membership, Domain name, Web hosting |
+
+- A brand without a logo shows the Trackly mark (§101). A **generic** entry shows its **category icon** instead (a house for Rent, a bolt for Electricity, a dumbbell for Gym membership): `CatalogService.isGeneric` is true for every bill and for the entries marked `generic`.
+- Left out on purpose because they would look wrong at 36 dp: DAZN (a near-white mark that disappears on a light page), Google Workspace (only a small wordmark exists), YouTube TV (text too small to read). They keep the Trackly mark.
+- Marks that are only black (Apple Arcade, GitHub, The New York Times, Peloton, Squarespace, Tidal, Uber, Medium, Midjourney) are recolored to pure black and flagged `blackMark`, so they turn white on a dark page like Apple TV+ and Max. The tests check the flag against the file's colors.
+- Same safety checks as before: no scripts, images or external links, each file under 20 kB, every file used, every file credited. The 44 files add about 64 kB to the app.
+- LinkedIn Learning uses the LinkedIn mark, Claude Pro the Claude mark, PlayStation Plus the PlayStation mark, and so on, like ChatGPT Plus uses the OpenAI mark. The CC0 license covers the files, not the brands; check each company's brand guidelines before a store release.
