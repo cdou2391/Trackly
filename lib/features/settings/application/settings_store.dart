@@ -22,6 +22,10 @@ abstract class SettingsStore {
   int? get reminderDays;
   int? get reminderMinuteOfDay;
 
+  /// How All subscriptions is drawn: true for drifting bubbles, false for a
+  /// list. Null until the person chooses (bubbles).
+  bool? get itemsAsBubbles;
+
   /// Whether the person agreed to send anonymous usage statistics. Null until
   /// they have been asked: nothing is sent until then.
   bool? get usageStatsEnabled;
@@ -39,6 +43,7 @@ abstract class SettingsStore {
   Future<void> setThemeMode(ThemeMode mode);
   Future<void> setReminderDays(int days);
   Future<void> setReminderMinuteOfDay(int minute);
+  Future<void> setItemsAsBubbles(bool bubbles);
   Future<void> setUsageStatsEnabled(bool enabled);
   Future<void> setErrorReportsEnabled(bool enabled);
 
@@ -55,6 +60,7 @@ class InMemorySettingsStore implements SettingsStore {
   ThemeMode? _themeMode;
   int? _reminderDays;
   int? _reminderMinute;
+  bool? _itemsAsBubbles;
   bool? _usageStats;
   bool? _errorReports;
   Set<String> _reportedTrialEnds = const {};
@@ -74,10 +80,15 @@ class InMemorySettingsStore implements SettingsStore {
   @override
   int? get reminderMinuteOfDay => _reminderMinute;
   @override
+  bool? get itemsAsBubbles => _itemsAsBubbles;
+  @override
   bool? get usageStatsEnabled => _usageStats;
   @override
   bool? get errorReportsEnabled => _errorReports;
 
+  @override
+  Future<void> setItemsAsBubbles(bool bubbles) async =>
+      _itemsAsBubbles = bubbles;
   @override
   Future<void> setCurrency(String code) async => _currency = code;
   @override
@@ -101,6 +112,7 @@ class InMemorySettingsStore implements SettingsStore {
     _themeMode = null;
     _reminderDays = null;
     _reminderMinute = null;
+    _itemsAsBubbles = null;
   }
 }
 
@@ -111,6 +123,7 @@ class SharedSettingsStore implements SettingsStore {
   static const _themeKey = 'theme_mode';
   static const _reminderDaysKey = 'default_reminder_days';
   static const _reminderMinuteKey = 'default_reminder_minute';
+  static const _itemsAsBubblesKey = 'items_as_bubbles';
   static const _usageStatsKey = 'privacy_usage_stats';
   static const _errorReportsKey = 'privacy_error_reports';
   static const _reportedTrialEndsKey = 'reported_trial_ends';
@@ -143,6 +156,9 @@ class SharedSettingsStore implements SettingsStore {
     final minute = _prefs.getInt(_reminderMinuteKey);
     return (minute != null && minute >= 0 && minute < 24 * 60) ? minute : null;
   }
+
+  @override
+  bool? get itemsAsBubbles => _prefs.getBool(_itemsAsBubblesKey);
 
   @override
   bool? get usageStatsEnabled => _prefs.getBool(_usageStatsKey);
@@ -180,6 +196,11 @@ class SharedSettingsStore implements SettingsStore {
   }
 
   @override
+  Future<void> setItemsAsBubbles(bool bubbles) async {
+    await _prefs.setBool(_itemsAsBubblesKey, bubbles);
+  }
+
+  @override
   Future<void> setUsageStatsEnabled(bool enabled) async {
     await _prefs.setBool(_usageStatsKey, enabled);
   }
@@ -197,6 +218,7 @@ class SharedSettingsStore implements SettingsStore {
       _themeKey,
       _reminderDaysKey,
       _reminderMinuteKey,
+      _itemsAsBubblesKey,
     ]) {
       await _prefs.remove(key);
     }

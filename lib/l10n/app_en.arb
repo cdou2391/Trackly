@@ -169,6 +169,16 @@
   "filterPaused": "Paused",
   "filterCancelled": "Cancelled",
   "noItemsInFilter": "Nothing here yet.",
+  "itemsViewShowList": "Show as list",
+  "itemsViewShowBubbles": "Show as bubbles",
+  "bubbleSemantics": "{name}, {amount}, {status}",
+  "@bubbleSemantics": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
   "historyTitle": "Payment history",
   "historyEmpty": "Payments you mark as paid will show up here.",
   "moreSectionTracking": "Tracking",

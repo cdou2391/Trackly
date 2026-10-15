@@ -9,7 +9,9 @@ import '../../../shared/widgets/sub_page_header.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/widgets/subscription_row.dart';
 import '../application/items_filter.dart';
+import '../application/items_view.dart';
 import 'labels.dart';
+import 'subscription_bubbles.dart';
 
 /// Every subscription and bill, in tabs: All, Active, Trial and Cancelled.
 ///
@@ -64,7 +66,10 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen>
             constraints: const BoxConstraints(maxWidth: 520),
             child: Column(
               children: [
-                SubPageHeader(title: l10n.allSubscriptionsTitle),
+                SubPageHeader(
+                  title: l10n.allSubscriptionsTitle,
+                  trailing: const _ViewToggle(),
+                ),
                 TabBar(
                   controller: _controller,
                   isScrollable: largeText,
@@ -93,6 +98,26 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen>
   }
 }
 
+/// Switches between the bubbles and the plain list.
+class _ViewToggle extends ConsumerWidget {
+  const _ViewToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final bubbles = ref.watch(itemsAsBubblesProvider);
+
+    return IconButton(
+      tooltip: bubbles ? l10n.itemsViewShowList : l10n.itemsViewShowBubbles,
+      icon: Icon(
+        bubbles ? Icons.view_list_rounded : Icons.bubble_chart_rounded,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+      onPressed: () => ref.read(itemsAsBubblesProvider.notifier).set(!bubbles),
+    );
+  }
+}
+
 /// The list for one tab.
 class _ItemsList extends ConsumerWidget {
   const _ItemsList({required this.filter});
@@ -111,6 +136,14 @@ class _ItemsList extends ConsumerWidget {
           context.l10n.noItemsInFilter,
           style: Theme.of(context).textTheme.bodySmall,
         ),
+      );
+    }
+
+    if (ref.watch(itemsAsBubblesProvider)) {
+      return SubscriptionBubbles(
+        items: shown,
+        now: now,
+        onOpen: (item) => context.push(AppRoutes.itemPath(item.id)),
       );
     }
 

@@ -850,6 +850,24 @@ abstract class AppLocalizations {
   /// **'Nothing here yet.'**
   String get noItemsInFilter;
 
+  /// No description provided for @itemsViewShowList.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as list'**
+  String get itemsViewShowList;
+
+  /// No description provided for @itemsViewShowBubbles.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as bubbles'**
+  String get itemsViewShowBubbles;
+
+  /// No description provided for @bubbleSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {amount}, {status}'**
+  String bubbleSemantics(String name, String amount, String status);
+
   /// No description provided for @historyTitle.
   ///
   /// In en, this message translates to:
