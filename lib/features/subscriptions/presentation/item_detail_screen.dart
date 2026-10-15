@@ -546,6 +546,10 @@ class _Actions extends ConsumerWidget {
   }
 }
 
+/// Cancel subscription and Delete, as two buttons side by side. Cancelling
+/// keeps the history and can be undone by editing; deleting removes it, so it
+/// is the stronger of the two (a tinted fill against an outline). A cancelled
+/// item can only be deleted, so that button then has the row to itself.
 class _DangerZone extends ConsumerWidget {
   const _DangerZone({required this.item});
 
@@ -554,67 +558,96 @@ class _DangerZone extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final danger = context.tokens.danger.fg;
+    final danger = context.tokens.danger;
     final actions = ref.read(subscriptionActionsProvider);
 
-    TextStyle? style() => sans(15, weight: 600, color: danger);
+    Future<void> cancel() async {
+      final messenger = ScaffoldMessenger.of(context);
+      final confirmed = await confirmDialog(
+        context,
+        title: l10n.cancelDialogTitle(item.name),
+        body: l10n.cancelDialogBody,
+        confirm: l10n.cancelDialogConfirm,
+        cancel: l10n.dialogKeep,
+      );
+      if (confirmed != true) return;
+      try {
+        await actions.cancel(item);
+        messenger.showReplacing(SnackBar(content: Text(l10n.snackCancelled)));
+      } catch (_) {
+        messenger.showReplacing(SnackBar(content: Text(l10n.actionFailed)));
+      }
+    }
 
-    return Column(
-      children: [
-        if (item.status != ItemStatus.cancelled)
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: danger),
-            onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
-              final confirmed = await confirmDialog(
-                context,
-                title: l10n.cancelDialogTitle(item.name),
-                body: l10n.cancelDialogBody,
-                confirm: l10n.cancelDialogConfirm,
-                cancel: l10n.dialogKeep,
-              );
-              if (confirmed != true) return;
-              try {
-                await actions.cancel(item);
-                messenger.showReplacing(
-                  SnackBar(content: Text(l10n.snackCancelled)),
-                );
-              } catch (_) {
-                messenger.showReplacing(
-                  SnackBar(content: Text(l10n.actionFailed)),
-                );
-              }
-            },
-            child: Text(l10n.cancelSubscription, style: style()),
-          ),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: danger),
-          onPressed: () async {
-            final messenger = ScaffoldMessenger.of(context);
-            final router = GoRouter.of(context);
-            final confirmed = await confirmDialog(
-              context,
-              title: l10n.deleteDialogTitle(item.name),
-              body: l10n.deleteDialogBody,
-              confirm: l10n.deleteDialogConfirm,
-              cancel: l10n.dialogNotNow,
-            );
-            if (confirmed != true) return;
-            try {
-              await actions.delete(item);
-              if (router.canPop()) router.pop();
-              messenger.showReplacing(
-                SnackBar(content: Text(l10n.snackDeleted)),
-              );
-            } catch (_) {
-              messenger.showReplacing(
-                SnackBar(content: Text(l10n.actionFailed)),
-              );
-            }
-          },
-          child: Text(l10n.deleteItem, style: style()),
-        ),
-      ],
+    Future<void> delete() async {
+      final messenger = ScaffoldMessenger.of(context);
+      final router = GoRouter.of(context);
+      final confirmed = await confirmDialog(
+        context,
+        title: l10n.deleteDialogTitle(item.name),
+        body: l10n.deleteDialogBody,
+        confirm: l10n.deleteDialogConfirm,
+        cancel: l10n.dialogNotNow,
+      );
+      if (confirmed != true) return;
+      try {
+        await actions.delete(item);
+        if (router.canPop()) router.pop();
+        messenger.showReplacing(SnackBar(content: Text(l10n.snackDeleted)));
+      } catch (_) {
+        messenger.showReplacing(SnackBar(content: Text(l10n.actionFailed)));
+      }
+    }
+
+    Widget label(String text) =>
+        Text(text, textAlign: TextAlign.center, maxLines: 2);
+
+    final cancelButton = OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: danger.fg,
+        side: BorderSide(color: danger.fg.withValues(alpha: 0.45)),
+        minimumSize: const Size(48, 52),
+      ),
+      icon: const Icon(Icons.block_rounded),
+      label: label(l10n.cancelSubscription),
+      onPressed: cancel,
+    );
+    final deleteButton = FilledButton.icon(
+      style: FilledButton.styleFrom(
+        backgroundColor: danger.bg,
+        foregroundColor: danger.fg,
+        minimumSize: const Size(48, 52),
+      ),
+      icon: const Icon(Icons.delete_outline_rounded),
+      label: label(l10n.deleteItem),
+      onPressed: delete,
+    );
+
+    if (item.status == ItemStatus.cancelled) {
+      return SizedBox(width: double.infinity, child: deleteButton);
+    }
+
+    // Side by side, unless large text leaves each too narrow for its label.
+    final largeText = MediaQuery.textScalerOf(context).scale(14) / 14 > 1.3;
+    if (largeText) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          cancelButton,
+          const SizedBox(height: TracklySpacing.sm),
+          deleteButton,
+        ],
+      );
+    }
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(flex: 3, child: cancelButton),
+          const SizedBox(width: TracklySpacing.sm),
+          Expanded(flex: 2, child: deleteButton),
+        ],
+      ),
     );
   }
 }
