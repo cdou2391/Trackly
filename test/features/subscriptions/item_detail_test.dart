@@ -290,6 +290,83 @@ void main() {
     });
   });
 
+  group('cancel and delete buttons', () {
+    Rect rect(WidgetTester tester, String label) => tester.getRect(
+      find.ancestor(
+        of: find.text(label),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      ),
+    );
+
+    tracklyTest('sit side by side, level with each other', (tester) async {
+      await _openNetflix(tester);
+
+      final cancel = rect(tester, 'Cancel subscription');
+      final delete = rect(tester, 'Delete');
+
+      expect(cancel.top, delete.top);
+      expect(cancel.height, delete.height);
+      expect(cancel.right, lessThan(delete.left));
+      // Both stay comfortable to hit.
+      expect(cancel.height, greaterThanOrEqualTo(48));
+      expect(delete.width, greaterThanOrEqualTo(48));
+    });
+
+    tracklyTest('stack when large text would squeeze the labels', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 1800),
+        textScale: 1.4,
+        items: [testItem('Netflix', due: DateTime(2026, 10, 15))],
+      );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      final cancel = rect(tester, 'Cancel subscription');
+      final delete = rect(tester, 'Delete');
+
+      expect(delete.top, greaterThan(cancel.bottom));
+      expect(cancel.left, delete.left);
+      expect(cancel.width, delete.width);
+      expect(tester.takeException(), isNull);
+    });
+
+    tracklyTest('a cancelled item only offers Delete, full width', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: _size,
+        items: [testItem('Netflix', status: ItemStatus.cancelled)],
+      );
+      await tester.tap(find.text('More').last);
+      await settle(tester);
+      await tester.tap(find.text('All subscriptions'));
+      await settle(tester);
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      expect(find.text('Cancel subscription'), findsNothing);
+      final delete = rect(tester, 'Delete');
+      expect(delete.width, greaterThan(300));
+    });
+
+    tracklyTest('fit a narrow screen without overflow', (tester) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(320, 1400),
+        items: [testItem('Netflix', due: DateTime(2026, 10, 15))],
+      );
+      await tester.tap(find.text('Netflix'));
+      await settle(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Cancel subscription'), findsOneWidget);
+    });
+  });
+
   group('delete', () {
     tracklyTest('asks first, then removes the item and returns to Home', (
       tester,

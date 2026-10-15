@@ -3437,3 +3437,15 @@ All subscriptions can show its items as circles that drift around the screen, re
 - The switch moved into the header (`SubPageHeader` gained an optional `trailing`) so the four tabs keep the full width.
 - Tests: `pumpTrackly` opens All subscriptions as a list unless a test asks for bubbles (`itemsAsBubbles`), and bubble tests turn animations off so the screen can settle. One test runs with motion on, with bounded pumps, because a drifting screen never settles by design.
 - Not done: dragging or flicking a bubble, a bubble per currency group, showing the amount on the bubble, and a "due soon" pulse. Seen in passing, not changed: on a 390 dp screen the last tab label ("Cancelled") is faded at its edge, with or without bubbles.
+
+---
+
+# 108. Cancel and Delete side by side (as built)
+
+- On the item screen, **Cancel subscription** and **Delete** are now two buttons in one row at the bottom, instead of two stacked text links. Both are 52 dp tall, like the buttons above them.
+- They are told apart by weight, not just by label: Cancel is an outlined red button with a block icon, Delete is a tinted red fill with a bin icon. Delete is the stronger of the two because it also removes the payment history; cancelling keeps it.
+- Cancel gets more of the row (3 parts to 2), since its label is longer and wraps to two lines on a narrow phone. Both buttons stay the same height.
+- A cancelled item cannot be cancelled again, so it shows Delete alone at full width.
+- With text enlarged beyond about 130%, the buttons stack (Cancel above Delete) so neither label is squeezed.
+- Nothing about what they do has changed: each still asks first ("Cancel Netflix?" with Keep it, "Delete Netflix?" with Not now), and the messages and undo behavior are the same.
+- Seen in passing, not changed: the bottom navigation bar overflows by 1 px at 180% text size.
