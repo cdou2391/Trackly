@@ -3381,3 +3381,26 @@ Three additions under the existing totals, counts and category breakdown. All us
 - The Active, Trial and Upcoming cards on Insights now look like the Active, Trial and Cancelled cards on Home: the tinted icon circle on the left, the figure and its label to its right, instead of stacked under the icon. They use the same widget, `SummaryCard`, which gained `showChevron` (off here, since these cards only inform) and `semanticsLabel` (so "6 charges in the next month" is still what a screen reader says).
 - The third card's label changed from "Charges ahead" to **Upcoming**, matching Home's "Upcoming charges" and short enough to sit beside the icon on a 360 dp phone. Its meaning is unchanged.
 - As on Home, the icon stacks above the figure when a card is too narrow or the text is enlarged beyond about 115%, so nothing is squeezed at large text sizes.
+
+---
+
+# 105. Spending trend on Insights (as built)
+
+A line chart of what each recent month cost, requested by the owner. The design guide (§40) says to avoid chart overload, so this is the only chart in the app and it stays quiet: one line, no gridlines but the baseline, no legend box.
+
+| Part | Behavior |
+| --- | --- |
+| **Placement** | Insights, between **Paid this month** and the category breakdown. |
+| **Range** | A 3M / 6M / 1Y selector. The default is 6M. The choice is kept while the app runs, not saved. |
+| **Values** | Each month is the Calendar's **Total this month** (§89), through `buildCalendarMonth`, so the two screens agree. A past month is what was recorded as paid in it. The current month is what has been paid plus what is still to pay. Skipped charges are not counted, nor are charges still to come while a free trial runs. |
+| **Currencies** | One chart per currency, labelled when there is more than one. Currencies are never merged. |
+| **Labels** | The peak and the current month carry their amount (every point when there are three or fewer). Tapping or dragging along the line shows one month's amount instead. A number is never printed on every point. |
+| **Empty** | Fewer than two months with something in them draws no line (one dot says nothing). A hint says "Your trend appears once two months have payments or charges." |
+
+- The line is a monotone cubic curve (Fritsch-Carlson), so it never dips below the floor or rises above a peak between points.
+- Markers are 8 dp with a 2 dp surface ring, 10 for the current month and 12 for the chosen one. Text uses ink colors, not the line's color. The month names thin out when they would touch, and text scaling is limited to 130% inside the plot.
+- Dark mode uses the theme's own accent, surface and ink tokens.
+- A screen reader reads one summary ("Spending trend, last 6 months: May $59.79, Jun ...") instead of the drawing.
+- Past months are only as accurate as the payments the person records. Months from before the app was used show nothing.
+- Testing note: inserting several payments one by one with `runAsync` while a screen listens to them stalls Drift's fake-async timers. Tests insert them in one `transaction`.
+- Not done: a projection of the coming months, a per-category line, and a saved range.

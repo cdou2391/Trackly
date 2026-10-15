@@ -567,6 +567,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get insightsTrend => 'Spending trend';
+
+  @override
+  String get insightsTrendRange3 => '3M';
+
+  @override
+  String get insightsTrendRange6 => '6M';
+
+  @override
+  String get insightsTrendRange12 => '1Y';
+
+  @override
+  String insightsTrendLast(int count) {
+    return 'Last $count months';
+  }
+
+  @override
+  String get insightsTrendNote =>
+      'Past months show what you paid. This month also includes charges still to pay.';
+
+  @override
+  String get insightsTrendEmpty =>
+      'Your trend appears once two months have payments or charges.';
+
+  @override
+  String insightsTrendSemantics(int count, String points) {
+    return 'Spending trend, last $count months: $points';
+  }
+
+  @override
   String get insightsPaidThisMonth => 'Paid this month';
 
   @override
