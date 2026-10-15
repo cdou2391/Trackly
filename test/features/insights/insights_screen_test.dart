@@ -375,6 +375,23 @@ void main() {
       expect(find.text('Biggest costs'), findsNothing);
     });
 
+    tracklyTest('only the cards that open something show a chevron', (
+      tester,
+    ) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(390, 2600),
+        items: [
+          testItem('Netflix', amount: 50, categoryId: 'entertainment'),
+          testItem('Spotify', amount: 10, categoryId: 'entertainment'),
+        ],
+      );
+      await _openInsights(tester);
+
+      // Two Biggest costs cards open an item; the category card does not.
+      expect(find.byIcon(Icons.chevron_right_rounded), findsNWidgets(2));
+    });
+
     tracklyTest('tapping one opens it', (tester) async {
       await pumpTrackly(
         tester,

@@ -381,8 +381,9 @@ class _TypeBreakdown extends StatelessWidget {
   }
 }
 
-/// One row with an icon, a name, an amount, a thin share bar and a caption.
-/// Used for categories and for subscriptions against bills.
+/// One card in the style of the subscription lists: an icon, a name with a
+/// caption, the amount, and a thin share bar underneath. Used for categories
+/// and for subscriptions against bills.
 class _ShareRow extends StatelessWidget {
   const _ShareRow({
     required this.icon,
@@ -403,81 +404,137 @@ class _ShareRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
     final tokens = context.tokens;
     final percent = (share * 100).round();
 
+    return _InsightCard(
+      semanticsLabel:
+          '$name, $amount ${l10n.heroMonthSuffix}, $detail, '
+          '${l10n.insightsShare(percent)}',
+      leading: Container(
+        width: _insightIconSize,
+        height: _insightIconSize,
+        decoration: BoxDecoration(
+          color: tokens.tileFill,
+          borderRadius: BorderRadius.circular(TracklyRadius.small),
+        ),
+        child: Icon(icon, size: 24, color: tokens.tileInk),
+      ),
+      title: name,
+      subtitle: '$detail · ${l10n.insightsShare(percent)}',
+      amount: amount,
+      footer: ClipRRect(
+        borderRadius: BorderRadius.circular(TracklyRadius.pill),
+        child: LinearProgressIndicator(
+          value: share.clamp(0.0, 1.0),
+          minHeight: 6,
+          color: tokens.accent,
+          backgroundColor: tokens.fieldFill,
+        ),
+      ),
+    );
+  }
+}
+
+const _insightIconSize = 44.0;
+
+/// The card every Insights list uses, matching the rows of the subscription
+/// lists on Home: a bordered, rounded surface with the icon on the left, the
+/// name and a caption beside it, and the amount on the right. A [onTap] adds
+/// the chevron; a [footer] sits under the row.
+class _InsightCard extends StatelessWidget {
+  const _InsightCard({
+    required this.semanticsLabel,
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    required this.amount,
+    this.footer,
+    this.onTap,
+  });
+
+  final String semanticsLabel;
+  final Widget leading;
+  final String title;
+  final String subtitle;
+  final String amount;
+  final Widget? footer;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: TracklySpacing.md),
+      padding: const EdgeInsets.only(bottom: TracklySpacing.sm),
       child: Semantics(
         container: true,
-        label:
-            '$name, $amount ${l10n.heroMonthSuffix}, $detail, '
-            '${l10n.insightsShare(percent)}',
+        button: onTap != null,
+        label: semanticsLabel,
         excludeSemantics: true,
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: tokens.tileFill,
-                borderRadius: BorderRadius.circular(TracklyRadius.small),
-              ),
-              child: Icon(icon, size: 22, color: tokens.tileInk),
-            ),
-            const SizedBox(width: TracklySpacing.md),
-            Expanded(
+        child: Material(
+          color: theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: BorderSide(color: tokens.cardBorder),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     children: [
+                      leading,
+                      const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: sans(
-                            16,
-                            weight: 600,
-                            color: theme.colorScheme.onSurface,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              style: theme.textTheme.titleMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              subtitle,
+                              style: theme.textTheme.bodySmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: TracklySpacing.sm),
+                      const SizedBox(width: 8),
                       Text(
                         amount,
                         style: sans(
-                          16,
+                          17,
                           weight: 600,
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
+                      if (onTap != null) ...[
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(TracklyRadius.pill),
-                    child: LinearProgressIndicator(
-                      value: share.clamp(0.0, 1.0),
-                      minHeight: 6,
-                      color: tokens.accent,
-                      backgroundColor: tokens.fieldFill,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$detail · ${l10n.insightsShare(percent)}',
-                    style: sans(
-                      12.5,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  if (footer != null) ...[const SizedBox(height: 10), footer!],
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -606,7 +663,6 @@ class _BiggestCosts extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final theme = Theme.of(context);
     final currencies = summary.biggestCosts.keys.toList()..sort();
     final showCurrency = currencies.length > 1;
 
@@ -632,7 +688,6 @@ class _BiggestCosts extends StatelessWidget {
                           ) *
                           100)
                       .round(),
-              theme: theme,
             ),
         ],
       ],
@@ -645,79 +700,30 @@ class _CostlyRow extends StatelessWidget {
     required this.costly,
     required this.amount,
     required this.percent,
-    required this.theme,
   });
 
   final CostlyItem costly;
   final String amount;
   final int percent;
-  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final item = costly.item;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(TracklyRadius.small),
-      onTap: () => context.push(AppRoutes.itemPath(item.id)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Semantics(
-            container: true,
-            button: true,
-            label:
-                '${item.name}, $amount ${l10n.heroMonthSuffix}, '
-                '${l10n.insightsBiggestShare(percent)}',
-            excludeSemantics: true,
-            child: Row(
-              children: [
-                ServiceIcon(
-                  logoKey: item.logoKey,
-                  categoryId: item.categoryId,
-                  size: 40,
-                ),
-                const SizedBox(width: TracklySpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: sans(
-                          16,
-                          weight: 600,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                      Text(
-                        l10n.insightsBiggestShare(percent),
-                        style: sans(
-                          12.5,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: TracklySpacing.sm),
-                Text(
-                  amount,
-                  style: sans(
-                    16,
-                    weight: 600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+    return _InsightCard(
+      semanticsLabel:
+          '${item.name}, $amount ${l10n.heroMonthSuffix}, '
+          '${l10n.insightsBiggestShare(percent)}',
+      leading: ServiceIcon(
+        logoKey: item.logoKey,
+        categoryId: item.categoryId,
+        size: _insightIconSize,
       ),
+      title: item.name,
+      subtitle: l10n.insightsBiggestShare(percent),
+      amount: amount,
+      onTap: () => context.push(AppRoutes.itemPath(item.id)),
     );
   }
 }
