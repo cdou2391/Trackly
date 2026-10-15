@@ -19,6 +19,7 @@ import '../../settings/application/settings_providers.dart';
 import '../../subscriptions/domain/recurring_enums.dart';
 import '../application/insights_providers.dart';
 import '../application/insights_summary.dart';
+import 'spending_trend_card.dart';
 
 /// Keeps content readable on tablets and large phones.
 const _maxContentWidth = 520.0;
@@ -87,6 +88,7 @@ class _InsightsContent extends ConsumerWidget {
           ),
           if (summary.monthProgress.isNotEmpty)
             _Section(child: _PaidThisMonth(summary: summary)),
+          const _Section(child: SpendingTrendSection()),
           if (summary.categoryBreakdown.isNotEmpty)
             _Section(child: _CategoryBreakdown(summary: summary)),
           if (_hasBothTypes(summary))

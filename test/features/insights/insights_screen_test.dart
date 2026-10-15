@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackly/core/analytics/analytics_events.dart';
 import 'package:trackly/core/analytics/analytics_service.dart';
+import 'package:trackly/features/insights/presentation/spending_trend_card.dart';
 import 'package:trackly/features/payments/domain/payment.dart';
 import 'package:trackly/features/subscriptions/domain/recurring_enums.dart';
 
@@ -389,6 +390,186 @@ void main() {
       await settle(tester);
 
       expect(find.text('Mark as paid'), findsOneWidget); // the item screen
+    });
+  });
+
+  group('spending trend', () {
+    // Payments go in as one transaction: separate inserts stall Drift's
+    // fake-async timers while a screen is listening.
+    Future<void> addPayments(
+      WidgetTester tester,
+      dynamic db,
+      List<Payment> payments,
+    ) => tester.runAsync(
+      () => db.transaction(() async {
+        for (final payment in payments) {
+          await db.paymentsDao.insertPayment(payment);
+        }
+      }),
+    );
+
+    Payment paidIn(
+      int month,
+      double amount, {
+      String item = 'Netflix',
+      String currency = 'USD',
+    }) => Payment(
+      id: '$item-$month',
+      recurringItemId: item,
+      amount: amount,
+      currencyCode: currency,
+      dueDate: DateTime(2026, month, 5),
+      paidDate: DateTime(2026, month, 5),
+      status: PaymentStatus.paid,
+      createdAt: testNow,
+    );
+
+    final summary = RegExp(r'^Spending trend, last (\d+) months');
+
+    int monthsShown(WidgetTester tester) {
+      final label = find
+          .bySemanticsLabel(summary)
+          .evaluate()
+          .first
+          .renderObject!
+          .debugSemantics!
+          .label;
+      return int.parse(summary.firstMatch(label)!.group(1)!);
+    }
+
+    tracklyTest('says when there is not enough to draw yet', (tester) async {
+      await pumpTrackly(tester, size: _tall, items: [testItem('Netflix')]);
+      await _openInsights(tester);
+
+      expect(find.text('Spending trend'), findsOneWidget);
+      expect(
+        find.text(
+          'Your trend appears once two months have payments or charges.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('6M'), findsNothing);
+    });
+
+    tracklyTest('draws a line once two months have something in them', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [testItem('Netflix', amount: 15)],
+      );
+      await addPayments(tester, db, [paidIn(8, 15), paidIn(9, 15)]);
+      await _openInsights(tester);
+
+      expect(find.text('Spending trend'), findsOneWidget);
+      expect(find.text('3M'), findsOneWidget);
+      expect(find.text('6M'), findsOneWidget);
+      expect(find.text('1Y'), findsOneWidget);
+      expect(monthsShown(tester), 6);
+      expect(
+        find.bySemanticsLabel(RegExp(r'Aug \$15\.00, Sep \$15\.00')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Past months show what you paid. This month also includes charges still to pay.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    tracklyTest('the range buttons change how many months show', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [testItem('Netflix', amount: 15)],
+      );
+      await addPayments(tester, db, [paidIn(8, 15), paidIn(9, 15)]);
+      await _openInsights(tester);
+
+      await tester.tap(find.text('1Y'));
+      await settle(tester);
+      expect(monthsShown(tester), 12);
+
+      await tester.tap(find.text('3M'));
+      await settle(tester);
+      expect(monthsShown(tester), 3);
+    });
+
+    tracklyTest('tapping along the line picks the nearest month', (
+      tester,
+    ) async {
+      final db = await pumpTrackly(
+        tester,
+        size: _tall,
+        items: [testItem('Netflix', amount: 15)],
+      );
+      await addPayments(tester, db, [paidIn(8, 15), paidIn(9, 30)]);
+      await _openInsights(tester);
+
+      int? selected() {
+        final chart = find.descendant(
+          of: find.byType(TrendChart),
+          matching: find.byType(CustomPaint),
+        );
+        return (tester.widget<CustomPaint>(chart.first).painter! as dynamic)
+                .selected
+            as int?;
+      }
+
+      expect(selected(), isNull);
+
+      final box = tester.getRect(find.byType(TrendChart));
+      // Six months across the plot: the first sits at the left padding.
+      await tester.tapAt(Offset(box.left + 20, box.center.dy));
+      await tester.pump();
+      expect(selected(), 0);
+
+      await tester.tapAt(Offset(box.right - 20, box.center.dy));
+      await tester.pump();
+      expect(selected(), 5);
+    });
+
+    tracklyTest('one chart per currency, labelled', (tester) async {
+      final db = await pumpTrackly(
+        tester,
+        size: const Size(390, 2400),
+        items: [
+          testItem('Netflix', amount: 15),
+          testItem('Canva', amount: 12, currency: 'EUR'),
+        ],
+      );
+      await addPayments(tester, db, [
+        paidIn(8, 15),
+        paidIn(9, 15),
+        paidIn(8, 12, item: 'Canva', currency: 'EUR'),
+        paidIn(9, 12, item: 'Canva', currency: 'EUR'),
+      ]);
+      await _openInsights(tester);
+
+      expect(find.byType(TrendChart), findsNWidgets(2));
+      expect(find.bySemanticsLabel(summary), findsNWidgets(2));
+    });
+
+    tracklyTest('fits a narrow screen with large text', (tester) async {
+      final db = await pumpTrackly(
+        tester,
+        size: const Size(320, 2600),
+        textScale: 2.0,
+        items: [testItem('Netflix', amount: 15)],
+      );
+      await addPayments(tester, db, [
+        for (var m = 1; m <= 10; m++) paidIn(m, 10.0 + m),
+      ]);
+      await _openInsights(tester);
+      await tester.tap(find.text('1Y'));
+      await settle(tester);
+
+      expect(find.byType(TrendChart), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }

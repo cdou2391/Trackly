@@ -1012,6 +1012,54 @@ abstract class AppLocalizations {
   /// **'{percent}%'**
   String insightsShare(int percent);
 
+  /// No description provided for @insightsTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend'**
+  String get insightsTrend;
+
+  /// No description provided for @insightsTrendRange3.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get insightsTrendRange3;
+
+  /// No description provided for @insightsTrendRange6.
+  ///
+  /// In en, this message translates to:
+  /// **'6M'**
+  String get insightsTrendRange6;
+
+  /// No description provided for @insightsTrendRange12.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get insightsTrendRange12;
+
+  /// No description provided for @insightsTrendLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {count} months'**
+  String insightsTrendLast(int count);
+
+  /// No description provided for @insightsTrendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Past months show what you paid. This month also includes charges still to pay.'**
+  String get insightsTrendNote;
+
+  /// No description provided for @insightsTrendEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trend appears once two months have payments or charges.'**
+  String get insightsTrendEmpty;
+
+  /// No description provided for @insightsTrendSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend, last {count} months: {points}'**
+  String insightsTrendSemantics(int count, String points);
+
   /// No description provided for @insightsPaidThisMonth.
   ///
   /// In en, this message translates to:
