@@ -6,9 +6,12 @@ import '../../l10n/l10n.dart';
 
 /// Header for screens reached from another screen: a back button and a title.
 class SubPageHeader extends StatelessWidget {
-  const SubPageHeader({required this.title, super.key});
+  const SubPageHeader({required this.title, this.trailing, super.key});
 
   final String title;
+
+  /// An action at the right end, such as a view switch.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +40,7 @@ class SubPageHeader extends StatelessWidget {
               child: Text(title, style: theme.textTheme.headlineMedium),
             ),
           ),
+          ?trailing,
         ],
       ),
     );

@@ -3414,3 +3414,26 @@ A line chart of what each recent month cost, requested by the owner. The design 
 - **By category** and **Subscriptions and bills** keep their thin share bar, now inside the card under the row, and the caption "2 items · 3%". They are not tappable, so they have no chevron.
 - **Biggest costs** cards open the item and show the chevron, like Home. The caption is still the share of the monthly cost.
 - Nothing else changed: the numbers, the per-currency labels, and the rules for when each list appears are the same.
+
+---
+
+# 107. Bubbles on All subscriptions (as built)
+
+All subscriptions can show its items as circles that drift around the screen, requested by the owner. Tapping a bubble opens that subscription or bill, as a row does. It is the default; a switch in the header returns to the list, and the choice is kept on the phone (`items_as_bubbles`, reset with the other display choices).
+
+| Part | Behavior |
+| --- | --- |
+| **Tabs** | All, Active, Trial and Cancelled still filter, and swiping still slides between them. Each tab shows its own bubbles. |
+| **Size** | A costlier item is a bigger bubble (area follows the monthly cost, 60 to 108 dp across). Sizes are compared only inside a currency, so 10,000 RWF and 10 USD never rank against each other. |
+| **Look** | A white (or dark) circle with the service logo and name. A trial has the accent as its ring. A cancelled item fades back. The name is cut with "…" in a small bubble. |
+| **Motion** | Slow drift (9 to 24 dp a second). Bubbles bounce off the edges and off each other, heavier ones moving less, and never stop. About 30 frames a second. The same items start in the same layout each time. |
+| **Many items** | The field grows taller than the screen and scrolls, so bubbles keep a size that is easy to tap (they cover at most 40% of the field). |
+| **Large text** | Bubbles grow with the text size, up to 130%. |
+
+- **Still for people who need it.** With "remove animations" on, or a screen reader running (TalkBack), the bubbles do not move: things that move are hard to hit. They keep their layout and stay tappable. Each bubble is one button that reads "Netflix, $15.00, Due in 3 days".
+- **Hit areas move with the picture.** Each bubble is positioned in the layout rather than only drawn elsewhere. The first version moved only the drawing, so the tap area stayed in the top-left corner; a test that taps a drifted bubble now guards this.
+- **Battery.** It animates only while the screen is visible (the ticker pauses when the screen is covered or the app is in the background) and not at all in the list view.
+- **Pure physics.** `bubble_physics.dart` has no widgets: radii, field height, placement without overlap, stepping, bouncing, and speed limits, all unit-tested (16 tests). A step is capped at 50 ms so a slow frame cannot fling anything.
+- The switch moved into the header (`SubPageHeader` gained an optional `trailing`) so the four tabs keep the full width.
+- Tests: `pumpTrackly` opens All subscriptions as a list unless a test asks for bubbles (`itemsAsBubbles`), and bubble tests turn animations off so the screen can settle. One test runs with motion on, with bounded pumps, because a drifting screen never settles by design.
+- Not done: dragging or flicking a bubble, a bubble per currency group, showing the amount on the bubble, and a "due soon" pulse. Seen in passing, not changed: on a 390 dp screen the last tab label ("Cancelled") is faded at its edge, with or without bubbles.

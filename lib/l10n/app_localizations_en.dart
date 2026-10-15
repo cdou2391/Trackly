@@ -443,6 +443,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noItemsInFilter => 'Nothing here yet.';
 
   @override
+  String get itemsViewShowList => 'Show as list';
+
+  @override
+  String get itemsViewShowBubbles => 'Show as bubbles';
+
+  @override
+  String bubbleSemantics(String name, String amount, String status) {
+    return '$name, $amount, $status';
+  }
+
+  @override
   String get historyTitle => 'Payment history';
 
   @override

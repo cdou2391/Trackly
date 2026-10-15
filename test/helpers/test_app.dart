@@ -201,6 +201,10 @@ Future<AppDatabase> pumpTrackly(
   LinkOpener? linkOpener,
   DataSharer? dataSharer,
   CsvPicker? csvPicker,
+
+  /// All subscriptions opens as a list, unless a test asks for the bubbles
+  /// (null leaves the saved choice, or the default, alone).
+  bool? itemsAsBubbles = false,
 }) async {
   await _loadFonts(tester);
   tester.view.physicalSize = size * 3;
@@ -219,6 +223,10 @@ Future<AppDatabase> pumpTrackly(
     if (store.errorReportsEnabled == null) {
       await store.setErrorReportsEnabled(false);
     }
+  }
+
+  if (itemsAsBubbles != null && store.itemsAsBubbles == null) {
+    await store.setItemsAsBubbles(itemsAsBubbles);
   }
 
   final db = AppDatabase(NativeDatabase.memory());
