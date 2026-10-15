@@ -3404,3 +3404,13 @@ A line chart of what each recent month cost, requested by the owner. The design 
 - Past months are only as accurate as the payments the person records. Months from before the app was used show nothing.
 - Testing note: inserting several payments one by one with `runAsync` while a screen listens to them stalls Drift's fake-async timers. Tests insert them in one `transaction`.
 - Not done: a projection of the coming months, a per-category line, and a saved range.
+
+---
+
+# 106. Insights lists in the subscription-list style (as built)
+
+- The three lists on Insights (**By category**, **Subscriptions and bills**, **Biggest costs**) now use the same card as the subscription lists on Home, Search, Calendar and All subscriptions: a bordered, rounded surface (radius 18, 14 x 12 padding), a 44 dp icon on the left, the name with a caption under it, and the amount on the right. Cards are 8 dp apart.
+- One widget, `_InsightCard`, draws all three, so they cannot drift apart. Home's `SubscriptionRow` was not reused because it needs an item, a frequency and status chips, none of which a category or a type has.
+- **By category** and **Subscriptions and bills** keep their thin share bar, now inside the card under the row, and the caption "2 items · 3%". They are not tappable, so they have no chevron.
+- **Biggest costs** cards open the item and show the chevron, like Home. The caption is still the share of the monthly cost.
+- Nothing else changed: the numbers, the per-currency labels, and the rules for when each list appears are the same.
