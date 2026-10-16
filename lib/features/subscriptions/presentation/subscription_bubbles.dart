@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/theme/trackly_type.dart';
 import '../../../core/utils/format_utils.dart';
@@ -51,6 +52,7 @@ class SubscriptionBubbles extends StatelessWidget {
           minHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 0,
         );
         return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: navOverlayInset(context)),
           child: SizedBox(
             width: width,
             height: height,

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -105,7 +106,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         _step((velocity < 0) != rtl ? 1 : -1);
       },
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: EdgeInsets.only(bottom: 32 + navOverlayInset(context)),
         children: [
           ScreenHeader(
             title: l10n.calendarTitle,

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:trackly/core/navigation/app_bottom_navigation.dart';
 import 'package:trackly/core/analytics/analytics_events.dart';
 import 'package:trackly/features/import/application/data_import.dart';
 
@@ -349,8 +350,16 @@ void main() {
           200,
           scrollable: find.byType(Scrollable).last,
         );
-        await tester.drag(find.byType(ListView).last, const Offset(0, -160));
+        await tester.ensureVisible(find.text('Import data (CSV)'));
         await settle(tester);
+        // The page runs behind the floating bar: move the row above it.
+        final overlap =
+            tester.getBottomLeft(find.text('Import data (CSV)')).dy -
+            (tester.getTopLeft(find.byType(AppBottomNavigation)).dy - 16);
+        if (overlap > 0) {
+          await tester.drag(find.byType(ListView).last, Offset(0, -overlap));
+          await settle(tester);
+        }
         await _tapImport(tester);
 
         expect(tester.takeException(), isNull);

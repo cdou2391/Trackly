@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../subscriptions/presentation/widgets/quick_add_card.dart';
@@ -45,7 +46,7 @@ class _HomeContent extends ConsumerWidget {
     // The steel-blue hero (with the header inside it) is full width and runs up
     // behind the status bar; everything else is held to a readable width.
     return ListView(
-      padding: const EdgeInsets.only(bottom: 32),
+      padding: EdgeInsets.only(bottom: 32 + navOverlayInset(context)),
       children: [
         HeroSection(
           header: const HomeHeader(),

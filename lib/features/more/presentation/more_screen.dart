@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
@@ -23,7 +24,9 @@ class MoreScreen extends ConsumerWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 520),
           child: ListView(
-            padding: const EdgeInsets.only(bottom: TracklySpacing.xxl),
+            padding: EdgeInsets.only(
+              bottom: TracklySpacing.xxl + navOverlayInset(context),
+            ),
             children: [
               ScreenHeader(
                 title: l10n.moreTitle,

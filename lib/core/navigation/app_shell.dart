@@ -74,7 +74,20 @@ class _AppFrameState extends ConsumerState<AppFrame> {
           if (!didPop) panel.close();
         },
         child: Scaffold(
-          body: Stack(children: [widget.child, const AddPanelHost()]),
+          // The page runs behind the floating bar; the panel (and its scrim)
+          // stop at the bar's top edge.
+          extendBody: true,
+          body: Stack(
+            children: [
+              widget.child,
+              Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: navOverlayInset(context)),
+                  child: const AddPanelHost(),
+                ),
+              ),
+            ],
+          ),
           bottomNavigationBar: AppBottomNavigation(
             currentIndex: _tab,
             addPanelOpen: panelOpen,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/config/app_links.dart';
 import '../../../core/startup/splash_screen.dart';
 import '../../../core/theme/app_colors.dart';
@@ -34,11 +35,11 @@ class AboutScreen extends ConsumerWidget {
                 SubPageHeader(title: l10n.aboutTitle),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
+                    padding: EdgeInsets.fromLTRB(
                       TracklySpacing.base,
                       TracklySpacing.lg,
                       TracklySpacing.base,
-                      TracklySpacing.xxl,
+                      TracklySpacing.xxl + navOverlayInset(context),
                     ),
                     children: [
                       Center(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/l10n.dart';
@@ -150,11 +151,11 @@ class _ItemsList extends ConsumerWidget {
     return ListView.separated(
       // Each tab remembers its own scroll position while you switch.
       key: PageStorageKey<ItemFilter>(filter),
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         TracklySpacing.base,
         TracklySpacing.base,
         TracklySpacing.base,
-        TracklySpacing.xxl,
+        TracklySpacing.xxl + navOverlayInset(context),
       ),
       itemCount: shown.length,
       separatorBuilder: (_, _) => const SizedBox(height: TracklySpacing.sm),

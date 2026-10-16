@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/analytics/analytics_events.dart';
 import '../../../core/analytics/analytics_service.dart';
 import '../../../core/navigation/app_router.dart';
@@ -67,11 +68,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           ),
                         )
                       : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(
+                          padding: EdgeInsets.fromLTRB(
                             TracklySpacing.base,
                             TracklySpacing.sm,
                             TracklySpacing.base,
-                            TracklySpacing.xxl,
+                            TracklySpacing.xxl + navOverlayInset(context),
                           ),
                           itemCount: rows.length,
                           separatorBuilder: (_, _) =>

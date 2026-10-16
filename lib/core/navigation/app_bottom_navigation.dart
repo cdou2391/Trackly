@@ -25,6 +25,10 @@ class AppBottomNavigation extends StatelessWidget {
   final VoidCallback onToggleAdd;
 
   static const barHeight = 68.0;
+
+  /// Space the floating bar takes from the bottom of the screen (its height
+  /// plus the margins around it), not counting the system inset.
+  static const overlayHeight = barHeight + 8 + 12;
   static const _addButtonSize = 64.0;
   static const _margin = 16.0;
   static const _gap = 12.0;
@@ -210,3 +214,10 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
+/// How far the floating navigation bar reaches up from the bottom of the
+/// screen. Scrollable screens add it to their bottom padding so their last
+/// item can be scrolled clear of the bar.
+double navOverlayInset(BuildContext context) =>
+    MediaQuery.viewPaddingOf(context).bottom +
+    AppBottomNavigation.overlayHeight;

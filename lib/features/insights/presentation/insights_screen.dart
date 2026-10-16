@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/database/tables/categories_table.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../../core/navigation/app_router.dart';
@@ -66,7 +67,7 @@ class _InsightsContent extends ConsumerWidget {
     final l10n = context.l10n;
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 120),
+      padding: EdgeInsets.only(bottom: 32 + navOverlayInset(context)),
       children: [
         ScreenHeader(title: l10n.insightsTitle, icon: Icons.insights_rounded),
         if (!summary.hasItems)

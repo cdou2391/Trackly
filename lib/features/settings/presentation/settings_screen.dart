@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/analytics/analytics_events.dart';
 import '../../../core/analytics/analytics_service.dart';
 import '../../../core/notifications/notification_service.dart';
@@ -76,11 +77,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 SubPageHeader(title: l10n.settingsTitle),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
+                    padding: EdgeInsets.fromLTRB(
                       TracklySpacing.base,
                       TracklySpacing.sm,
                       TracklySpacing.base,
-                      TracklySpacing.xxl,
+                      TracklySpacing.xxl + navOverlayInset(context),
                     ),
                     children: [
                       SectionHeader(title: l10n.settingsSectionDefaults),
