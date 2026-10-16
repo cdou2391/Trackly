@@ -42,7 +42,7 @@ class _HomeContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final now = ref.watch(nowProvider)();
 
-    // The teal hero (with the header inside it) is full width and runs up
+    // The steel-blue hero (with the header inside it) is full width and runs up
     // behind the status bar; everything else is held to a readable width.
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),

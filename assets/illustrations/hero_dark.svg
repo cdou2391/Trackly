@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="480" height="400" viewBox="0 0 480 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Trackly hero illustration (dark)</title>
+  <desc>Flat midnight illustration of subscription tiles resting on a calendar, with a plant and a pendant lamp. Transparent background, designed for a navy surface. Uses generic symbols, not brand logos.</desc>
+
+  <defs>
+    <radialGradient id="lampGlow" cx="428" cy="132" r="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0CE97" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#F0CE97" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="428" cy="132" r="52" fill="url(#lampGlow)"/>
+
+  <!-- Pendant lamp -->
+  <line x1="440" y1="0" x2="440" y2="66" stroke="#6F7F92" stroke-width="2"/>
+  <path d="M406 116C410 86 428 68 440 68C452 68 470 86 474 116Z" fill="#D7B987"/>
+  <rect x="402" y="114" width="76" height="8" rx="4" fill="#B8965E"/>
+  <ellipse cx="440" cy="126" rx="15" ry="6" fill="#FFE9BF"/>
+
+  <!-- Shelf -->
+  <rect x="34" y="352" width="426" height="18" rx="9" fill="#22364C"/>
+
+  <!-- Plant -->
+  <path d="M104 304C82 274 62 242 76 200C100 224 114 264 104 304Z" fill="#46688A"/>
+  <path d="M106 304C114 266 132 236 162 224C158 260 136 288 106 304Z" fill="#2F4D6B"/>
+  <path d="M102 304C76 296 52 284 40 254C72 254 94 270 102 304Z" fill="#5C86A8"/>
+  <path d="M84 352L96 300H128L140 352Z" fill="#0F1B2B"/>
+
+  <!-- Calendar -->
+  <rect x="160" y="228" width="262" height="130" rx="16" fill="#0C1624"/>
+  <rect x="150" y="214" width="262" height="138" rx="16" fill="#1D3047" stroke="#2D455D" stroke-width="1.5"/>
+  <rect x="150" y="214" width="262" height="36" rx="16" fill="#0F1A29"/>
+  <rect x="150" y="234" width="262" height="16" fill="#0F1A29"/>
+  <rect x="189" y="198" width="14" height="36" rx="7" fill="#D7B987"/>
+  <rect x="274" y="198" width="14" height="36" rx="7" fill="#D7B987"/>
+  <rect x="359" y="198" width="14" height="36" rx="7" fill="#D7B987"/>
+  <g fill="#2A415A">
+    <rect x="172" y="264" width="44" height="16" rx="5"/>
+    <rect x="228" y="264" width="44" height="16" rx="5"/>
+    <rect x="284" y="264" width="44" height="16" rx="5"/>
+    <rect x="340" y="264" width="44" height="16" rx="5"/>
+    <rect x="172" y="286" width="44" height="16" rx="5"/>
+    <rect x="284" y="286" width="44" height="16" rx="5"/>
+    <rect x="340" y="286" width="44" height="16" rx="5"/>
+    <rect x="172" y="308" width="44" height="16" rx="5"/>
+    <rect x="228" y="308" width="44" height="16" rx="5"/>
+    <rect x="340" y="308" width="44" height="16" rx="5"/>
+    <rect x="172" y="330" width="44" height="14" rx="5"/>
+    <rect x="228" y="330" width="44" height="14" rx="5"/>
+    <rect x="284" y="330" width="44" height="14" rx="5"/>
+  </g>
+  <rect x="228" y="286" width="44" height="16" rx="5" fill="#D7B987"/>
+  <rect x="284" y="308" width="44" height="16" rx="5" fill="#D7B987"/>
+
+  <!-- Small gold block -->
+  <rect x="432" y="302" width="32" height="50" rx="6" fill="#D7B987"/>
+  <rect x="432" y="302" width="32" height="12" rx="6" fill="#F0CE97"/>
+
+  <!-- Tile: video (play) -->
+  <g transform="rotate(-16 196 168)">
+    <rect x="153" y="131" width="86" height="86" rx="22" fill="#060B13"/>
+    <rect x="153" y="125" width="86" height="86" rx="22" fill="#111B2B"/>
+    <path d="M186 148L186 188L218 168Z" fill="#D7B987"/>
+  </g>
+
+  <!-- Tile: storage (cloud) -->
+  <g transform="rotate(11 352 158)">
+    <rect x="312" y="124" width="80" height="80" rx="20" fill="#2B4F86"/>
+    <rect x="312" y="118" width="80" height="80" rx="20" fill="#4A86D8"/>
+    <g fill="#FFFFFF">
+      <circle cx="340" cy="160" r="12"/>
+      <circle cx="356" cy="152" r="16"/>
+      <circle cx="372" cy="162" r="11"/>
+      <rect x="328" y="160" width="54" height="13" rx="6.5"/>
+    </g>
+  </g>
+
+  <!-- Tile: music (equalizer) -->
+  <g transform="rotate(-3 272 128)">
+    <rect x="224" y="86" width="96" height="96" rx="24" fill="#060B13"/>
+    <rect x="224" y="80" width="96" height="96" rx="24" fill="#15202F"/>
+    <circle cx="272" cy="128" r="32" fill="#3FB488"/>
+    <g fill="#FFFFFF">
+      <rect x="252" y="122" width="7" height="14" rx="3.5"/>
+      <rect x="263" y="111" width="7" height="34" rx="3.5"/>
+      <rect x="274" y="116" width="7" height="24" rx="3.5"/>
+      <rect x="285" y="123" width="7" height="12" rx="3.5"/>
+    </g>
+  </g>
+
+</svg>

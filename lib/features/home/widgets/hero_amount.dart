@@ -101,7 +101,15 @@ class HeroAmount extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
                 formatMoney(monthly[code]!, code, locale: locale),
-                style: theme.textTheme.headlineMedium,
+                // The first figure carries the theme's headline colour; the
+                // rest are a step quieter.
+                style: code == currencies.first
+                    ? theme.textTheme.headlineMedium?.copyWith(
+                        color: tokens.heroAmount.color,
+                      )
+                    : theme.textTheme.headlineMedium?.copyWith(
+                        color: tokens.heroSecondaryAmount,
+                      ),
               ),
             ),
           if (currencies.length > _maxCurrencyLines)

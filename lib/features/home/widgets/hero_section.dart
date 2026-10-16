@@ -9,7 +9,7 @@ import 'hero_amount.dart';
 /// The Home top section: header and recurring-cost hero.
 ///
 /// Light draws a rounded cream card under a plain header. Dark draws a
-/// full-bleed teal field that runs up behind the status bar, with the header
+/// full-bleed steel-blue field that runs up behind the status bar, with the header
 /// inside it and one wide arc as its bottom edge.
 class HeroSection extends StatelessWidget {
   const HeroSection({
@@ -169,14 +169,14 @@ class _ArcHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
 
-    // A deep teal field (the brand accent, darkened) set against the black
+    // A deep steel-blue field (the brand accent, darkened) set against the black
     // page; its bottom edge is one wide sweeping arc.
     return ClipPath(
       clipper: const _SweepingBottomClipper(sag: _bottomSag),
       child: ColoredBox(
         color: tokens.heroFill,
         child: Padding(
-          // The teal runs up behind the status bar, so the content starts
+          // The steel-blue runs up behind the status bar, so the content starts
           // below it.
           padding: EdgeInsets.only(
             top: MediaQuery.paddingOf(context).top,

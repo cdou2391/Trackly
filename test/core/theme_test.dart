@@ -194,8 +194,8 @@ void main() {
 
   test('dark theme keeps its own tokens', () {
     final dark = TracklyTokens.dark;
-    expect(dark.heroStyle, HeroStyle.fullBleedArc);
-    expect(dark.accent, TracklyColors.teal);
+    expect(dark.heroStyle, HeroStyle.card);
+    expect(dark.accent, TracklyColors.champagne);
     expect(AppTheme.dark.scaffoldBackgroundColor, TracklyColors.background);
     expect(tokens.heroStyle, HeroStyle.card);
   });

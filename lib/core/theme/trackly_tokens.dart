@@ -35,6 +35,9 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
     required this.primaryAction,
     required this.onPrimaryAction,
     required this.primaryActionPressed,
+    required this.focus,
+    required this.headerIconColor,
+    required this.headerIconFill,
     required this.cardBorder,
     required this.fieldFill,
     required this.fieldBorder,
@@ -65,6 +68,7 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
     required this.sectionHeading,
     required this.heroAmount,
     required this.heroAmountUnit,
+    required this.heroSecondaryAmount,
   });
 
   /// Brand accent: gold in the light theme, teal in the dark one.
@@ -79,6 +83,14 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
   final Color primaryAction;
   final Color onPrimaryAction;
   final Color primaryActionPressed;
+
+  /// Focus ring on inputs: gold in light, steel blue in dark.
+  final Color focus;
+
+  /// Header action icons (Search, Settings) and the circle behind them
+  /// (transparent where the theme draws them bare).
+  final Color headerIconColor;
+  final Color headerIconFill;
 
   final Color cardBorder;
   final Color fieldFill;
@@ -125,6 +137,10 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
   final TextStyle heroAmount;
   final TextStyle heroAmountUnit;
 
+  /// Colour of the figures after the first when the hero lists several
+  /// currencies.
+  final Color heroSecondaryAmount;
+
   /// Light: warm, premium. Gold is used sparingly.
   static final light = TracklyTokens(
     accent: TracklyColors.gold,
@@ -133,6 +149,9 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
     primaryAction: TracklyColors.lightInk,
     onPrimaryAction: Colors.white,
     primaryActionPressed: TracklyColors.lightInkPressed,
+    focus: TracklyColors.gold,
+    headerIconColor: TracklyColors.lightTextPrimary,
+    headerIconFill: Colors.transparent,
     cardBorder: TracklyColors.lightBorder,
     fieldFill: TracklyColors.lightFieldFill,
     fieldBorder: TracklyColors.lightBorder,
@@ -199,26 +218,31 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
       weight: 500,
       color: TracklyColors.lightTextSecondary,
     ),
+    heroSecondaryAmount: TracklyColors.lightTextPrimary,
   );
 
-  /// Dark: black page, deep-teal hero, teal accent.
+  /// Dark: Steel & Champagne. Navy surfaces, steel-blue detail, champagne
+  /// for primary actions and the headline figure.
   static final dark = TracklyTokens(
-    accent: TracklyColors.teal,
-    accentText: TracklyColors.teal,
-    onAccent: TracklyColors.onTeal,
-    primaryAction: TracklyColors.teal,
-    onPrimaryAction: TracklyColors.onTeal,
-    primaryActionPressed: TracklyColors.tealDark,
+    accent: TracklyColors.champagne,
+    accentText: TracklyColors.champagne,
+    onAccent: TracklyColors.onChampagne,
+    primaryAction: TracklyColors.champagneLight,
+    onPrimaryAction: TracklyColors.onChampagne,
+    primaryActionPressed: TracklyColors.champagne,
+    focus: TracklyColors.steel,
+    headerIconColor: TracklyColors.steel,
+    headerIconFill: TracklyColors.surface1,
     cardBorder: TracklyColors.border,
-    fieldFill: TracklyColors.surface2,
-    fieldBorder: TracklyColors.inputBorder,
-    heroStyle: HeroStyle.fullBleedArc,
-    heroFill: TracklyColors.heroSurface,
-    heroFillEnd: TracklyColors.heroSurface,
-    heroBorder: TracklyColors.heroSurface,
-    heroIllustration: 'assets/illustrations/hero.svg',
-    quickAddFill: TracklyColors.quickAddSurface,
-    quickAddWave: true,
+    fieldFill: TracklyColors.surface3,
+    fieldBorder: TracklyColors.border,
+    heroStyle: HeroStyle.card,
+    heroFill: const Color(0xFF1A3049),
+    heroFillEnd: const Color(0xFF122238),
+    heroBorder: TracklyColors.borderSoft,
+    heroIllustration: 'assets/illustrations/hero_dark.svg',
+    quickAddFill: TracklyColors.surface1,
+    quickAddWave: false,
     success: const ToneColors(
       fg: TracklyColors.success,
       bg: TracklyColors.successBg,
@@ -236,35 +260,48 @@ class TracklyTokens extends ThemeExtension<TracklyTokens> {
       bg: TracklyColors.neutralBg,
     ),
     summaryActive: const ToneColors(
-      fg: TracklyColors.success,
-      bg: TracklyColors.successBg,
+      fg: TracklyColors.steel,
+      bg: Color(0xFF1B3550),
     ),
     summaryTrial: const ToneColors(
-      fg: TracklyColors.warning,
-      bg: TracklyColors.warningBg,
+      fg: TracklyColors.champagne,
+      bg: Color(0xFF3A3122),
     ),
     summaryCancelled: const ToneColors(
       fg: TracklyColors.danger,
       bg: TracklyColors.dangerBg,
     ),
     tileFill: TracklyColors.surface2,
-    tileInk: TracklyColors.teal,
-    navBackground: TracklyColors.navSurface,
-    navBorder: TracklyColors.navBorder,
-    navInactive: TracklyColors.navInactive,
-    navActive: TracklyColors.teal,
-    navCenterFill: TracklyColors.teal,
-    navCenterIcon: TracklyColors.onTeal,
-    pageTitle: sans(24, weight: 700, color: TracklyColors.textPrimary),
-    pageSubtitle: sans(13, color: TracklyColors.textSecondary),
-    sectionHeading: sans(24, weight: 700, color: TracklyColors.textPrimary),
-    heroAmount: sans(
-      44,
-      weight: 700,
+    tileInk: TracklyColors.steelLight,
+    navBackground: TracklyColors.surface1,
+    navBorder: TracklyColors.border,
+    navInactive: TracklyColors.textMuted,
+    navActive: TracklyColors.champagne,
+    navCenterFill: TracklyColors.champagne,
+    navCenterIcon: TracklyColors.onChampagne,
+    pageTitle: serif(
+      40,
+      weight: 600,
       color: TracklyColors.textPrimary,
-      height: 1.05,
+      height: 1.1,
+      letterSpacing: -0.5,
     ),
-    heroAmountUnit: sans(20, weight: 500, color: TracklyColors.textSecondary),
+    pageSubtitle: sans(17, color: TracklyColors.steel, height: 1.3),
+    sectionHeading: sans(
+      24,
+      weight: 600,
+      color: TracklyColors.textPrimary,
+      height: 1.25,
+    ),
+    heroAmount: sans(
+      34,
+      weight: 700,
+      color: TracklyColors.champagne,
+      height: 1.1,
+      letterSpacing: -0.5,
+    ),
+    heroAmountUnit: sans(18, weight: 500, color: TracklyColors.textSecondary),
+    heroSecondaryAmount: TracklyColors.steelLight,
   );
 
   @override

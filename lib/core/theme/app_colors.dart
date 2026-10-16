@@ -4,47 +4,46 @@ import 'package:flutter/material.dart';
 class TracklyColors {
   const TracklyColors._();
 
-  // Background and surfaces
-  static const background = Color(0xFF000000);
-  static const surface1 = Color(0xFF0D1B28);
-  static const surface2 = Color(0xFF122433);
-  static const surface3 = Color(0xFF183040);
-  static const quickAddSurface = Color(0xFF0D2730);
-  static const heroSurface = Color(0xFF0B3138);
-  static const navSurface = Color(0xFF000000);
+  // Dark theme: Steel & Champagne. Champagne is kept for primary actions,
+  // selected navigation and key financial figures; steel blue carries the
+  // secondary detail (icons, illustration, supporting text).
+  static const background = Color(0xFF0B121C);
+  static const backgroundDeep = Color(0xFF09111B);
+  static const surface1 = Color(0xFF142438);
+  static const surface2 = Color(0xFF192D43);
+  static const surface3 = Color(0xFF1D334A);
 
   // Borders
-  static const border = Color(0xFF173142);
-  static const inputBorder = Color(0xFF244052);
-  static const navBorder = Color(0xFF000000);
+  static const border = Color(0xFF2D455D);
+  static const borderSoft = Color(0xFF243A50);
 
-  // Brand teal
-  static const teal = Color(0xFF16C7BE);
-  static const tealDark = Color(0xFF0E8F89);
-  static const tealLight = Color(0xFF4EDDD5);
-  static const onTeal = Color(0xFF041112);
+  // Steel blue (secondary accent)
+  static const steel = Color(0xFF79A6C8);
+  static const steelLight = Color(0xFFA6C7E1);
+
+  // Champagne (primary accent)
+  static const champagne = Color(0xFFD7B987);
+  static const champagneLight = Color(0xFFF0CE97);
+  static const onChampagne = Color(0xFF1B1409);
 
   // Status
-  static const success = Color(0xFF24C97A);
-  static const successBg = Color(0xFF123D2E);
-  static const warning = Color(0xFFFFB629);
-  static const warningBg = Color(0xFF3A2B12);
-  static const danger = Color(0xFFFF5D62);
-  static const dangerBg = Color(0xFF3A181D);
-  static const neutral = Color(0xFFA9C0D2);
-  static const neutralBg = Color(0xFF12293A);
+  static const success = Color(0xFF8DC9B0);
+  static const successBg = Color(0xFF173A33);
+  static const warning = Color(0xFFE3AF89);
+  static const warningBg = Color(0xFF3B2B22);
+  static const danger = Color(0xFFE38B91);
+  static const dangerBg = Color(0xFF3B2228);
+  static const neutral = Color(0xFFA8BBD0);
+  static const neutralBg = Color(0xFF1D334A);
 
   // Text
-  static const textPrimary = Color(0xFFF7FAFC);
-  static const textSecondary = Color(0xFFAAB8C5);
-  static const textMuted = Color(0xFF728394);
-
-  // Navigation
-  static const navInactive = Color(0xFF8394A5);
+  static const textPrimary = Color(0xFFF3F4F3);
+  static const textSecondary = Color(0xFFA8BBD0);
+  static const textMuted = Color(0xFF839AAF);
 
   // Disabled primary action
-  static const disabledBg = Color(0xFF274149);
-  static const disabledFg = Color(0xFF70848B);
+  static const disabledBg = Color(0xFF26394D);
+  static const disabledFg = Color(0xFF8DA0B3);
 
   // Light theme: warm, premium. Gold is a restrained accent, never dominant.
   static const lightBackground = Color(0xFFFAF8F4);

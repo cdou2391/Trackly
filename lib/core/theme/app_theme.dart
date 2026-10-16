@@ -35,20 +35,20 @@ class AppTheme {
     );
   }
 
-  /// Black page, deep-teal hero, teal accent.
+  /// Steel & Champagne: navy page and surfaces, champagne accent.
   static ThemeData get dark {
     const scheme = ColorScheme.dark(
-      primary: TracklyColors.teal,
-      onPrimary: TracklyColors.onTeal,
-      secondary: TracklyColors.tealDark,
-      secondaryContainer: Color(0xFF0F3B40),
+      primary: TracklyColors.champagne,
+      onPrimary: TracklyColors.onChampagne,
+      secondary: TracklyColors.steel,
+      secondaryContainer: TracklyColors.surface3,
       onSecondaryContainer: TracklyColors.textPrimary,
       surface: TracklyColors.surface1,
       onSurface: TracklyColors.textPrimary,
       onSurfaceVariant: TracklyColors.textSecondary,
-      surfaceContainerHighest: TracklyColors.surface2,
-      outline: TracklyColors.inputBorder,
-      outlineVariant: TracklyColors.border,
+      surfaceContainerHighest: TracklyColors.surface3,
+      outline: TracklyColors.border,
+      outlineVariant: TracklyColors.borderSoft,
       error: TracklyColors.danger,
     );
 
@@ -116,7 +116,7 @@ class AppTheme {
         suffixIconColor: secondaryText,
         border: border(tokens.fieldBorder),
         enabledBorder: border(tokens.fieldBorder),
-        focusedBorder: border(tokens.accent, 1.5),
+        focusedBorder: border(tokens.focus, 1.5),
         errorBorder: border(scheme.error),
         focusedErrorBorder: border(scheme.error, 1.5),
       ),
