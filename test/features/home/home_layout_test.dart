@@ -127,11 +127,15 @@ void main() {
     ) async {
       await pumpTrackly(tester, items: _items());
 
+      // The only gradient box with the hero's 28 dp corners (the icon tiles
+      // have gradients too, with their own, smaller corners).
       final card = find.byWidgetPredicate(
         (w) =>
             w is DecoratedBox &&
             w.decoration is BoxDecoration &&
-            (w.decoration as BoxDecoration).gradient != null,
+            (w.decoration as BoxDecoration).gradient != null &&
+            (w.decoration as BoxDecoration).borderRadius ==
+                BorderRadius.circular(28),
       );
       expect(card, findsOneWidget);
       final decoration =

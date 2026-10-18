@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/database/tables/categories_table.dart';
-import '../../core/theme/trackly_tokens.dart';
+import '../../core/theme/category_colors.dart';
 import '../../features/subscriptions/domain/service_catalog.dart';
 
 const _categoryIcons = <String, IconData>{
@@ -30,14 +30,48 @@ IconData categoryIconData(String? categoryId) {
 /// Corner radius shared by every kind of service icon.
 double _cornerRadius(double size) => size * 0.3;
 
-/// The Trackly mark, drawn in one muted color: the stand-in for a service
-/// whose own logo is not bundled.
+/// The Trackly mark: the stand-in for a service whose own logo is not bundled,
+/// drawn in white on a colored tile.
 const _tracklyMark = 'assets/illustrations/trackly_logo.svg';
+
+/// A colored rounded tile with something white on it: the look of every icon
+/// that is not a brand logo, so they sit comfortably beside the logos. A soft
+/// lift from top to bottom gives it the same depth as an app icon.
+class GlyphTile extends StatelessWidget {
+  const GlyphTile({
+    required this.color,
+    required this.child,
+    this.size = 48,
+    super.key,
+  });
+
+  final Color color;
+  final Widget child;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color.lerp(color, Colors.white, 0.14)!, color],
+        ),
+        borderRadius: BorderRadius.circular(_cornerRadius(size)),
+      ),
+      child: child,
+    );
+  }
+}
 
 /// Service icon. Resolution order: the catalog logo (filling the whole element),
 /// then the Trackly mark for a catalog service without one, then the category
 /// icon (custom items, and generic bills like Rent or Water), then a generic
-/// icon.
+/// icon. The last three sit on a tile in their category's color.
 class ServiceIcon extends StatelessWidget {
   const ServiceIcon({this.logoKey, this.categoryId, this.size = 48, super.key});
 
@@ -47,7 +81,6 @@ class ServiceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
     final service = logoKey == null ? null : serviceCatalogByKey[logoKey];
 
     final logo = service?.logoAsset;
@@ -74,6 +107,7 @@ class ServiceIcon extends StatelessWidget {
       );
     }
 
+    final category = categoryId ?? service?.categoryId;
     final isBrand = service != null && !service.isGeneric;
     final Widget child = isBrand
         ? Padding(
@@ -81,27 +115,22 @@ class ServiceIcon extends StatelessWidget {
             child: SvgPicture.asset(
               _tracklyMark,
               fit: BoxFit.contain,
-              colorFilter: ColorFilter.mode(
-                tokens.tileInk.withValues(alpha: 0.5),
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
                 BlendMode.srcIn,
               ),
             ),
           )
         : Icon(
-            categoryIconData(categoryId ?? service?.categoryId),
-            size: size * 0.5,
-            color: tokens.tileInk,
+            categoryIconData(category),
+            size: size * 0.52,
+            color: Colors.white,
           );
 
     return ExcludeSemantics(
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: tokens.tileFill,
-          borderRadius: BorderRadius.circular(_cornerRadius(size)),
-        ),
+      child: GlyphTile(
+        color: categoryColor(category),
+        size: size,
         child: child,
       ),
     );
