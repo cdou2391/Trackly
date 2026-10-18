@@ -6,6 +6,7 @@ import '../../../core/database/tables/categories_table.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/category_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/theme/trackly_type.dart';
 import '../../../core/utils/format_utils.dart';
@@ -316,6 +317,7 @@ class _CategoryBreakdown extends StatelessWidget {
           for (final category in summary.categoryBreakdown[currency]!)
             _ShareRow(
               icon: categoryIconData(category.categoryId),
+              color: categoryColor(category.categoryId),
               name: _categoryName(category.categoryId),
               amount: formatMoney(
                 category.monthlyAmount,
@@ -365,6 +367,9 @@ class _TypeBreakdown extends StatelessWidget {
               icon: type.type == RecurringItemType.bill
                   ? Icons.receipt_long_rounded
                   : Icons.autorenew_rounded,
+              color: type.type == RecurringItemType.bill
+                  ? billTileColor
+                  : subscriptionTileColor,
               name: type.type == RecurringItemType.bill
                   ? l10n.insightsTypeBills
                   : l10n.insightsTypeSubscriptions,
@@ -387,6 +392,7 @@ class _TypeBreakdown extends StatelessWidget {
 class _ShareRow extends StatelessWidget {
   const _ShareRow({
     required this.icon,
+    required this.color,
     required this.name,
     required this.amount,
     required this.share,
@@ -394,6 +400,9 @@ class _ShareRow extends StatelessWidget {
   });
 
   final IconData icon;
+
+  /// The tile color: the category's, or the type's.
+  final Color color;
   final String name;
   final String amount;
 
@@ -411,14 +420,10 @@ class _ShareRow extends StatelessWidget {
       semanticsLabel:
           '$name, $amount ${l10n.heroMonthSuffix}, $detail, '
           '${l10n.insightsShare(percent)}',
-      leading: Container(
-        width: _insightIconSize,
-        height: _insightIconSize,
-        decoration: BoxDecoration(
-          color: tokens.tileFill,
-          borderRadius: BorderRadius.circular(TracklyRadius.small),
-        ),
-        child: Icon(icon, size: 24, color: tokens.tileInk),
+      leading: GlyphTile(
+        color: color,
+        size: _insightIconSize,
+        child: Icon(icon, size: 24, color: Colors.white),
       ),
       title: name,
       subtitle: '$detail · ${l10n.insightsShare(percent)}',

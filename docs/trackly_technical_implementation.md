@@ -3449,3 +3449,23 @@ All subscriptions can show its items as circles that drift around the screen, re
 - With text enlarged beyond about 130%, the buttons stack (Cancel above Delete) so neither label is squeezed.
 - Nothing about what they do has changed: each still asks first ("Cancel Netflix?" with Keep it, "Delete Netflix?" with Not now), and the messages and undo behavior are the same.
 - Seen in passing, not changed: the bottom navigation bar overflows by 1 px at 180% text size.
+
+---
+
+# 109. Colored default icons (as built)
+
+The icons for items without a logo were grey tiles, which looked dull beside the real Netflix and Spotify logos. They now sit on a colored tile.
+
+| Case | Icon |
+| --- | --- |
+| A service with its own logo | Unchanged: the logo, filling the whole icon. |
+| A custom subscription, or a bill (Rent, Water, Electricity) | The category glyph in white on the category's color. |
+| A known service whose logo is not bundled | The Trackly mark in white on its category's color, as the owner asked for earlier (§101), now in color. |
+| No category at all | The "Other" color (grey-blue). |
+
+- One color per category (§ categories table): Entertainment red, Software blue, Utilities amber, Housing teal, Transport sky, Insurance green, Health pink, Education purple, Fitness orange, Business slate, Other grey-blue. They are in `lib/core/theme/category_colors.dart`.
+- A white glyph on every one reaches at least 3:1 contrast, the minimum for an icon. A test checks each color, that every seeded category has its own color, and that none is missing.
+- The tile has a soft top-to-bottom lift (14% lighter at the top), like an app icon, and the same corner radius as a logo. The colors are the same in light and dark, as a logo is. A new `GlyphTile` widget draws it.
+- The same tiles now appear in **By category** and **Subscriptions and bills** on Insights, so the screen is not half grey and half colored. Subscriptions use the Software blue and bills the Utilities amber.
+- The icon is still hidden from screen readers, as before: the name beside it carries the meaning.
+- Not done: letting a person choose the color of a custom subscription, and a different tile color for each brand without a logo (they share their category's color).
