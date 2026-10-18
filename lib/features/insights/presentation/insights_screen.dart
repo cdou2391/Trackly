@@ -37,6 +37,7 @@ class InsightsScreen extends ConsumerWidget {
     final summary = ref.watch(insightsSummaryProvider);
 
     return SafeArea(
+      bottom: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

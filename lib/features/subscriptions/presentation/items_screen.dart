@@ -61,6 +61,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen>
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(

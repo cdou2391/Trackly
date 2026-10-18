@@ -48,6 +48,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(

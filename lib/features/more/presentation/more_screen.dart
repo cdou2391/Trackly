@@ -19,6 +19,7 @@ class MoreScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return SafeArea(
+      bottom: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

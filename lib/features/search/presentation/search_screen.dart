@@ -67,6 +67,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(

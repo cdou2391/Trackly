@@ -68,6 +68,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(

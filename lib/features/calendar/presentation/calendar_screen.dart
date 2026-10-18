@@ -71,6 +71,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final calendar = ref.watch(calendarMonthProvider(_month));
 
     return SafeArea(
+      bottom: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
