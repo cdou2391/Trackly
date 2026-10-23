@@ -12,6 +12,7 @@ import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/subscriptions/application/items_filter.dart';
 import '../../features/subscriptions/presentation/item_detail_screen.dart';
 import '../../features/subscriptions/presentation/items_screen.dart';
+import '../motion/motion.dart';
 import 'app_shell.dart';
 
 abstract final class AppRoutes {
@@ -89,32 +90,41 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.item,
-            builder: (context, state) =>
-                ItemDetailScreen(itemId: state.pathParameters['id']!),
+            pageBuilder: (context, state) => motionPage(
+              state: state,
+              child: ItemDetailScreen(itemId: state.pathParameters['id']!),
+            ),
           ),
           GoRoute(
             path: AppRoutes.subscriptions,
-            builder: (context, state) => ItemsScreen(
-              initialFilter: ItemFilter.parse(
-                state.uri.queryParameters['filter'],
+            pageBuilder: (context, state) => motionPage(
+              state: state,
+              child: ItemsScreen(
+                initialFilter: ItemFilter.parse(
+                  state.uri.queryParameters['filter'],
+                ),
               ),
             ),
           ),
           GoRoute(
             path: AppRoutes.history,
-            builder: (context, state) => const HistoryScreen(),
+            pageBuilder: (context, state) =>
+                motionPage(state: state, child: const HistoryScreen()),
           ),
           GoRoute(
             path: AppRoutes.search,
-            builder: (context, state) => const SearchScreen(),
+            pageBuilder: (context, state) =>
+                motionPage(state: state, child: const SearchScreen()),
           ),
           GoRoute(
             path: AppRoutes.about,
-            builder: (context, state) => const AboutScreen(),
+            pageBuilder: (context, state) =>
+                motionPage(state: state, child: const AboutScreen()),
           ),
           GoRoute(
             path: AppRoutes.settings,
-            builder: (context, state) => const SettingsScreen(),
+            pageBuilder: (context, state) =>
+                motionPage(state: state, child: const SettingsScreen()),
           ),
         ],
       ),

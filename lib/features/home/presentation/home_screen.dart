@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/motion/motion.dart';
 import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../settings/application/settings_providers.dart';
@@ -53,12 +54,21 @@ class _HomeContent extends ConsumerWidget {
           summary: summary,
           defaultCurrency: ref.watch(defaultCurrencyProvider),
         ),
-        _Constrained(child: StatusSummary(summary: summary)),
-        const _Constrained(child: QuickAddCard()),
-        _Constrained(
-          child: UpcomingSection(summary: summary, now: now),
+        Reveal(
+          index: 1,
+          child: _Constrained(child: StatusSummary(summary: summary)),
         ),
-        _Constrained(child: RecentPaymentsSection(summary: summary)),
+        const Reveal(index: 2, child: _Constrained(child: QuickAddCard())),
+        Reveal(
+          index: 3,
+          child: _Constrained(
+            child: UpcomingSection(summary: summary, now: now),
+          ),
+        ),
+        Reveal(
+          index: 4,
+          child: _Constrained(child: RecentPaymentsSection(summary: summary)),
+        ),
       ],
     );
   }

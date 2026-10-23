@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/motion/motion.dart';
 import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
@@ -98,13 +99,22 @@ class _DetailContent extends ConsumerWidget {
             ),
             children: [
               _TopBar(item: item),
-              _Title(item: item, now: now),
+              Reveal(
+                index: 0,
+                child: _Title(item: item, now: now),
+              ),
               const SizedBox(height: TracklySpacing.base),
-              _AmountCard(item: item, now: now),
+              Reveal(
+                index: 1,
+                child: _AmountCard(item: item, now: now),
+              ),
               const SizedBox(height: TracklySpacing.base),
-              _Actions(item: item),
+              Reveal(index: 2, child: _Actions(item: item)),
               const SizedBox(height: TracklySpacing.xl),
-              SectionHeader(title: l10n.paymentHistory),
+              Reveal(
+                index: 3,
+                child: SectionHeader(title: l10n.paymentHistory),
+              ),
               const SizedBox(height: TracklySpacing.sm),
               if (payments.isEmpty)
                 Padding(
@@ -117,16 +127,19 @@ class _DetailContent extends ConsumerWidget {
                   ),
                 )
               else
-                for (final payment in payments) ...[
-                  PaymentRow(payment: payment),
+                for (final (i, payment) in payments.indexed) ...[
+                  Reveal(
+                    index: 4 + i,
+                    child: PaymentRow(payment: payment),
+                  ),
                   const SizedBox(height: TracklySpacing.sm),
                 ],
               if ((item.notes ?? '').isNotEmpty) ...[
                 const SizedBox(height: TracklySpacing.base),
-                _NotesCard(notes: item.notes!),
+                Reveal(index: 5, child: _NotesCard(notes: item.notes!)),
               ],
               const SizedBox(height: TracklySpacing.base),
-              _DangerZone(item: item),
+              Reveal(index: 6, child: _DangerZone(item: item)),
             ],
           ),
         ),

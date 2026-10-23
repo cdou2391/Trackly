@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/motion/motion.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/trackly_tokens.dart';
 import '../../../core/theme/trackly_type.dart';
@@ -50,20 +51,24 @@ class HeroAmount extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: Text.rich(
-              TextSpan(
-                text: formatMoney(
-                  monthly[currency] ?? 0,
-                  currency,
-                  locale: locale,
+            // Counts up on first show and rolls to a new value when it changes.
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: monthly[currency] ?? 0),
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : Motion.countUp,
+              curve: Motion.curve,
+              builder: (context, value, _) => Text.rich(
+                TextSpan(
+                  text: formatMoney(value, currency, locale: locale),
+                  style: tokens.heroAmount,
+                  children: [
+                    TextSpan(
+                      text: ' ${l10n.heroMonthSuffix}',
+                      style: tokens.heroAmountUnit,
+                    ),
+                  ],
                 ),
-                style: tokens.heroAmount,
-                children: [
-                  TextSpan(
-                    text: ' ${l10n.heroMonthSuffix}',
-                    style: tokens.heroAmountUnit,
-                  ),
-                ],
               ),
             ),
           ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/motion/motion.dart';
 import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/error/error_reporter.dart';
 import '../../../core/navigation/app_router.dart';
@@ -312,30 +313,55 @@ class _DayCharges extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeader(title: DateFormat.MMMEd(locale).format(date)),
-        const SizedBox(height: TracklySpacing.sm),
-        if (entries.isEmpty)
-          Text(
-            l10n.calendarNoCharges,
-            style: sans(
-              14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          )
-        else
-          for (final entry in entries) ...[
-            SubscriptionRow(
-              item: entry.item,
-              amount: entry.amount,
-              chips: _chips(context, entry),
-              onTap: () => context.push(AppRoutes.itemPath(entry.item.id)),
-            ),
+    final swap = motionDuration(context, Motion.swap);
+
+    // Choosing another day: the old list fades out, the new one fades in with
+    // its rows arriving one after another, and the height eases between them.
+    return AnimatedSize(
+      duration: swap,
+      curve: Motion.curve,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: swap,
+        switchInCurve: Motion.curve,
+        switchOutCurve: Curves.easeInCubic,
+        layoutBuilder: (current, previous) => Stack(
+          alignment: Alignment.topCenter,
+          children: [...previous, ?current],
+        ),
+        child: Column(
+          key: ValueKey(date),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(title: DateFormat.MMMEd(locale).format(date)),
             const SizedBox(height: TracklySpacing.sm),
+            if (entries.isEmpty)
+              Reveal(
+                child: Text(
+                  l10n.calendarNoCharges,
+                  style: sans(
+                    14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              )
+            else
+              for (final (i, entry) in entries.indexed) ...[
+                Reveal(
+                  index: i,
+                  child: SubscriptionRow(
+                    item: entry.item,
+                    amount: entry.amount,
+                    chips: _chips(context, entry),
+                    onTap: () =>
+                        context.push(AppRoutes.itemPath(entry.item.id)),
+                  ),
+                ),
+                const SizedBox(height: TracklySpacing.sm),
+              ],
           ],
-      ],
+        ),
+      ),
     );
   }
 

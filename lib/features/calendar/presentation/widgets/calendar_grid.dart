@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/motion/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/trackly_tokens.dart';
 import '../../../../core/theme/trackly_type.dart';
@@ -140,23 +141,38 @@ class _DayCell extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: _circle,
-                height: _circle,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? tokens.primaryAction : null,
-                  border: isToday && !isSelected
-                      ? Border.all(color: tokens.accent, width: 1.5)
-                      : null,
-                ),
-                child: Text(
-                  '${date.day}',
-                  style: sans(
-                    14,
-                    weight: isToday || isSelected ? 700 : 500,
-                    color: textColor,
+              // The chosen day fills in and pops a little, so the selection
+              // moves instead of jumping.
+              AnimatedScale(
+                scale: isSelected ? 1.1 : 1.0,
+                duration: motionDuration(context, Motion.select),
+                curve: Curves.easeOutBack,
+                child: AnimatedContainer(
+                  duration: motionDuration(context, Motion.select),
+                  curve: Motion.curve,
+                  width: _circle,
+                  height: _circle,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? tokens.primaryAction
+                        : tokens.primaryAction.withValues(alpha: 0),
+                    border: Border.all(
+                      color: isToday && !isSelected
+                          ? tokens.accent
+                          : tokens.accent.withValues(alpha: 0),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: AnimatedDefaultTextStyle(
+                    duration: motionDuration(context, Motion.select),
+                    style: sans(
+                      14,
+                      weight: isToday || isSelected ? 700 : 500,
+                      color: textColor,
+                    ),
+                    child: Text('${date.day}'),
                   ),
                 ),
               ),
