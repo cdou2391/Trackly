@@ -19,6 +19,7 @@ import 'core/notifications/local_notification_service.dart';
 import 'core/notifications/notification_prefs.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_text.dart';
+import 'core/widget/home_widget_gateway.dart';
 import 'core/startup/boot_gate.dart';
 import 'features/export/application/data_export.dart';
 import 'features/export/application/share_plus_data_sharer.dart';
@@ -96,6 +97,9 @@ Future<Widget> _bootstrap(
       errorReporterProvider.overrideWithValue(errorReporter),
       analyticsProvider.overrideWithValue(analytics),
       notificationServiceProvider.overrideWithValue(notifications),
+      homeWidgetGatewayProvider.overrideWithValue(
+        const AndroidHomeWidgetGateway(),
+      ),
       notificationPrefsProvider.overrideWithValue(
         SharedNotificationPrefs(prefs),
       ),

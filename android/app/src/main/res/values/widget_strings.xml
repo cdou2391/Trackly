@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Your next payment and how many days are left</string>
+    <string name="widget_label">Next payment</string>
+    <string name="widget_empty_title">No upcoming payments</string>
+    <string name="widget_empty_body">Add a subscription to see it here.</string>
+    <string name="widget_due_today">Due today</string>
+    <string name="widget_due_tomorrow">Due tomorrow</string>
+    <plurals name="widget_in_days">
+        <item quantity="one">In %d day</item>
+        <item quantity="other">In %d days</item>
+    </plurals>
+    <plurals name="widget_overdue_days">
+        <item quantity="one">%d day overdue</item>
+        <item quantity="other">%d days overdue</item>
+    </plurals>
+    <string name="widget_config_title">Widget background</string>
+    <string name="widget_config_glass">Glass</string>
+    <string name="widget_config_preview">Preview</string>
+    <string name="widget_config_save">Save</string>
+    <string name="widget_config_auto">Auto</string>
+</resources>

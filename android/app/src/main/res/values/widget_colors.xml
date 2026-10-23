@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget colours: the light theme (white, faint border, gold). -->
+<resources>
+    <color name="widget_background">#FFFFFF</color>
+    <color name="widget_border">#EEEBE6</color>
+    <color name="widget_text_primary">#0B1322</color>
+    <color name="widget_text_secondary">#657286</color>
+    <color name="widget_accent">#8F6A22</color>
+    <color name="widget_chip">#F6EBD3</color>
+    <color name="widget_overdue">#BF3037</color>
+    <color name="widget_overdue_chip">#FDECEC</color>
+</resources>

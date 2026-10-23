@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark: the page navy with champagne, matching the app's dark theme. -->
+<resources>
+    <color name="widget_background">#0B121C</color>
+    <color name="widget_border">#1A2838</color>
+    <color name="widget_text_primary">#F3F4F3</color>
+    <color name="widget_text_secondary">#A8BBD0</color>
+    <color name="widget_accent">#D7B987</color>
+    <color name="widget_chip">#3A3122</color>
+    <color name="widget_overdue">#E38B91</color>
+    <color name="widget_overdue_chip">#3B2228</color>
+</resources>

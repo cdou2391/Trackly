@@ -7,6 +7,7 @@ import 'core/analytics/trial_end_reporter.dart';
 import 'core/navigation/app_router.dart';
 import 'core/notifications/reminder_sync.dart';
 import 'core/notifications/reminder_taps.dart';
+import 'core/widget/widget_sync.dart';
 import 'core/theme/app_theme.dart';
 import 'features/privacy/application/privacy_choices.dart';
 import 'features/privacy/presentation/privacy_choice_screen.dart';
@@ -25,6 +26,7 @@ class TracklyApp extends ConsumerWidget {
     ref.watch(reminderSyncProvider);
     ref.watch(trialEndReporterProvider);
     ref.watch(reminderTapsProvider);
+    ref.watch(widgetSyncProvider);
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
