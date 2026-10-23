@@ -80,13 +80,12 @@ void main() {
     await _openInsights(tester);
 
     expect(find.text('By category'), findsOneWidget);
+    // The legend names each category once; the figures live on the donut
+    // (and in what a screen reader hears), not in repeated rows.
     expect(find.text('Entertainment'), findsOneWidget);
-    // Amounts also appear in Biggest costs, so the captions identify the rows.
-    expect(find.text(r'$25.00'), findsOneWidget);
-    expect(find.text('2 items · 71%'), findsOneWidget);
     expect(find.text('Software'), findsOneWidget);
-    expect(find.text(r'$10.00'), findsWidgets);
-    expect(find.text('1 item · 29%'), findsOneWidget);
+    expect(find.text('2 items · 71%'), findsNothing);
+    expect(find.text('1 item · 29%'), findsNothing);
 
     // Largest first.
     final entertainment = tester.getTopLeft(find.text('Entertainment')).dy;
@@ -103,7 +102,7 @@ void main() {
     await _openInsights(tester);
 
     expect(find.text('Other'), findsOneWidget);
-    expect(find.text('1 item · 100%'), findsOneWidget);
+    expect(find.text('1 item · 100%'), findsNothing);
   });
 
   tracklyTest('each currency gets its own breakdown', (tester) async {
@@ -274,7 +273,10 @@ void main() {
       await _openInsights(tester);
 
       expect(find.text('Paid this month'), findsOneWidget);
-      expect(find.text(r'$10.00 of $25.00'), findsOneWidget);
+      // The amounts sit on their bars: Spotify's week is fully paid, and
+      // Netflix's week is still to pay.
+      expect(find.text(r'$10'), findsOneWidget);
+      expect(find.text(r'$15'), findsOneWidget);
       expect(find.text('Charges you mark as paid count here.'), findsNothing);
     });
 
@@ -288,7 +290,7 @@ void main() {
       );
       await _openInsights(tester);
 
-      expect(find.text(r'$0.00 of $15.00'), findsOneWidget);
+      expect(find.text(r'$15'), findsOneWidget);
       expect(find.text('Charges you mark as paid count here.'), findsOneWidget);
     });
 
@@ -326,9 +328,8 @@ void main() {
       expect(find.text('Subscriptions and bills'), findsOneWidget);
       expect(find.text('Bills'), findsOneWidget);
       expect(find.text('Subscriptions'), findsOneWidget);
-      // Each also has a category row with the same figures: one item each.
-      expect(find.text('1 item · 97%'), findsNWidgets(2)); // Rent
-      expect(find.text('1 item · 3%'), findsNWidgets(2)); // Netflix
+      expect(find.text('1 item · 97%'), findsOneWidget); // Rent
+      expect(find.text('1 item · 3%'), findsOneWidget); // Netflix
       // Largest first.
       expect(
         tester.getTopLeft(find.text('Bills')).dy,

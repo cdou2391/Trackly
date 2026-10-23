@@ -8,10 +8,60 @@ import '../../../../l10n/l10n.dart';
 
 /// One slice of the donut.
 class DonutSlice {
-  const DonutSlice({required this.color, required this.value});
+  const DonutSlice({required this.color, required this.value, this.name = ''});
 
   final Color color;
   final double value;
+
+  /// The category's name, shown in the legend.
+  final String name;
+}
+
+/// The legend: a coloured dot and the category name, one per slice.
+class DonutLegend extends StatelessWidget {
+  const DonutLegend({required this.slices, super.key});
+
+  final List<DonutSlice> slices;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final slice in slices)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: slice.color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    slice.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: sans(15.5, color: theme.colorScheme.onSurface),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// A pie with a hole: each slice is one category's share of the monthly cost,
@@ -21,8 +71,12 @@ class CategoryDonut extends StatelessWidget {
     required this.slices,
     required this.total,
     required this.semanticsLabel,
+    this.size = defaultSize,
     super.key,
   });
+
+  /// The donut is a square of this side.
+  final double size;
 
   final List<DonutSlice> slices;
 
@@ -30,14 +84,15 @@ class CategoryDonut extends StatelessWidget {
   final String total;
   final String semanticsLabel;
 
-  static const _size = 184.0;
-  static const _thickness = 26.0;
+  static const defaultSize = 210.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final sum = slices.fold<double>(0, (a, s) => a + s.value);
+    // The ring's width follows the donut's size.
+    final thickness = size * 0.19;
     if (sum <= 0) return const SizedBox.shrink();
 
     return Semantics(
@@ -46,8 +101,8 @@ class CategoryDonut extends StatelessWidget {
       excludeSemantics: true,
       child: Center(
         child: SizedBox(
-          width: _size,
-          height: _size,
+          width: size,
+          height: size,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -56,18 +111,20 @@ class CategoryDonut extends StatelessWidget {
                 duration: motionDuration(context, Motion.countUp),
                 curve: Motion.curve,
                 builder: (context, progress, _) => CustomPaint(
-                  size: const Size(_size, _size),
+                  size: Size(size, size),
                   painter: _DonutPainter(
                     slices: slices,
                     sum: sum,
                     progress: progress,
-                    thickness: _thickness,
+                    thickness: thickness,
                     track: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                    textScaler: MediaQuery.textScalerOf(context)
+                        .clamp(maxScaleFactor: 1.2),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(_thickness + 10),
+                padding: EdgeInsets.all(thickness + 10),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Column(
@@ -76,7 +133,7 @@ class CategoryDonut extends StatelessWidget {
                       Text(
                         total,
                         style: sans(
-                          20,
+                          22,
                           weight: 700,
                           color: theme.colorScheme.onSurface,
                         ),
@@ -84,7 +141,7 @@ class CategoryDonut extends StatelessWidget {
                       Text(
                         l10n.insightsPerMonth,
                         style: sans(
-                          12,
+                          13,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -107,8 +164,10 @@ class _DonutPainter extends CustomPainter {
     required this.progress,
     required this.thickness,
     required this.track,
+    required this.textScaler,
   });
 
+  final TextScaler textScaler;
   final List<DonutSlice> slices;
   final double sum;
 
@@ -154,7 +213,45 @@ class _DonutPainter extends CustomPainter {
         false,
         ring..color = slice.color,
       );
+
+      _percent(canvas, rect, slice, from, sweep);
     }
+  }
+
+  /// The slice's share, written on the ring once the slice is big enough.
+  void _percent(
+    Canvas canvas,
+    Rect rect,
+    DonutSlice slice,
+    double from,
+    double sweep,
+  ) {
+    final share = slice.value / sum;
+    if (share < 0.06) return;
+    // Appears as the sweep finishes, so it does not flicker while drawing.
+    final fade = ((progress - 0.7) / 0.3).clamp(0.0, 1.0);
+    if (fade <= 0) return;
+
+    final painter = TextPainter(
+      text: TextSpan(
+        text: '${(share * 100).round()}%',
+        style: sans(
+          13.5,
+          weight: 700,
+          color: Colors.white.withValues(alpha: fade),
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+    )..layout();
+
+    final mid = from + sweep / 2;
+    final radius = rect.width / 2;
+    final center = rect.center + Offset(math.cos(mid), math.sin(mid)) * radius;
+    painter.paint(
+      canvas,
+      center - Offset(painter.width / 2, painter.height / 2),
+    );
   }
 
   @override
@@ -162,5 +259,6 @@ class _DonutPainter extends CustomPainter {
       old.progress != progress ||
       old.sum != sum ||
       old.slices != slices ||
+      old.textScaler != textScaler ||
       old.track != track;
 }

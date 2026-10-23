@@ -10,8 +10,12 @@ import '../../../../core/utils/format_utils.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/insights_summary.dart';
 
-/// Bars for each week of the month: the lighter bar is what the week costs,
-/// the solid one inside it is what has already been paid.
+/// Bars for each week of the month, each with its own amount: the lighter bar
+/// is what the week costs, the solid one inside it what has been paid. A fully
+/// paid week shows its amount in the accent colour; a part-paid one shows the
+/// paid share inside the bar and the week's total above it (when the paid part
+/// is too short to hold text, the paid share goes above, in the accent colour,
+/// under the total).
 class PaidWeeksChart extends StatelessWidget {
   const PaidWeeksChart({
     required this.weeks,
@@ -24,7 +28,10 @@ class PaidWeeksChart extends StatelessWidget {
   final String currency;
   final String locale;
 
-  static const _plotHeight = 112.0;
+  static const _plotHeight = 188.0;
+
+  /// Room above the tallest bar for its amount.
+  static const _labelRoom = 46.0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +53,8 @@ class PaidWeeksChart extends StatelessWidget {
         ),
     ].join('. ');
 
+    final planned = tokens.accent.withValues(alpha: 0.24);
+
     return Semantics(
       container: true,
       label: semantics,
@@ -53,37 +62,62 @@ class PaidWeeksChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Which currency the amounts are in (the compact figures drop it).
+          Text(
+            currency,
+            style: sans(
+              13,
+              weight: 600,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: TracklySpacing.xs),
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: 1),
             duration: motionDuration(context, Motion.countUp),
             curve: Motion.curve,
             builder: (context, progress, _) => SizedBox(
               height: _plotHeight,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: _BarsPainter(
-                  weeks: weeks,
-                  max: max,
-                  progress: progress,
-                  planned: tokens.accent.withValues(alpha: 0.24),
-                  paid: tokens.accent,
-                  baseline: tokens.cardBorder,
-                ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final week in weeks)
+                    Expanded(
+                      child: _WeekBar(
+                        week: week,
+                        max: max,
+                        progress: progress,
+                        currency: currency,
+                        locale: locale,
+                        planned: planned,
+                        paid: tokens.accent,
+                        maxBarHeight: _plotHeight - _labelRoom,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
+          Container(height: 1, color: tokens.cardBorder),
           const SizedBox(height: TracklySpacing.xs),
           Row(
             children: [
               for (final w in weeks)
                 Expanded(
-                  child: Text(
-                    l10n.insightsWeekRange(w.startDay, w.endDay),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    style: sans(
-                      11.5,
-                      color: theme.colorScheme.onSurfaceVariant,
+                  // Shrinks instead of clipping at large text sizes, with a
+                  // little air so neighbouring labels do not touch.
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.insightsWeekRange(w.startDay, w.endDay),
+                        maxLines: 1,
+                        style: sans(
+                          13,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -92,16 +126,171 @@ class PaidWeeksChart extends StatelessWidget {
           const SizedBox(height: TracklySpacing.sm),
           Row(
             children: [
-              _LegendDot(
-                color: tokens.accent.withValues(alpha: 0.24),
-                label: l10n.insightsChartPlanned,
-              ),
+              _LegendDot(color: planned, label: l10n.insightsChartPlanned),
               const SizedBox(width: TracklySpacing.base),
               _LegendDot(color: tokens.accent, label: l10n.insightsChartPaid),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+/// One week: the amount, then the bar (planned behind, paid in front).
+class _WeekBar extends StatelessWidget {
+  const _WeekBar({
+    required this.week,
+    required this.max,
+    required this.progress,
+    required this.currency,
+    required this.locale,
+    required this.planned,
+    required this.paid,
+    required this.maxBarHeight,
+  });
+
+  final WeekBucket week;
+  final double max;
+
+  /// 0 to 1: the bars grow from the baseline and the amounts fade in.
+  final double progress;
+  final String currency;
+  final String locale;
+  final Color planned;
+  final Color paid;
+  final double maxBarHeight;
+
+  static const _maxBarWidth = 56.0;
+
+  double _height(double amount) {
+    if (amount <= 0) return 0;
+    // A visible stub for anything above zero, so a small week is not lost.
+    return math.max(amount / max * maxBarHeight * progress, 3 * progress);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final totalHeight = _height(math.max(week.total, week.paid));
+    final paidHeight = _height(week.paid);
+
+    final fullyPaid = week.paid > 0 && week.paid >= week.total;
+    final partlyPaid = week.paid > 0 && week.paid < week.total;
+    // Inside the bar only when it is tall enough to hold the figure.
+    final showPaidInside = partlyPaid && paidHeight >= 22;
+
+    final shown = math.max(week.total, week.paid);
+    final label = shown > 0
+        ? formatCompactMoney(shown, currency, locale: locale)
+        : null;
+    // A paid part too short for text: say it above the bar instead.
+    final paidAbove = partlyPaid && !showPaidInside;
+    final labelOpacity = ((progress - 0.5) / 0.5).clamp(0.0, 1.0);
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (label != null)
+          Opacity(
+            opacity: labelOpacity,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      style: sans(
+                        13,
+                        weight: fullyPaid ? 700 : 600,
+                        color: fullyPaid
+                            ? paid
+                            : theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (paidAbove)
+                      Text(
+                        formatCompactMoney(week.paid, currency, locale: locale),
+                        maxLines: 1,
+                        style: sans(13, weight: 700, color: paid),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        if (totalHeight > 0)
+          SizedBox(
+            width: _maxBarWidth,
+            height: totalHeight,
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: planned,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                if (paidHeight > 0)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      height: paidHeight,
+                      width: double.infinity,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: paid,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(8),
+                          ),
+                        ),
+                        child: showPaidInside
+                            ? Center(
+                                child: Opacity(
+                                  opacity: ((progress - 0.5) / 0.5).clamp(
+                                    0.0,
+                                    1.0,
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 2,
+                                      ),
+                                      child: Text(
+                                        formatCompactMoney(
+                                          week.paid,
+                                          currency,
+                                          locale: locale,
+                                        ),
+                                        maxLines: 1,
+                                        style: sans(
+                                          12.5,
+                                          weight: 700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
@@ -118,89 +307,19 @@ class _LegendDot extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 10,
-          height: 10,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           label,
           style: sans(
-            12,
+            13.5,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
     );
   }
-}
-
-class _BarsPainter extends CustomPainter {
-  _BarsPainter({
-    required this.weeks,
-    required this.max,
-    required this.progress,
-    required this.planned,
-    required this.paid,
-    required this.baseline,
-  });
-
-  final List<WeekBucket> weeks;
-  final double max;
-
-  /// 0 to 1: the bars grow from the baseline.
-  final double progress;
-  final Color planned;
-  final Color paid;
-  final Color baseline;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (weeks.isEmpty) return;
-    final floor = size.height - 1;
-    final top = 6.0;
-    final plot = floor - top;
-    final cell = size.width / weeks.length;
-    final barWidth = math.min(cell * 0.56, 44.0);
-    const radius = Radius.circular(8);
-
-    canvas.drawLine(
-      Offset(0, floor),
-      Offset(size.width, floor),
-      Paint()
-        ..color = baseline
-        ..strokeWidth = 1,
-    );
-
-    for (var i = 0; i < weeks.length; i++) {
-      final week = weeks[i];
-      final left = cell * i + (cell - barWidth) / 2;
-
-      RRect bar(double amount) {
-        final height = (amount / max) * plot * progress;
-        // A visible stub for anything above zero, so a small week is not lost.
-        final h = amount > 0 ? math.max(height, 3.0 * progress) : 0.0;
-        return RRect.fromRectAndCorners(
-          Rect.fromLTWH(left, floor - h, barWidth, h),
-          topLeft: radius,
-          topRight: radius,
-        );
-      }
-
-      if (week.total > 0) {
-        canvas.drawRRect(bar(week.total), Paint()..color = planned);
-      }
-      if (week.paid > 0) {
-        canvas.drawRRect(bar(week.paid), Paint()..color = paid);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_BarsPainter old) =>
-      old.progress != progress ||
-      old.weeks != weeks ||
-      old.max != max ||
-      old.planned != planned ||
-      old.paid != paid;
 }

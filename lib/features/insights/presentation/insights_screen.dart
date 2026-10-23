@@ -318,47 +318,76 @@ class _CategoryBreakdown extends StatelessWidget {
         const SizedBox(height: TracklySpacing.sm),
         for (final currency in currencies) ...[
           if (showCurrency) _CurrencyLabel(currency),
-          _donut(context, currency, locale),
+          _chart(context, currency, locale),
           const SizedBox(height: TracklySpacing.base),
-          for (final category in summary.categoryBreakdown[currency]!)
-            _ShareRow(
-              icon: categoryIconData(category.categoryId),
-              color: categoryColor(category.categoryId),
-              name: _categoryName(category.categoryId),
-              amount: formatMoney(
-                category.monthlyAmount,
-                currency,
-                locale: locale,
-              ),
-              share: _share(
-                category.monthlyAmount,
-                summary.monthlyTotalsByCurrency[currency],
-              ),
-              detail: l10n.insightsTypeItems(category.count),
-            ),
         ],
       ],
     );
   }
 
-  Widget _donut(BuildContext context, String currency, String locale) {
+  /// The donut with its legend beside it. The names live in the legend and
+  /// the shares on the ring, so nothing is repeated below.
+  Widget _chart(BuildContext context, String currency, String locale) {
     final l10n = context.l10n;
     final categories = summary.categoryBreakdown[currency]!;
     final total = summary.monthlyTotalsByCurrency[currency] ?? 0;
     final formattedTotal = formatMoney(total, currency, locale: locale);
+    final slices = [
+      for (final c in categories)
+        DonutSlice(
+          color: categoryColor(c.categoryId),
+          value: c.monthlyAmount,
+          name: _categoryName(c.categoryId),
+        ),
+    ];
 
-    return CategoryDonut(
-      total: formattedTotal,
-      semanticsLabel:
-          '${l10n.insightsDonutSemantics(formattedTotal)}. '
-          '${[for (final c in categories) '${_categoryName(c.categoryId)} ${l10n.insightsShare((_share(c.monthlyAmount, total) * 100).round())}'].join(', ')}',
-      slices: [
-        for (final c in categories)
-          DonutSlice(
-            color: categoryColor(c.categoryId),
-            value: c.monthlyAmount,
-          ),
-      ],
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final semantics =
+            '${l10n.insightsDonutSemantics(formattedTotal)}. '
+            '${[for (final c in categories) '${_categoryName(c.categoryId)} ${formatMoney(c.monthlyAmount, currency, locale: locale)}, ${l10n.insightsShare((_share(c.monthlyAmount, total) * 100).round())}'].join('. ')}';
+
+        // Beside the legend the donut takes a little over half the width, as
+        // big as that allows; the legend needs room for whole words.
+        final side = (width * 0.56).clamp(150.0, CategoryDonut.defaultSize);
+        final room = width - side - 16;
+        final beside = room >= 112 * textScale.clamp(1.0, 1.5);
+
+        if (beside) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CategoryDonut(
+                size: side,
+                total: formattedTotal,
+                semanticsLabel: semantics,
+                slices: slices,
+              ),
+              const SizedBox(width: TracklySpacing.base),
+              Expanded(child: DonutLegend(slices: slices)),
+            ],
+          );
+        }
+        // Too narrow for both: a big donut with the legend underneath.
+        return Column(
+          children: [
+            CategoryDonut(
+              size: width.clamp(150.0, 260.0) * 0.9,
+              total: formattedTotal,
+              semanticsLabel: semantics,
+              slices: slices,
+            ),
+            const SizedBox(height: TracklySpacing.base),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: DonutLegend(slices: slices),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -586,7 +615,6 @@ class _PaidThisMonth extends StatelessWidget {
     final tokens = context.tokens;
     final locale = Localizations.localeOf(context).toString();
     final currencies = summary.monthProgress.keys.toList()..sort();
-    final showCurrency = currencies.length > 1;
     final nothingPaid = summary.monthProgress.values.every((p) => p.paid <= 0);
 
     return Column(
@@ -607,25 +635,6 @@ class _PaidThisMonth extends StatelessWidget {
               children: [
                 for (final (index, currency) in currencies.indexed) ...[
                   if (index > 0) const SizedBox(height: TracklySpacing.base),
-                  if (showCurrency) _CurrencyLabel(currency),
-                  _ProgressLine(
-                    text: l10n.insightsPaidOf(
-                      formatMoney(
-                        summary.monthProgress[currency]!.paid,
-                        currency,
-                        locale: locale,
-                      ),
-                      formatMoney(
-                        summary.monthProgress[currency]!.total,
-                        currency,
-                        locale: locale,
-                      ),
-                    ),
-                    value:
-                        summary.monthProgress[currency]!.paid /
-                        summary.monthProgress[currency]!.total,
-                  ),
-                  const SizedBox(height: TracklySpacing.base),
                   PaidWeeksChart(
                     weeks: summary.monthProgress[currency]!.weeks,
                     currency: currency,
@@ -647,46 +656,6 @@ class _PaidThisMonth extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ProgressLine extends StatelessWidget {
-  const _ProgressLine({required this.text, required this.value});
-
-  final String text;
-
-  /// 0 to 1.
-  final double value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final tokens = context.tokens;
-
-    return Semantics(
-      container: true,
-      label: text,
-      excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            text,
-            style: sans(20, weight: 700, color: theme.colorScheme.onSurface),
-          ),
-          const SizedBox(height: TracklySpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(TracklyRadius.pill),
-            child: LinearProgressIndicator(
-              value: value.clamp(0.0, 1.0),
-              minHeight: 8,
-              color: tokens.accent,
-              backgroundColor: tokens.fieldFill,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

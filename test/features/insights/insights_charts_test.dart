@@ -180,6 +180,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('the donut tells a screen reader each category and its share', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _host(
+        const CategoryDonut(
+          total: r'$35.00',
+          semanticsLabel: r'Monthly cost by category, total $35.00. Entertainment $25.00, 71%',
+          slices: [
+            DonutSlice(color: Colors.red, value: 25, name: 'Entertainment'),
+          ],
+        ),
+      ),
+    );
+    expect(
+      find.bySemanticsLabel(RegExp(r'Entertainment \$25\.00, 71%')),
+      findsOneWidget,
+    );
+    handle.dispose();
+  });
+
   testWidgets('the donut is complete at once when motion is reduced', (
     tester,
   ) async {
@@ -211,5 +233,169 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
     await tester.pumpAndSettle();
     expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('the legend lists each category with its colour', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        const DonutLegend(
+          slices: [
+            DonutSlice(color: Colors.red, value: 3, name: 'Entertainment'),
+            DonutSlice(color: Colors.blue, value: 1, name: 'Software'),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('Entertainment'), findsOneWidget);
+    expect(find.text('Software'), findsOneWidget);
+    final dots = tester
+        .widgetList<Container>(find.byType(Container))
+        .map((c) => c.decoration)
+        .whereType<BoxDecoration>()
+        .map((d) => d.color)
+        .toList();
+    expect(dots, containsAll([Colors.red, Colors.blue]));
+  });
+
+  tracklyTest('the legend sits beside the donut on a normal screen', (
+    tester,
+  ) async {
+    await pumpTrackly(
+      tester,
+      size: _tall,
+      items: [
+        testItem(
+          'Netflix',
+          amount: 10,
+          due: DateTime(2026, 10, 12),
+          categoryId: 'entertainment',
+        ),
+        testItem(
+          'Adobe',
+          amount: 30,
+          due: DateTime(2026, 10, 15),
+          categoryId: 'software',
+        ),
+      ],
+    );
+    await _openInsights(tester);
+
+    final donut = tester.getRect(find.byType(CategoryDonut));
+    final legend = tester.getRect(find.byType(DonutLegend));
+    expect(legend.left, greaterThanOrEqualTo(donut.right));
+  });
+
+  tracklyTest(
+    'the legend drops below the donut on a narrow, large-text screen',
+    (tester) async {
+      await pumpTrackly(
+        tester,
+        size: const Size(320, 2300),
+        textScale: 1.6,
+        items: [
+          testItem(
+            'Netflix',
+            amount: 10,
+            due: DateTime(2026, 10, 12),
+            categoryId: 'entertainment',
+          ),
+          testItem(
+            'Adobe',
+            amount: 30,
+            due: DateTime(2026, 10, 15),
+            categoryId: 'software',
+          ),
+        ],
+      );
+      await _openInsights(tester);
+
+      final donut = tester.getRect(find.byType(CategoryDonut));
+      final legend = tester.getRect(find.byType(DonutLegend));
+      expect(legend.top, greaterThanOrEqualTo(donut.bottom));
+      // Whole words: nothing is broken across lines.
+      expect(find.text('Entertainment'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  group('amounts on the bars', () {
+    Widget chart(List<WeekBucket> weeks, {String currency = 'USD'}) => _host(
+      SizedBox(
+        width: 360,
+        child: PaidWeeksChart(weeks: weeks, currency: currency, locale: 'en'),
+      ),
+    );
+
+    testWidgets('a week still to pay shows its total above the bar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        chart(const [
+          WeekBucket(startDay: 1, endDay: 7, total: 45, paid: 0),
+          WeekBucket(startDay: 8, endDay: 14, total: 20, paid: 0),
+        ]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(r'$45'), findsOneWidget);
+      expect(find.text(r'$20'), findsOneWidget);
+    });
+
+    testWidgets('a part-paid week shows its paid share inside the bar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        chart(const [WeekBucket(startDay: 1, endDay: 7, total: 100, paid: 60)]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(r'$100'), findsOneWidget); // above
+      expect(find.text(r'$60'), findsOneWidget); // inside
+    });
+
+    testWidgets('a paid share too short for text goes above the bar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        chart(const [
+          WeekBucket(startDay: 1, endDay: 7, total: 100, paid: 2),
+          WeekBucket(startDay: 8, endDay: 14, total: 100, paid: 0),
+        ]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(r'$2'), findsOneWidget);
+      expect(find.text(r'$100'), findsNWidgets(2));
+    });
+
+    testWidgets('a fully paid week shows one amount, not two', (tester) async {
+      await tester.pumpWidget(
+        chart(const [WeekBucket(startDay: 1, endDay: 7, total: 30, paid: 30)]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(r'$30'), findsOneWidget);
+    });
+
+    testWidgets('large amounts are shortened and the currency is named', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        chart(const [
+          WeekBucket(startDay: 1, endDay: 7, total: 22900, paid: 0),
+        ], currency: 'RWF'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('22.9K'), findsOneWidget);
+      expect(find.text('RWF'), findsOneWidget);
+    });
+
+    testWidgets('weeks with nothing in them show no amount', (tester) async {
+      await tester.pumpWidget(
+        chart(const [
+          WeekBucket(startDay: 1, endDay: 7, total: 10, paid: 0),
+          WeekBucket(startDay: 8, endDay: 14, total: 0, paid: 0),
+        ]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(r'$10'), findsOneWidget);
+      expect(find.text(r'$0'), findsNothing);
+    });
   });
 }
