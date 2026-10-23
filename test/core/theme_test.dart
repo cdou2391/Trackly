@@ -33,11 +33,11 @@ void main() {
 
   group('light palette', () {
     test('uses the warm premium colors', () {
-      expect(light.scaffoldBackgroundColor, const Color(0xFFFAF8F4));
+      expect(light.scaffoldBackgroundColor, const Color(0xFFFFFFFF));
       expect(light.colorScheme.surface, const Color(0xFFFFFFFF));
       expect(light.colorScheme.onSurface, const Color(0xFF0B1322));
       expect(light.colorScheme.onSurfaceVariant, const Color(0xFF657286));
-      expect(tokens.cardBorder, const Color(0xFFE7E4DE));
+      expect(tokens.cardBorder, const Color(0xFFEEEBE6));
       expect(tokens.accent, const Color(0xFFC99A3D)); // gold
       expect(tokens.primaryAction, const Color(0xFF1A2130)); // Save
     });

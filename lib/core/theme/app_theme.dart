@@ -43,7 +43,10 @@ class AppTheme {
       secondary: TracklyColors.steel,
       secondaryContainer: TracklyColors.surface3,
       onSecondaryContainer: TracklyColors.textPrimary,
-      surface: TracklyColors.surface1,
+      // Cards share the page colour; popups and sheets stay raised.
+      surface: TracklyColors.background,
+      surfaceContainer: TracklyColors.surface1,
+      surfaceContainerHigh: TracklyColors.surface1,
       onSurface: TracklyColors.textPrimary,
       onSurfaceVariant: TracklyColors.textSecondary,
       surfaceContainerHighest: TracklyColors.surface3,

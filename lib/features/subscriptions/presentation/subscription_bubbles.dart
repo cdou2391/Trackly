@@ -49,7 +49,14 @@ class SubscriptionBubbles extends StatelessWidget {
         final height = bubbleFieldHeight(
           radii,
           width: width,
-          minHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 0,
+          // The page runs behind the floating bar, so the field fills only
+          // what is above it; the padding below lets it scroll clear.
+          minHeight: constraints.maxHeight.isFinite
+              ? (constraints.maxHeight - navOverlayInset(context)).clamp(
+                  0.0,
+                  double.infinity,
+                )
+              : 0,
         );
         return SingleChildScrollView(
           padding: EdgeInsets.only(bottom: navOverlayInset(context)),

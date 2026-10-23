@@ -17,6 +17,10 @@ class TracklyColors {
   static const border = Color(0xFF2D455D);
   static const borderSoft = Color(0xFF243A50);
 
+  /// Card outlines: only just visible against the page.
+  static const cardBorder = Color(0xFF1A2838);
+  static const navBorder = Color(0xFF223244);
+
   // Steel blue (secondary accent)
   static const steel = Color(0xFF79A6C8);
   static const steelLight = Color(0xFFA6C7E1);
@@ -46,12 +50,15 @@ class TracklyColors {
   static const disabledFg = Color(0xFF8DA0B3);
 
   // Light theme: warm, premium. Gold is a restrained accent, never dominant.
-  static const lightBackground = Color(0xFFFAF8F4);
+  static const lightBackground = Color(0xFFFFFFFF);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightSurface2 = Color(0xFFF4F1EB);
   static const lightBorder = Color(0xFFE7E4DE);
+
+  /// Card outlines: only just visible against the white page.
+  static const lightCardBorder = Color(0xFFEEEBE6);
   static const lightBorderSoft = Color(0xFFEFECE6);
-  static const lightFieldFill = Color(0xFFFBFAF7);
+  static const lightFieldFill = Color(0xFFFFFFFF);
   static const lightTextPrimary = Color(0xFF0B1322);
   static const lightTextSecondary = Color(0xFF657286);
   static const lightTextMuted = Color(0xFF8A94A3);
