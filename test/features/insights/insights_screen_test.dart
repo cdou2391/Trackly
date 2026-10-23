@@ -54,8 +54,10 @@ void main() {
     );
     await _openInsights(tester);
 
-    expect(find.text('Per month'), findsOneWidget);
-    expect(find.text(r'$35.00'), findsOneWidget);
+    // The month figure appears in the totals card and in the middle of the
+    // category donut.
+    expect(find.text('Per month'), findsNWidgets(2));
+    expect(find.text(r'$35.00'), findsNWidgets(2));
     expect(find.text('Per year'), findsOneWidget);
     expect(find.text(r'$420.00'), findsOneWidget);
   });

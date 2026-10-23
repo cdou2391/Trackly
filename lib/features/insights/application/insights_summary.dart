@@ -45,10 +45,68 @@ class CostlyItem {
 /// What has been paid so far this month against what the month costs, in a
 /// single currency. [total] is the Calendar's "Total this month".
 class MonthProgress {
-  const MonthProgress({required this.paid, required this.total});
+  const MonthProgress({
+    required this.paid,
+    required this.total,
+    this.weeks = const [],
+  });
 
   final double paid;
   final double total;
+
+  /// The month in blocks of seven days (1-7, 8-14, ...), for the bar chart.
+  final List<WeekBucket> weeks;
+}
+
+/// One block of days of the month: what it costs and what is already paid.
+class WeekBucket {
+  const WeekBucket({
+    required this.startDay,
+    required this.endDay,
+    required this.total,
+    required this.paid,
+  });
+
+  final int startDay;
+  final int endDay;
+  final double total;
+  final double paid;
+}
+
+/// The month cut into blocks of seven days; the last one runs to month end.
+List<WeekBucket> weekBuckets(
+  CalendarMonth month,
+  String currency,
+  DateTime firstOfMonth,
+) {
+  final daysInMonth = DateTime(
+    firstOfMonth.year,
+    firstOfMonth.month + 1,
+    0,
+  ).day;
+  // A trailing sliver of one or two days joins the block before it.
+  final starts = [1, 8, 15, 22, if (daysInMonth >= 31) 29];
+  return [
+    for (final start in starts)
+      () {
+        final end = start == starts.last ? daysInMonth : start + 6;
+        var total = 0.0;
+        var paid = 0.0;
+        for (final entry in month.entries) {
+          if (entry.currencyCode != currency) continue;
+          final day = entry.date.day;
+          if (day < start || day > end) continue;
+          if (entry.countsInTotal) total += entry.amount;
+          if (entry.status == CalendarEntryStatus.paid) paid += entry.amount;
+        }
+        return WeekBucket(
+          startDay: start,
+          endDay: end,
+          total: total,
+          paid: paid,
+        );
+      }(),
+  ];
 }
 
 /// How many items the "Biggest costs" list shows per currency.
@@ -231,6 +289,11 @@ InsightsSummary buildInsightsSummary({
         total.key: MonthProgress(
           paid: paidByCurrency[total.key] ?? 0,
           total: total.value,
+          weeks: weekBuckets(
+            month,
+            total.key,
+            DateTime(today.year, today.month),
+          ),
         ),
   };
 

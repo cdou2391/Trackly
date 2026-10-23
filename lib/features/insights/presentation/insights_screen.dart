@@ -21,6 +21,8 @@ import '../../settings/application/settings_providers.dart';
 import '../../subscriptions/domain/recurring_enums.dart';
 import '../application/insights_providers.dart';
 import '../application/insights_summary.dart';
+import 'charts/category_donut.dart';
+import 'charts/paid_weeks_chart.dart';
 import 'spending_trend_card.dart';
 
 /// Keeps content readable on tablets and large phones.
@@ -316,6 +318,8 @@ class _CategoryBreakdown extends StatelessWidget {
         const SizedBox(height: TracklySpacing.sm),
         for (final currency in currencies) ...[
           if (showCurrency) _CurrencyLabel(currency),
+          _donut(context, currency, locale),
+          const SizedBox(height: TracklySpacing.base),
           for (final category in summary.categoryBreakdown[currency]!)
             _ShareRow(
               icon: categoryIconData(category.categoryId),
@@ -333,6 +337,27 @@ class _CategoryBreakdown extends StatelessWidget {
               detail: l10n.insightsTypeItems(category.count),
             ),
         ],
+      ],
+    );
+  }
+
+  Widget _donut(BuildContext context, String currency, String locale) {
+    final l10n = context.l10n;
+    final categories = summary.categoryBreakdown[currency]!;
+    final total = summary.monthlyTotalsByCurrency[currency] ?? 0;
+    final formattedTotal = formatMoney(total, currency, locale: locale);
+
+    return CategoryDonut(
+      total: formattedTotal,
+      semanticsLabel:
+          '${l10n.insightsDonutSemantics(formattedTotal)}. '
+          '${[for (final c in categories) '${_categoryName(c.categoryId)} ${l10n.insightsShare((_share(c.monthlyAmount, total) * 100).round())}'].join(', ')}',
+      slices: [
+        for (final c in categories)
+          DonutSlice(
+            color: categoryColor(c.categoryId),
+            value: c.monthlyAmount,
+          ),
       ],
     );
   }
@@ -599,6 +624,12 @@ class _PaidThisMonth extends StatelessWidget {
                     value:
                         summary.monthProgress[currency]!.paid /
                         summary.monthProgress[currency]!.total,
+                  ),
+                  const SizedBox(height: TracklySpacing.base),
+                  PaidWeeksChart(
+                    weeks: summary.monthProgress[currency]!.weeks,
+                    currency: currency,
+                    locale: locale,
                   ),
                 ],
                 if (nothingPaid) ...[

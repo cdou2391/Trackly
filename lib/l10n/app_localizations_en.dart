@@ -1079,4 +1079,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importIssueNoPaidDate => 'No paid date, so the due date was used.';
+
+  @override
+  String get insightsChartPlanned => 'Planned';
+
+  @override
+  String get insightsChartPaid => 'Paid';
+
+  @override
+  String insightsWeekRange(int start, int end) {
+    return '$start–$end';
+  }
+
+  @override
+  String insightsWeekSemantics(String range, String paid, String planned) {
+    return '$range: $paid paid of $planned';
+  }
+
+  @override
+  String insightsDonutSemantics(String total) {
+    return 'Monthly cost by category, total $total';
+  }
 }

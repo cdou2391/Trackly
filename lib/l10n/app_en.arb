@@ -378,5 +378,14 @@
   "@importIssueAmbiguousSubscription": { "placeholders": { "value": { "type": "String" } } },
   "importIssueUnknownCategory": "The category “{value}” doesn’t exist, so it was left empty.",
   "@importIssueUnknownCategory": { "placeholders": { "value": { "type": "String" } } },
-  "importIssueNoPaidDate": "No paid date, so the due date was used."
+  "importIssueNoPaidDate": "No paid date, so the due date was used.",
+
+  "insightsChartPlanned": "Planned",
+  "insightsChartPaid": "Paid",
+  "insightsWeekRange": "{start}–{end}",
+  "@insightsWeekRange": { "placeholders": { "start": { "type": "int" }, "end": { "type": "int" } } },
+  "insightsWeekSemantics": "{range}: {paid} paid of {planned}",
+  "@insightsWeekSemantics": { "placeholders": { "range": { "type": "String" }, "paid": { "type": "String" }, "planned": { "type": "String" } } },
+  "insightsDonutSemantics": "Monthly cost by category, total {total}",
+  "@insightsDonutSemantics": { "placeholders": { "total": { "type": "String" } } }
 }

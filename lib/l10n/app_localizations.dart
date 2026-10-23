@@ -1761,6 +1761,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No paid date, so the due date was used.'**
   String get importIssueNoPaidDate;
+
+  /// No description provided for @insightsChartPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get insightsChartPlanned;
+
+  /// No description provided for @insightsChartPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get insightsChartPaid;
+
+  /// No description provided for @insightsWeekRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start}–{end}'**
+  String insightsWeekRange(int start, int end);
+
+  /// No description provided for @insightsWeekSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{range}: {paid} paid of {planned}'**
+  String insightsWeekSemantics(String range, String paid, String planned);
+
+  /// No description provided for @insightsDonutSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly cost by category, total {total}'**
+  String insightsDonutSemantics(String total);
 }
 
 class _AppLocalizationsDelegate

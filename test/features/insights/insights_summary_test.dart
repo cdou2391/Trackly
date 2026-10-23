@@ -396,4 +396,60 @@ void main() {
       expect(summary.monthProgress['RWF']!.paid, 5000);
     });
   });
+
+  group('weekly buckets (for the bar chart)', () {
+    test('cut October into 1-7, 8-14, 15-21, 22-28 and 29-31', () {
+      final summary = summarize([item('A', due: DateTime(2026, 10, 12))]);
+      final weeks = summary.monthProgress['USD']!.weeks;
+      expect(
+        [for (final w in weeks) (w.startDay, w.endDay)],
+        [(1, 7), (8, 14), (15, 21), (22, 28), (29, 31)],
+      );
+    });
+
+    test('put each charge in the week it falls in', () {
+      final summary = summarize([
+        item('A', amount: 10, due: DateTime(2026, 10, 3)),
+        item('B', amount: 20, due: DateTime(2026, 10, 14)),
+        item('C', amount: 30, due: DateTime(2026, 10, 15)),
+        item('D', amount: 5, due: DateTime(2026, 10, 30)),
+      ]);
+      final totals = [
+        for (final w in summary.monthProgress['USD']!.weeks) w.total,
+      ];
+      expect(totals, [10, 20, 30, 0, 5]);
+    });
+
+    test('count a recorded payment as paid in its week', () {
+      final summary = summarize(
+        [item('A', amount: 10, due: DateTime(2026, 11, 3))],
+        payments: [paid('A', DateTime(2026, 10, 5), amount: 10)],
+      );
+      // Paid on 5 Oct, so the first week shows 10 paid.
+      final first = summary.monthProgress['USD']!.weeks.first;
+      expect(first.paid, 10);
+      expect(summary.monthProgress['USD']!.paid, 10);
+    });
+
+    test('weeks add up to the month total', () {
+      final summary = summarize([
+        item('A', amount: 12.5, due: DateTime(2026, 10, 2)),
+        item('B', amount: 7.25, due: DateTime(2026, 10, 19)),
+        item('C', amount: 3, due: DateTime(2026, 10, 31)),
+      ]);
+      final progress = summary.monthProgress['USD']!;
+      final sum = progress.weeks.fold<double>(0, (a, w) => a + w.total);
+      expect(sum, closeTo(progress.total, 0.0001));
+    });
+
+    test('a short month ends its last week on its last day', () {
+      final feb = buildInsightsSummary(
+        items: [item('A', due: DateTime(2027, 2, 10))],
+        now: DateTime(2027, 2, 9),
+      );
+      final weeks = feb.monthProgress['USD']!.weeks;
+      expect(weeks.last.endDay, 28);
+      expect(weeks, hasLength(4));
+    });
+  });
 }
