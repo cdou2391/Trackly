@@ -81,7 +81,9 @@ class TracklyWidgetProvider : HomeWidgetProvider() {
 
         if (name == null || due == null) {
             views.setTextViewText(R.id.widget_name, context.getString(R.string.widget_empty_title))
-            views.setTextViewText(R.id.widget_date, context.getString(R.string.widget_empty_body))
+            // The date sits beside the label, so the empty hint takes the label's place.
+            views.setTextViewText(R.id.widget_label, context.getString(R.string.widget_empty_body))
+            views.setViewVisibility(R.id.widget_date, View.GONE)
             views.setViewVisibility(R.id.widget_row, View.GONE)
         } else {
             val days = ChronoUnit.DAYS.between(LocalDate.now(), due).toInt()
@@ -92,8 +94,8 @@ class TracklyWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.widget_days, daysText(context, days))
             views.setTextViewText(R.id.widget_date, data.getString("widget_due_label", "") ?: "")
             views.setViewVisibility(R.id.widget_row, View.VISIBLE)
+            views.setViewVisibility(R.id.widget_date, View.VISIBLE)
             val chip = if (overdue) palette.overdue else palette.accent
-            views.setInt(R.id.widget_chip_bg, "setColorFilter", chip)
             views.setTextColor(R.id.widget_days, chip)
         }
 
