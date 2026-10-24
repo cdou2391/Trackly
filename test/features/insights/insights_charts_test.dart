@@ -145,7 +145,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  tracklyTest('each currency gets its own donut', (tester) async {
+  tracklyTest('two currencies: both totals, one donut, a chip to switch', (
+    tester,
+  ) async {
     await pumpTrackly(
       tester,
       size: _tall,
@@ -161,7 +163,55 @@ void main() {
     );
     await _openInsights(tester);
 
-    expect(find.byType(CategoryDonut), findsNWidgets(2));
+    expect(find.byType(CategoryDonut), findsOneWidget);
+    // Both totals sit above the chips; neither is merged into the other.
+    expect(find.text(r'$10.00'), findsWidgets);
+    expect(find.textContaining('30,000'), findsWidgets);
+    expect(find.byType(ChoiceChip), findsNWidgets(4));
+    // The biggest total is shown first.
+    final first = tester.widget<CategoryDonut>(find.byType(CategoryDonut));
+    expect(first.total, contains('30,000'));
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'USD').last);
+    await settle(tester);
+    final second = tester.widget<CategoryDonut>(find.byType(CategoryDonut));
+    expect(second.total, r'$10.00');
+    expect(find.byType(CategoryDonut), findsOneWidget);
+  });
+
+  tracklyTest('Paid this month: one bar chart, a chip per currency', (
+    tester,
+  ) async {
+    await pumpTrackly(
+      tester,
+      size: _tall,
+      items: [
+        testItem('Netflix', amount: 10, due: DateTime(2026, 10, 12)),
+        testItem(
+          'Internet',
+          amount: 30000,
+          currency: 'RWF',
+          due: DateTime(2026, 10, 15),
+        ),
+      ],
+    );
+    await _openInsights(tester);
+
+    expect(find.byType(PaidWeeksChart), findsOneWidget);
+    // The bigger month comes first.
+    expect(
+      tester.widget<PaidWeeksChart>(find.byType(PaidWeeksChart)).currency,
+      'RWF',
+    );
+
+    // The first USD chip belongs to Paid this month (it is higher up).
+    await tester.tap(find.widgetWithText(ChoiceChip, 'USD').first);
+    await settle(tester);
+    expect(find.byType(PaidWeeksChart), findsOneWidget);
+    expect(
+      tester.widget<PaidWeeksChart>(find.byType(PaidWeeksChart)).currency,
+      'USD',
+    );
   });
 
   tracklyTest('the charts draw at large text and a narrow screen', (
@@ -216,7 +266,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text(r'$10.00'), findsOneWidget);
+    expect(find.text(r'$10.00'), findsWidgets);
     expect(tester.hasRunningAnimations, isFalse);
   });
 

@@ -124,8 +124,14 @@ void main() {
     // Each currency is labelled in every section that lists amounts.
     expect(find.text('USD'), findsWidgets);
     expect(find.text('RWF'), findsWidgets);
-    expect(find.text('Entertainment'), findsOneWidget);
+    // One currency's categories at a time, the biggest total first.
     expect(find.text('Utilities'), findsOneWidget);
+    expect(find.text('Entertainment'), findsNothing);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'USD').last);
+    await settle(tester);
+    expect(find.text('Entertainment'), findsOneWidget);
+    expect(find.text('Utilities'), findsNothing);
   });
 
   tracklyTest('free trials and paused items are left out of the money', (

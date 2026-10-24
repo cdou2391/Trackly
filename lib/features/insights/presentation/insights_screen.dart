@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/motion/motion.dart';
 import '../../../core/navigation/app_bottom_navigation.dart';
 import '../../../core/database/tables/categories_table.dart';
 import '../../../core/error/error_reporter.dart';
@@ -299,28 +300,65 @@ class _Counts extends StatelessWidget {
   }
 }
 
-class _CategoryBreakdown extends StatelessWidget {
+class _CategoryBreakdown extends StatefulWidget {
   const _CategoryBreakdown({required this.summary});
 
   final InsightsSummary summary;
+
+  @override
+  State<_CategoryBreakdown> createState() => _CategoryBreakdownState();
+}
+
+class _CategoryBreakdownState extends State<_CategoryBreakdown> {
+  String? _picked;
+
+  InsightsSummary get summary => widget.summary;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final currencies = summary.categoryBreakdown.keys.toList()..sort();
-    final showCurrency = currencies.length > 1;
+    if (currencies.isEmpty) return const SizedBox.shrink();
+
+    // Biggest total first, unless the user has picked one that still exists.
+    final selected = currencies.contains(_picked)
+        ? _picked!
+        : (currencies.toList()..sort(
+                (a, b) => (summary.monthlyTotalsByCurrency[b] ?? 0).compareTo(
+                  summary.monthlyTotalsByCurrency[a] ?? 0,
+                ),
+              ))
+              .first;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader(title: l10n.insightsByCategory),
         const SizedBox(height: TracklySpacing.sm),
-        for (final currency in currencies) ...[
-          if (showCurrency) _CurrencyLabel(currency),
-          _chart(context, currency, locale),
+        if (currencies.length > 1) ...[
+          _CurrencyTotals(
+            currencies: currencies,
+            totals: summary.monthlyTotalsByCurrency,
+            locale: locale,
+            caption: l10n.insightsPerMonth,
+          ),
+          const SizedBox(height: TracklySpacing.md),
+          _CurrencyChips(
+            currencies: currencies,
+            selected: selected,
+            onSelected: (currency) => setState(() => _picked = currency),
+          ),
           const SizedBox(height: TracklySpacing.base),
         ],
+        AnimatedSwitcher(
+          duration: motionDuration(context, Motion.swap),
+          child: KeyedSubtree(
+            key: ValueKey(selected),
+            child: _chart(context, selected, locale),
+          ),
+        ),
+        const SizedBox(height: TracklySpacing.base),
       ],
     );
   }
@@ -396,6 +434,70 @@ double _share(double amount, double? total) =>
     (total ?? 0) > 0 ? amount / total! : 0.0;
 
 /// Monthly cost of subscriptions against bills.
+/// Every currency's monthly total side by side, never added together.
+class _CurrencyTotals extends StatelessWidget {
+  const _CurrencyTotals({
+    required this.currencies,
+    required this.totals,
+    required this.locale,
+    required this.caption,
+  });
+
+  final String caption;
+  final List<String> currencies;
+  final Map<String, double> totals;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Wrap(
+      spacing: TracklySpacing.base,
+      runSpacing: TracklySpacing.xs,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      children: [
+        for (final currency in currencies)
+          Text(
+            formatMoney(totals[currency] ?? 0, currency, locale: locale),
+            style: sans(20, weight: 700, color: theme.colorScheme.onSurface),
+          ),
+        Text(
+          caption,
+          style: sans(14, color: theme.colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+/// One chip per currency; picking one switches the chart beneath.
+class _CurrencyChips extends StatelessWidget {
+  const _CurrencyChips({
+    required this.currencies,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<String> currencies;
+  final String selected;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: TracklySpacing.sm,
+      children: [
+        for (final currency in currencies)
+          ChoiceChip(
+            label: Text(currency),
+            selected: currency == selected,
+            onSelected: (_) => onSelected(currency),
+          ),
+      ],
+    );
+  }
+}
+
 class _TypeBreakdown extends StatelessWidget {
   const _TypeBreakdown({required this.summary});
 
@@ -603,10 +705,17 @@ class _InsightCard extends StatelessWidget {
 }
 
 /// What has been paid this month against what the month costs.
-class _PaidThisMonth extends StatelessWidget {
+class _PaidThisMonth extends StatefulWidget {
   const _PaidThisMonth({required this.summary});
 
   final InsightsSummary summary;
+
+  @override
+  State<_PaidThisMonth> createState() => _PaidThisMonthState();
+}
+
+class _PaidThisMonthState extends State<_PaidThisMonth> {
+  String? _picked;
 
   @override
   Widget build(BuildContext context) {
@@ -614,8 +723,19 @@ class _PaidThisMonth extends StatelessWidget {
     final theme = Theme.of(context);
     final tokens = context.tokens;
     final locale = Localizations.localeOf(context).toString();
-    final currencies = summary.monthProgress.keys.toList()..sort();
-    final nothingPaid = summary.monthProgress.values.every((p) => p.paid <= 0);
+    final progress = widget.summary.monthProgress;
+    final currencies = progress.keys.toList()..sort();
+    final nothingPaid = progress.values.every((p) => p.paid <= 0);
+
+    // Biggest month first, unless the user has picked one that still exists.
+    final selected = currencies.contains(_picked)
+        ? _picked!
+        : currencies.isEmpty
+        ? ''
+        : (currencies.toList()..sort(
+                (a, b) => progress[b]!.total.compareTo(progress[a]!.total),
+              ))
+              .first;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,14 +753,34 @@ class _PaidThisMonth extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final (index, currency) in currencies.indexed) ...[
-                  if (index > 0) const SizedBox(height: TracklySpacing.base),
-                  PaidWeeksChart(
-                    weeks: summary.monthProgress[currency]!.weeks,
-                    currency: currency,
+                if (currencies.length > 1) ...[
+                  _CurrencyTotals(
+                    currencies: currencies,
+                    totals: {for (final c in currencies) c: progress[c]!.paid},
                     locale: locale,
+                    caption: l10n.insightsChartPaid,
                   ),
+                  const SizedBox(height: TracklySpacing.md),
+                  _CurrencyChips(
+                    currencies: currencies,
+                    selected: selected,
+                    onSelected: (currency) =>
+                        setState(() => _picked = currency),
+                  ),
+                  const SizedBox(height: TracklySpacing.base),
                 ],
+                if (selected.isNotEmpty)
+                  AnimatedSwitcher(
+                    duration: motionDuration(context, Motion.swap),
+                    child: KeyedSubtree(
+                      key: ValueKey(selected),
+                      child: PaidWeeksChart(
+                        weeks: progress[selected]!.weeks,
+                        currency: selected,
+                        locale: locale,
+                      ),
+                    ),
+                  ),
                 if (nothingPaid) ...[
                   const SizedBox(height: TracklySpacing.sm),
                   Text(
